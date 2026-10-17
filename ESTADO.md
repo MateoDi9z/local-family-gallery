@@ -13,13 +13,12 @@
   - Se arregló una carrera de migraciones entre api y worker.
 - 2026-10-17 · E2.infra (mergeada): imagen de producción, Caddy con DuckDNS, compose, CI, `deploy.sh` y la guía del servidor.
 - 2026-10-17 · E2.ingesta (mergeada): asistente, PIN, miembros, tus con reanudación, deduplicación, resumen de lote, `/files`, Atajo y mover de disco. 31 tests en verde.
-- 2026-10-17 · E2 todavía en ramas:
-  - `medios/e2`: cola, pipeline, geo y rutas de lectura. 56 tests y 3 de `test:media` en verde;
-  - `frontend/e2`: PWA (globo, galería, visor, subida, compartir). Faltan los e2e contra el backend real.
+- 2026-10-17 · E2.medios (mergeada): cola, pipeline, geo, viajes, parecidos y rutas de lectura. 56 tests y 3 de `test:media` en verde.
+- 2026-10-17 · E2 todavía en rama: `frontend/e2` (PWA). Faltan los e2e contra el backend real.
 
 ## Falta
 
-- E3: mergear medios y frontend, y los e2e de Playwright contra el backend real.
+- E3: mergear el frontend y los e2e de Playwright contra el backend real.
 
 ## Cómo retomar
 
