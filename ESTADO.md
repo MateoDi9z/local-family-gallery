@@ -11,10 +11,11 @@
   - Biome, typecheck (TS 7), CI (`ci` + guardia) en verde;
   - imagen `dev` y 7 fixtures sintéticos; skills.
   - Se arregló una carrera de migraciones entre api y worker.
+- 2026-10-17 · E2.ingesta: asistente, PIN, miembros, subidas tus con reanudación, deduplicación, resumen de lote, `/files`, Atajo y mover de disco. 31 tests en verde.
 
 ## Falta
 
-- E2 en adelante (ver `PLAN.md`).
+- E3: integrar `infra/e2`, `ingesta/e2`, `medios/e2` y `frontend/e2`. Correr `test:media` y los e2e.
 
 ## Cómo retomar
 
