@@ -6,7 +6,7 @@ import { createLogger } from "./log";
 
 test("GET /api/health responde y las migraciones aplican", async () => {
   const db = openDb(":memory:");
-  expect(migrate(db)).toEqual(["001_init.sql"]);
+  expect(migrate(db)).toEqual(["001_init.sql", "002_batch_items.sql"]);
   expect(migrate(db)).toEqual([]);
   const app = createApp({ db, config: loadConfig({ WEB_DIST: "/nonexistent" }), log: createLogger("error") });
   const res = await app.request("/api/health");

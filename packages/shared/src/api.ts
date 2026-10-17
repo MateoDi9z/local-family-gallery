@@ -203,7 +203,11 @@ export const ShortcutToken = z.object({
 });
 /** El token en claro se muestra una sola vez. */
 export const ShortcutTokenCreated = ShortcutToken.extend({ token: z.string() });
-export const ShortcutUploadResponse = z.object({ mediaId: Id, duplicate: z.boolean() });
+/** El Atajo puede mandar varios archivos (campo `file` repetido) en un mismo request = un lote. */
+export const ShortcutUploadResponse = z.object({
+  batchId: Id,
+  items: z.array(z.object({ name: z.string(), mediaId: Id, duplicate: z.boolean() })),
+});
 
 /** URLs firmadas y de corta duración: el Chromecast no tiene la cookie del dispositivo. */
 export const CastSignRequest = z.object({ mediaIds: z.array(Id).min(1).max(500) });

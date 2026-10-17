@@ -129,6 +129,9 @@ IDs: ULID en texto. Fechas: ISO 8601 en UTC, más el offset original cuando se c
 ```
 settings        key PK, value JSON
                   claves: gallery_name, home_lat, home_lon, pin_hash, setup_done
+                  [CAMBIO E1] claves reales: gallery_name, home {lat,lon}, pin_hash, setup_done,
+                  cast_secret (HMAC de URLs para Chromecast), gpu {nvenc, checkedAt} (lo escribe el worker)
+                  [CAMBIO E1] migración 002: batch_items(batch_id, media_id, duplicate) para el resumen del lote
 
 members         id PK, name, color, created_at, archived_at NULL
 
