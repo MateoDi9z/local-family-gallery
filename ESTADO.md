@@ -11,18 +11,17 @@
   - Biome, typecheck (TS 7), CI (`ci` + guardia) en verde;
   - imagen `dev` y 7 fixtures sintéticos; skills.
   - Se arregló una carrera de migraciones entre api y worker.
-- 2026-10-17 · E2.infra (mergeada): imagen de producción, Caddy con DuckDNS, compose, CI, `deploy.sh` y la guía del servidor.
-- 2026-10-17 · E2.ingesta (mergeada): asistente, PIN, miembros, tus con reanudación, deduplicación, resumen de lote, `/files`, Atajo y mover de disco. 31 tests en verde.
-- 2026-10-17 · E2.medios (mergeada): cola, pipeline, geo, viajes, parecidos y rutas de lectura. 56 tests y 3 de `test:media` en verde.
-- 2026-10-17 · E2.frontend (mergeada): PWA en español (asistente, globo, galería, visor, subida, compartir, administración). Faltan los e2e contra el backend real.
+- 2026-10-17 · E2 mergeada a `main`: infra, ingesta (31 tests), medios (56 + 3 de `test:media`) y la PWA.
+- 2026-10-17 · E3: e2e de Android en verde contra la imagen de producción (asistente → subir `foto-gps.jpg` → globo → visor → original idéntico).
 
 ## Falta
 
-- E3: e2e de Playwright contra el backend real, y publicar las imágenes en GHCR.
+- Que CI quede en verde y que el workflow `images` publique en GHCR.
+- E4 (QA) y E5 (despliegue en el servidor).
 
 ## Cómo retomar
 
-- `PLAN.md` marca las etapas (✅/🔄). Las ramas `infra/…`, `ingesta/…`, `medios/…` y `frontend/…` son de E2, cada una en su worktree bajo `../lfg-wt/`.
+- `PLAN.md` marca las etapas (✅/🔄). Los worktrees de E2 siguen en `../lfg-wt/`; el código integrado está en `main`.
 
 ## Para revisar el humano
 

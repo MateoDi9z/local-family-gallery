@@ -48,7 +48,7 @@ Pruebas mínimas, descartables, para validar el stack antes de construir encima.
 
 **Terminado cuando:** CI está en verde en `main`, `bun run dev` responde `GET /api/health` y los contratos compilan.
 
-### E2 — Construcción en paralelo · 4 subagentes · 🔄
+### E2 — Construcción en paralelo · 4 subagentes · ✅
 Cada subagente trabaja en su worktree y su rama, solo en su área (§4), y respeta los contratos. El frontend trabaja contra un mock de la API generado desde los contratos hasta la integración.
 
 #### E2.infra · ✅
@@ -89,8 +89,8 @@ Cada subagente trabaja en su worktree y su rama, solo en su área (§4), y respe
 
 **Terminado cuando:** con los fixtures sintéticos, cada trabajo produce su salida y tiene su test: el HEIC genera miniatura bien orientada; el MOV HDR sale como MP4 SDR bt709 con faststart; el GPS del MOV se lee; la foto sin GPS recibe una sugerencia de otro miembro; los viajes se detectan; los duplicados parecidos se sugieren.
 
-#### E2.frontend · 🔄
-> [CAMBIO E2] Código en `frontend/e2` (2026-10-17), contra el mock. Lint y typecheck en verde. Los e2e contra el backend real son de E3.
+#### E2.frontend · ✅
+> [CAMBIO E2] Código mergeado (2026-10-17). El mock queda como servidor manual; la app habla con la API real.
 - Base: PWA (`vite-plugin-pwa`) con manifest y Web Share Target hacia `/compartir`, el service worker que recibe los archivos compartidos, el módulo de textos (español) y el tema cálido y accesible.
 - Pantallas:
   - asistente de primer uso, con mapa para marcar la casa;
@@ -105,7 +105,8 @@ Cada subagente trabaja en su worktree y su rama, solo en su área (§4), y respe
 
 **Terminado cuando:** los flujos de Playwright en viewport de Android pasan contra el backend real después de la integración, y en el build de producción el Lighthouse de la PWA es instalable.
 
-### E3 — Integración · coordinador · ⬜
+### E3 — Integración · coordinador · 🔄
+> [CAMBIO E3] Ramas mergeadas a `main` en orden. El e2e de Android (`apps/web/e2e/flujo.e2e.ts`) pasó contra `docker-compose.e2e.yml`: asistente, subida del fixture con GPS, globo, visor y original byte a byte. Falta el verde de CI y las imágenes en GHCR.
 - Mergear las ramas a `main` en orden: infra → ingesta → medios → frontend.
 - Sacar el mock y apuntar el frontend a la API real.
 - `docker-compose.dev.yml` completo y flujo de punta a punta: asistente → subir fixtures → aparecen en el globo → abrir el visor → descargar el original.
