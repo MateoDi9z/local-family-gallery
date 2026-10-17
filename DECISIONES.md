@@ -123,3 +123,36 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 
 - **Decisión:** `partialHash` = SHA-256 hex de `tamaño (uint64 big-endian) ‖ primer MiB ‖ último MiB`. Si el archivo pesa ≤ 2 MiB, se hashea completo después del tamaño. Va en `packages/shared` con un test de vectores conocidos.
 - **Por qué:** el cliente y el servidor tienen que calcular exactamente lo mismo.
+
+## 2026-10-17 — E1 · Contratos: claves en inglés
+
+- **Decisión:** las claves JSON y las rutas siguen la convención de identificadores en inglés de `CLAUDE.md`. Por ejemplo, `newCount`, `duplicateCount` y `noLocation` en lugar de `nuevos`, `duplicados` y `sinUbicacion`, y `/inbox/no-location` y `/inbox/similar`. Fuente única: `packages/shared/src/{api,endpoints,jobs}.ts`.
+- **Por qué:** el borrador del PLAN mezclaba los dos idiomas. Los textos visibles siguen en español, en el módulo de traducciones.
+
+## 2026-10-17 — E1 · Contratos agregados al PLAN
+
+- **Decisión:** se suman cuatro piezas que la SPEC necesita y el PLAN no tenía:
+  - `POST /cast/sign`: URLs firmadas de corta duración, porque el Chromecast no tiene la cookie del dispositivo;
+  - `DELETE /media/:id`: borrado explícito. El original va a una papelera (`deleted_at`) y nunca se borra nada solo;
+  - `POST /admin/jobs/retry`;
+  - un filtro `noLocation` en `/media`.
+- **Columnas nuevas en `media`:**
+  - `partial_hash`, para el prechequeo;
+  - `file_modified_at`, el `lastModified` del cliente;
+  - `live_photo_id`, el ContentIdentifier, que deja lista la Fase 2;
+  - `hdr`, `suggestion_confidence` y `deleted_at`.
+- **Simplificación:** la marca "zona de <ciudad>" (lugar a más de 50 km) queda afuera del Hito A. El lugar se asigna igual.
+
+## 2026-10-17 — E1 · Storage y encolado son del coordinador
+
+- **Decisión:** `apps/server/src/storage/` (volúmenes, elección de disco, rutas, escritura atómica) y `src/jobs/enqueue.ts` los escribe el coordinador en E1.
+- **Por qué:** ingesta y medios dependen los dos de esas piezas. Hechas antes, pueden trabajar en paralelo sin bloquearse.
+- **Cómo se nombra el original:** al subirlo, ingesta lo nombra con el `lastModified` del cliente, o con la hora de subida si no hay. Cuando `extract_metadata` conoce la fecha real, medios lo **renombra** dentro del mismo disco (rename atómico; los bytes no cambian).
+- **Alternativa descartada:** correr exiftool de forma sincrónica al terminar cada subida. Acopla las dos áreas y hace más lento el final de la subida.
+
+## 2026-10-17 — E1 · Tests de medios y e2e
+
+- **Tests de medios:** los que necesitan vips, exiftool o ffmpeg usan `mediaTest` (`apps/server/src/test-utils.ts`). Corren solo con `MEDIA_TESTS=1`, dentro de la imagen `dev` (`bun run test:media`), con `node_modules` en un volumen de Docker aparte.
+- **e2e:** los archivos se llaman `*.e2e.ts` para que `bun test` no los levante.
+- **HTTPS en desarrollo:** no se usa. `localhost` ya es un contexto seguro para la PWA y el service worker.
+- **Fixtures:** `bun run fixtures` genera 7 archivos dentro de la imagen `dev` (jellyfin-ffmpeg trae zscale y libx265).

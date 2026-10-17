@@ -2,9 +2,26 @@
   "name": "local-family-gallery",
   "private": true,
   "type": "module",
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "prepare": "git config core.hooksPath .githooks",
+    "dev": "bun scripts/dev.ts",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "typecheck": "tsc -p packages/shared && tsc -p apps/server && tsc -p apps/web && tsc -p scripts",
+    "test": "bun test",
+    "test:media": "bun scripts/test-media.ts",
+    "e2e": "cd apps/web && bun --bun playwright test",
+    "fixtures": "bun scripts/fixtures.ts",
+    "db:migrate": "bun apps/server/src/main.ts migrate",
     "check:public": "bun scripts/check-public-repo.ts --all"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "@types/bun": "^1.4.3",
+    "typescript": "^7.0.2"
   }
 }

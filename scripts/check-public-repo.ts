@@ -28,7 +28,9 @@ export function findViolations(entries: Entry[], manifest: Manifest, denylist: s
     if (path.startsWith("fixtures/") && path !== MANIFEST_PATH) {
       if (bytes.length > MAX_FIXTURE_BYTES) out.push(`${path}: fixture de más de 2 MB`);
       if (manifest[path] !== sha256(bytes))
-        out.push(`${path}: fixture que no figura (o no coincide) en ${MANIFEST_PATH}; regenerá con \`bun run fixtures\``);
+        out.push(
+          `${path}: fixture que no figura (o no coincide) en ${MANIFEST_PATH}; regenerá con \`bun run fixtures\``,
+        );
     } else if (MEDIA_EXT.test(path)) {
       out.push(`${path}: imagen o video fuera de fixtures/`);
     }
@@ -43,7 +45,11 @@ export function findViolations(entries: Entry[], manifest: Manifest, denylist: s
 
 /** Todo lo que ignora git también tiene que quedar fuera de la imagen Docker. */
 export function missingDockerignore(gitignore: string, dockerignore: string): string[] {
-  const lines = (s: string) => s.split("\n").map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
+  const lines = (s: string) =>
+    s
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l && !l.startsWith("#"));
   const docker = new Set(lines(dockerignore));
   return lines(gitignore).filter((l) => !docker.has(l));
 }
@@ -67,13 +73,18 @@ if (import.meta.main) {
         path,
         bytes: git("show", `:${path}`),
       }))
-    : await Promise.all(names(git("ls-files", "-z")).map(async (path) => ({ path, bytes: await Bun.file(path).bytes() })));
+    : await Promise.all(
+        names(git("ls-files", "-z")).map(async (path) => ({ path, bytes: await Bun.file(path).bytes() })),
+      );
 
   const manifestText = staged
     ? new TextDecoder().decode(Bun.spawnSync(["git", "show", `:${MANIFEST_PATH}`]).stdout)
     : await readText(MANIFEST_PATH);
   const manifest: Manifest = manifestText ? JSON.parse(manifestText) : {};
-  const denylist = [...(await readText(".denylist.local")).split("\n"), ...(process.env.PRIVATE_DENYLIST ?? "").split("\n")];
+  const denylist = [
+    ...(await readText(".denylist.local")).split("\n"),
+    ...(process.env.PRIVATE_DENYLIST ?? "").split("\n"),
+  ];
 
   const problems = findViolations(entries, manifest, denylist);
   for (const l of missingDockerignore(await readText(".gitignore"), await readText(".dockerignore")))

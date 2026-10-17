@@ -1,1 +1,9 @@
-{}
+{
+  "fixtures/captura.png": "5a56b20ffc5a0fa5ee422ff0b801c6d2c111c12e7a922d337f8f898c2c96281c",
+  "fixtures/foto-gps.jpg": "3c15adb82278c27940cc368e7d6d760bbcfae0f98af77296e6d402db439ce70f",
+  "fixtures/foto-parecida.jpg": "790a9dd95e9be567992690edc9862f24c33dbddff56983dd0710bd508f8fe013",
+  "fixtures/foto-rotada.heic": "f02090f1fc98dc87384e3c6508a05d6f6110d8ce6fec40843f61f91762e33026",
+  "fixtures/foto-sin-gps.jpg": "b5a53066b2fde4a1d174595916a2d5583caef7cbb96a84786bc9fae169ca765a",
+  "fixtures/video-hdr.mov": "964353e0c253b3c8a7c764a66f0f4f8fa83c1a6672a33a5385863a82634c85ca",
+  "fixtures/video-sdr.mp4": "7d38dcfc63fc0369a96aa21ea93538cd7ee2fd6d3e3ef4a25d55df3f7ba0153f"
+}

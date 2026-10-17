@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { MAX_FIXTURE_BYTES, findViolations, missingDockerignore } from "./check-public-repo";
+import { findViolations, MAX_FIXTURE_BYTES, missingDockerignore } from "./check-public-repo";
 
 const bytes = (s: string) => new TextEncoder().encode(s);
 const sha = (s: string) => new Bun.CryptoHasher("sha256").update(s).digest("hex");
@@ -49,7 +49,10 @@ test("fixtures: fuera del manifiesto, con hash distinto o de más de 2 MB", () =
 });
 
 test("lista privada: detecta sin importar mayúsculas y no imprime el término", () => {
-  const v = findViolations([{ path: "README.md", bytes: bytes("vivo en Calle Falsa 123") }], {}, ["calle falsa 123", ""]);
+  const v = findViolations([{ path: "README.md", bytes: bytes("vivo en Calle Falsa 123") }], {}, [
+    "calle falsa 123",
+    "",
+  ]);
   expect(v).toHaveLength(1);
   expect(v[0]).not.toContain("falsa");
 });

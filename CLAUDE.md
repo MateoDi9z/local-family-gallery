@@ -72,6 +72,7 @@ Scripts de la raíz que tienen que existir y funcionar. Si cambian, se actualiza
 | `bun run e2e` | Playwright en viewport de Android |
 | `bun run fixtures` | Genera los medios sintéticos de prueba |
 | `bun run db:migrate` | Aplica migraciones |
+| `bun run format` | Biome con arreglos automáticos |
 | `bun run check:public` | Guardia del repo público sobre todo el árbol (ver "Repo público") |
 
 **Antes de cada commit:** `bun run lint && bun run typecheck && bun test`.
@@ -102,13 +103,21 @@ Scripts de la raíz que tienen que existir y funcionar. Si cambian, se actualiza
 - **Configuración** solo por variables de entorno, documentadas en `deploy/.env.example`.
 - **Logs** estructurados, sin datos personales ni rutas completas de fotos en nivel info.
 
+## Tests
+
+- **Tests de medios:** los que usan vips, exiftool o ffmpeg van con `mediaTest` (`apps/server/src/test-utils.ts`). `bun test` los saltea y `bun run test:media` los corre dentro de la imagen.
+- **e2e:** se llaman `apps/web/e2e/*.e2e.ts`, nunca `.spec.ts` ni `.test.ts`, porque `bun test` los levantaría.
+- **Fixtures:** solo `fixtures/`, con la skill `generar-fixtures`.
+
 ## Pipeline de medios: trampas conocidas
 
 - **HEIC:** el sharp prearmado NO lo lee. Se usa libvips del sistema con libheif. Probar siempre con un `.heic` real.
 - **GPS en videos:** en los `.MOV` de iPhone está en metadata QuickTime, no en EXIF. Usar exiftool.
 - **HDR:** los videos de iPhone suelen ser HDR (HLG / Dolby Vision). Sin tone mapping a SDR quedan lavados. Verificar visualmente el resultado.
 - **GPU:** detectar NVENC al arrancar el worker y caer a libx264 si no está. En la Mac de desarrollo nunca hay GPU NVIDIA: el camino CPU tiene que funcionar siempre.
-- **Orientación:** aplicar la rotación EXIF al generar derivados.
+- **Orientación:** aplicar la rotación EXIF al generar derivados. En HEIC, vips ya aplica `irot`: nunca rotar a mano con el EXIF, porque se rotaría dos veces.
+- **Derivados sin metadata:** vips con `keep=none` + `--export-profile srgb`, y ffmpeg con `-map_metadata -1`. Si no, el GPS se copia a la miniatura.
+- **Rutas de vips:** `vipsthumbnail -o` es relativo al archivo de entrada, así que siempre se pasan rutas absolutas.
 - **Hash del cliente:** es solo un chequeo rápido. La verdad es el SHA-256 calculado en el servidor.
 - **iOS al subir:** Safari o Atajos pueden convertir a JPEG o quitar el GPS. Cualquier cambio en la subida desde iPhone se prueba con un archivo real.
 
