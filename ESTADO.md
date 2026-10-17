@@ -11,10 +11,15 @@
   - Biome, typecheck (TS 7), CI (`ci` + guardia) en verde;
   - imagen `dev` y 7 fixtures sintéticos; skills.
   - Se arregló una carrera de migraciones entre api y worker.
+- 2026-10-17 · E2 en ramas (todavía no mergeadas a `main`):
+  - `infra/e2`: imagen de producción, Caddy, compose, CI, `deploy.sh` y guía del servidor;
+  - `ingesta/e2`: asistente, PIN, tus con reanudación, dedup, resumen de lote, `/files` y Atajo (31 tests);
+  - `medios/e2`: cola, pipeline, geo y rutas de lectura (56 tests). Falta correr `bun run test:media`;
+  - `frontend/e2`: PWA (globo, galería, visor, subida, compartir). Faltan los e2e contra el backend real.
 
 ## Falta
 
-- E2 en adelante (ver `PLAN.md`).
+- E3: mergear en orden infra → ingesta → medios → frontend. Antes, `test:media` (Docker no estaba corriendo) y los e2e de Playwright.
 
 ## Cómo retomar
 

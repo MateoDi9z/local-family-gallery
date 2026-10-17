@@ -48,10 +48,11 @@ Pruebas mínimas, descartables, para validar el stack antes de construir encima.
 
 **Terminado cuando:** CI está en verde en `main`, `bun run dev` responde `GET /api/health` y los contratos compilan.
 
-### E2 — Construcción en paralelo · 4 subagentes · ⬜
+### E2 — Construcción en paralelo · 4 subagentes · 🔄
 Cada subagente trabaja en su worktree y su rama, solo en su área (§4), y respeta los contratos. El frontend trabaja contra un mock de la API generado desde los contratos hasta la integración.
 
-#### E2.infra · ⬜
+#### E2.infra · ✅
+> [CAMBIO E2] Código en `infra/e2` (2026-10-17). La publicación en GHCR queda para el merge a `main` (E3): el workflow solo corre ahí.
 - `docker/app.Dockerfile`: multi-stage sobre `oven/bun` Debian, con libvips + libheif, exiftool y ffmpeg (el elegido en E0). Una misma imagen para app y worker.
   > [CAMBIO E0] Base `oven/bun:1.4.3-debian` (trixie). Paquetes: `libvips-tools`, `libheif-plugin-libde265`, `libimage-exiftool-perl` y `jellyfin-ffmpeg7=7.1.4-3-trixie` (repo de Jellyfin), sin el ffmpeg de Debian. Sin secretos en `ARG`/`ENV`: la imagen es pública.
 - `docker/caddy.Dockerfile`: xcaddy con el módulo `caddy-dns/duckdns`.
@@ -67,7 +68,8 @@ Cada subagente trabaja en su worktree y su rama, solo en su área (§4), y respe
 
 **Terminado cuando:** las imágenes están en GHCR; `deploy/docker-compose.yml` levanta localmente con un `.env` de prueba y `/api/health` responde; `test:media` corre en CI.
 
-#### E2.ingesta · ⬜
+#### E2.ingesta · ✅
+> [CAMBIO E2] Código en `ingesta/e2` (2026-10-17). 31 tests en verde, incluido el e2e por API con los fixtures.
 - Módulo de almacenamiento: niveles rápido y grande, elección del disco grande con más espacio libre, rutas legibles y escritura atómica (temporal + rename).
 - Asistente de primer uso (API), miembros, PIN y sesión por dispositivo (cookie de larga duración), identidad por dispositivo.
 - Prechequeo de duplicados, endpoint tus, lotes, y finalización: SHA-256, deduplicación, mover al disco, crear el registro y encolar trabajos.
@@ -76,7 +78,8 @@ Cada subagente trabaja en su worktree y su rama, solo en su área (§4), y respe
 
 **Terminado cuando:** hay tests de deduplicación (mismo archivo dos veces = un solo registro), de subida cortada y reanudada, de elección de disco y de resumen de lote, y un e2e por API sube los fixtures y quedan encolados.
 
-#### E2.medios · ⬜
+#### E2.medios · 🔄
+> [CAMBIO E2] Código en `medios/e2` (2026-10-17). 56 tests unitarios en verde. Falta `bun run test:media` para los tres tests con vips, exiftool y ffmpeg.
 - Cola en `bun:sqlite`: tomar trabajos con lease, prioridades, reintentos con backoff, y liberar trabajos de un worker que murió.
 - Detección de GPU al arrancar (NVENC sí/no) y concurrencia configurable (imágenes: N, videos: 1).
 - Trabajos (§3.2): metadata, miniatura, versión mediana, poster, conversión de video, geocodificación, viajes, sugerencias de ubicación y hash perceptual.
@@ -86,7 +89,8 @@ Cada subagente trabaja en su worktree y su rama, solo en su área (§4), y respe
 
 **Terminado cuando:** con los fixtures sintéticos, cada trabajo produce su salida y tiene su test: el HEIC genera miniatura bien orientada; el MOV HDR sale como MP4 SDR bt709 con faststart; el GPS del MOV se lee; la foto sin GPS recibe una sugerencia de otro miembro; los viajes se detectan; los duplicados parecidos se sugieren.
 
-#### E2.frontend · ⬜
+#### E2.frontend · 🔄
+> [CAMBIO E2] Código en `frontend/e2` (2026-10-17), contra el mock. Lint y typecheck en verde. Los e2e contra el backend real son de E3.
 - Base: PWA (`vite-plugin-pwa`) con manifest y Web Share Target hacia `/compartir`, el service worker que recibe los archivos compartidos, el módulo de textos (español) y el tema cálido y accesible.
 - Pantallas:
   - asistente de primer uso, con mapa para marcar la casa;
