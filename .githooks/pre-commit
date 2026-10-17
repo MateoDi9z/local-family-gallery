@@ -1,0 +1,6 @@
+#!/bin/sh
+# Instalado por `bun install` (script prepare). Ver "Repo público" en CLAUDE.md.
+set -e
+command -v gitleaks >/dev/null 2>&1 || { echo "Falta gitleaks: brew install gitleaks"; exit 1; }
+bun scripts/check-public-repo.ts --staged
+gitleaks git --staged --redact --no-banner --config .gitleaks.toml .

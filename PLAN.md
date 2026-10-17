@@ -20,7 +20,9 @@ Plan de construcción. **`SPEC.md` define qué se construye; este archivo define
 
 Estado: ⬜ pendiente · 🔄 en curso · ✅ terminada
 
-### E0 — Spikes de riesgo · coordinador · en serie · ⬜
+### E0 — Spikes de riesgo · coordinador · en serie · ✅
+
+> [CAMBIO E0] Terminada el 2026-10-17. Todos los spikes funcionaron sin plan B; resultados y ajustes en `DECISIONES.md`. Validados con archivos **sintéticos**: HEIC, MOV HDR y GPS en MOV quedan pendientes de un archivo real de iPhone (E2.medios / E4).
 Pruebas mínimas, descartables, para validar el stack antes de construir encima.
 
 | Spike | Cómo se prueba | Plan B |
@@ -38,8 +40,9 @@ Pruebas mínimas, descartables, para validar el stack antes de construir encima.
 - TypeScript estricto, Biome y `bun test` configurados, más los scripts de la raíz de `CLAUDE.md`.
 - `packages/shared`: todos los contratos de la §3 (esquemas zod, tipos de API y de trabajos).
 - Migración inicial de la base (§3.1).
-- `.claude/agents/` (§4) y `.claude/skills/` (`generar-fixtures`, `probar-flujo-android`, `release-deploy`).
-- Script `bun run fixtures` funcionando.
+- > [CAMBIO E0] Ya hechos en E0: `.claude/agents/`, `.gitignore`, `.dockerignore` y la guardia del repo público (hooks + workflow `guardia-repo-publico`, ver CLAUDE.md "Repo público").
+- `.claude/skills/` (`generar-fixtures`, `probar-flujo-android`, `release-deploy`).
+- Script `bun run fixtures` funcionando. > [CAMBIO E0] Escribe `fixtures/manifest.json` (path → SHA-256); GPS de monumentos públicos, cámara y fechas genéricas; HEIC con rotación `irot` (JPEG con EXIF=6 → `heif-enc`); MOV HDR convertido de verdad a HLG (no solo etiquetado); GPS de MOV escrito con `exiftool -n`.
 - CI mínimo: lint + typecheck + tests en cada PR.
 - `bun run dev` levanta API, worker y web, aunque estén vacíos.
 
@@ -50,6 +53,7 @@ Cada subagente trabaja en su worktree y su rama, solo en su área (§4), y respe
 
 #### E2.infra · ⬜
 - `docker/app.Dockerfile`: multi-stage sobre `oven/bun` Debian, con libvips + libheif, exiftool y ffmpeg (el elegido en E0). Una misma imagen para app y worker.
+  > [CAMBIO E0] Base `oven/bun:1.4.3-debian` (trixie). Paquetes: `libvips-tools`, `libheif-plugin-libde265`, `libimage-exiftool-perl` y `jellyfin-ffmpeg7=7.1.4-3-trixie` (repo de Jellyfin), sin el ffmpeg de Debian. Sin secretos en `ARG`/`ENV`: la imagen es pública.
 - `docker/caddy.Dockerfile`: xcaddy con el módulo `caddy-dns/duckdns`.
 - `docker-compose.dev.yml` para la Mac y `deploy/docker-compose.yml` de producción, que usa GHCR:
   - GPU NVIDIA opcional en el worker (si no hay, arranca igual);
@@ -57,7 +61,7 @@ Cada subagente trabaja en su worktree y su rama, solo en su área (§4), y respe
   - `restart: unless-stopped`;
   - volúmenes para el disco rápido y los grandes.
 - GitHub Actions:
-  - PR: lint, typecheck, `bun test`, `test:media` dentro de la imagen y e2e;
+  - PR: lint, typecheck, `bun test`, `test:media` dentro de la imagen y e2e (`bun --bun playwright test`, sin baselines de capturas);
   - `main`: build `linux/amd64` de las dos imágenes y push a GHCR con tags `latest` y `sha-<corto>`.
 - `deploy/`: `.env.example`, `deploy.sh` (pull, up, migraciones, healthcheck), `SETUP-SERVIDOR.md` y un timer de systemd opcional.
 
@@ -179,11 +183,11 @@ Menor prioridad = se ejecuta antes.
 |---|---|---|---|
 | `extract_metadata` | 0 | exiftool → fecha, GPS, cámara, orientación, dimensiones, duración | `thumb` o `video_poster`, más `geocode` si hay GPS, o `suggest_location` si no hay |
 | `thumb` | 0 | Miniatura WebP ~400 px | `preview`, `phash` |
-| `video_poster` | 0 | Frame representativo → WebP | `video_transcode` |
+| `video_poster` | 0 | Frame representativo → WebP. [CAMBIO E0] Genera también la variante `thumb` del video, para que la grilla no quede vacía | `video_transcode` |
 | `geocode` | 1 | Lugar más cercano (cities500) → `place_id` | `assign_trips` (con debounce) |
 | `suggest_location` | 1 | Busca la foto con GPS más cercana en tiempo de otro miembro (§5) | `geocode` si encuentra |
 | `preview` | 2 | Versión mediana WebP ~2048 px | — |
-| `phash` | 2 | dHash de 64 bits sobre la miniatura | `find_similar` |
+| `phash` | 2 | dHash de 64 bits sobre la miniatura. [CAMBIO E0] Solo fotos | `find_similar` (si el hash no es casi constante) |
 | `find_similar` | 3 | Compara con fotos ±10 min → `similar_pairs` | — |
 | `assign_trips` | 3 | Recalcula los viajes (global, con debounce de 30 s) | — |
 | `video_transcode` | 5 | MP4 H.264/AAC 1080p, faststart, tone mapping HDR, NVENC si hay | — |
@@ -205,6 +209,7 @@ GET    /settings  PATCH /settings
 **Subida**
 ```
 POST   /uploads/precheck                { files:[{ size, partialHash }] } → [{ exists, mediaId? }]
+                                         [CAMBIO E0] partialHash = SHA-256 hex de (size uint64 BE ‖ primer MiB ‖ último MiB); ≤ 2 MiB: el archivo entero
 POST   /batches                         { source } → { batchId }
 *      /tus/*                           tus (metadata: filename, filetype, batchId, lastModified)
 GET    /batches/:id/summary             → { total, nuevos, duplicados, places[], sinUbicacion[{ mediaId, sugerencia? }] }
@@ -274,10 +279,12 @@ LOG_LEVEL=info
 |---|---|---|
 | coordinador (sesión principal) | raíz, `packages/shared`, migraciones, integración, `PLAN.md`, `DECISIONES.md`, `ESTADO.md` | E0, E1, E3 |
 | infra | `docker/`, `deploy/`, `.github/`, `docker-compose.dev.yml` | E2 |
-| ingesta | `apps/server/src/{api/rutas de setup, auth, uploads, shortcut}`, `apps/server/src/storage/` | E2 |
-| medios | `apps/server/src/{worker, media, geo}` | E2 |
+| ingesta | `apps/server/src/{api/rutas de setup, auth, members, settings, uploads, tus, batches, shortcut, files}`, `apps/server/src/storage/` | E2 |
+| medios | `apps/server/src/{worker, media, geo}` y las rutas `/home`, `/places`, `/trips`, `/media*`, `/inbox`, `/admin/status`, `/events` | E2 |
 | frontend | `apps/web/` | E2 |
 | qa | solo lectura + reportes en `ESTADO.md` | E4 |
+
+> [CAMBIO E0] Los endpoints de lectura, bandejas, admin, SSE y `/files` no tenían dueño. El esqueleto del servidor (`app.ts`, montaje de rutas) es del coordinador en E1.
 
 **Cambiar un contrato:** el subagente lo pide, el coordinador lo cambia en `packages/shared`, avisa al resto y lo anota en `DECISIONES.md`.
 
@@ -294,8 +301,10 @@ LOG_LEVEL=info
   4. Nombre automático: el lugar con más fotos + mes y año. Si `name_is_custom`, el nombre no se pisa.
 - **Duplicados:**
   - idénticos: SHA-256, se descartan en la subida;
-  - parecidos: dHash de 64 bits, distancia de Hamming ≤ 6, dentro de ±10 min. Solo sugerencia.
+  - parecidos: dHash de 64 bits, distancia de Hamming ≤ 6, dentro de ±10 min. Solo sugerencia. [CAMBIO E0] Se hashea siempre nuestra miniatura de 400 y se ignoran los hashes casi constantes (≤ 8 bits en 1 o en 0).
 - **Fecha:** EXIF `DateTimeOriginal` con su offset, si no QuickTime `CreationDate`, si no la fecha del archivo y, como último recurso, la de subida. La fuente se guarda.
+  > [CAMBIO E0] Orden exacto de tags en `DECISIONES.md`. La "fecha del archivo" es solo el `lastModified` que manda el cliente por tus (nunca la `FileModifyDate` del disco del servidor, que es la de subida). Se descartan las fechas `0000:00:00`.
+- > [CAMBIO E0] **Live Photos:** hasta la Fase 2 el MOV de una Live Photo entra como un video más.
 
 ---
 

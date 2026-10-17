@@ -24,6 +24,23 @@ Galería privada de fotos y videos de viajes para una familia. Corre en un servi
 5. **Subir tiene que ser fácil:** ante cualquier duda de diseño, gana la opción que le pida menos pasos al usuario.
 6. **Solo red local:** nada se expone a internet ni depende de servicios pagos. Única excepción: los mapas de OpenFreeMap.
 
+## Repo público
+
+El repo y las imágenes de GHCR son **públicos**. La protección es automática, pero no reemplaza el cuidado.
+
+- **Guardia automática** (`scripts/check-public-repo.ts` + gitleaks con `.gitleaks.toml`):
+  - hook `pre-commit` (se instala con `bun install` vía `core.hooksPath=.githooks`) y `pre-push`;
+  - el workflow `guardia-repo-publico` corre lo mismo en cada push y PR.
+  - Bloquea: imágenes o videos fuera de `fixtures/`; fixtures de más de 2 MB o que no estén (con su SHA-256) en `fixtures/manifest.json`; `.env`, bases SQLite, `fixtures-reales/`, `data/`, `storage/`, `uploads/`; secretos, tokens y subdominios reales de DuckDNS.
+  - **Lista privada:** `.denylist.local` (gitignored, un término por línea: dominio, IP de la casa, nombres) y el secret `PRIVATE_DENYLIST` en CI. El chequeo nunca imprime el término.
+  - Nunca usar `--no-verify`. Si la guardia frena algo legítimo, se ajusta la guardia en un commit aparte.
+- **Fixtures sintéticos:** GPS de lugares públicos famosos de otros países (monumentos), nunca la casa ni direcciones privadas. Fechas y cámaras genéricas ("Cámara de ejemplo"). Los genera `bun run fixtures`, que también escribe el manifiesto.
+- **Imágenes Docker:** sin `.env`, tokens, dominios, datos ni fotos adentro; nada de secretos en `ARG`/`ENV` del Dockerfile. Toda la configuración entra por variables de entorno al correr. `.dockerignore` tiene que contener todo `.gitignore` (lo verifica la guardia).
+- **CI, logs y artefactos** (capturas y reportes de Playwright, logs de tests): solo fixtures sintéticos. Nunca el dominio de DuckDNS, la IP de la casa ni nombres reales. No hacer `echo` de variables de entorno.
+- **Íconos de la PWA:** SVG o generados en el build; un PNG en el repo lo bloquea la guardia a propósito.
+- **Antes de cada push:** revisar el diff (`git diff origin/main...HEAD`) buscando datos personales.
+- **Si algo sensible ya se subió:** frenar todo y avisar al humano. Limpiar el historial implica reescribirlo y se hace con él, nunca por cuenta propia.
+
 ## Estructura
 
 ```
@@ -32,7 +49,8 @@ apps/web/           Frontend React + Vite (PWA)
 packages/shared/    Contratos: tipos, esquemas zod, endpoints, tipos de trabajos de la cola
 deploy/             Compose de producción, .env.example, deploy.sh, SETUP-SERVIDOR.md
 docker/             Dockerfiles (app/worker y caddy)
-scripts/            Utilidades (generar fixtures, mover archivos entre discos, etc.)
+scripts/            Utilidades (generar fixtures, mover archivos entre discos, guardia del repo público)
+.githooks/          Hooks de git (pre-commit, pre-push) de la guardia
 fixtures/           Medios sintéticos generados por script (se pueden commitear si son chicos)
 fixtures-reales/    Fotos reales de prueba — GITIGNORED
 .claude/agents/     Subagentes del proyecto
@@ -54,6 +72,7 @@ Scripts de la raíz que tienen que existir y funcionar. Si cambian, se actualiza
 | `bun run e2e` | Playwright en viewport de Android |
 | `bun run fixtures` | Genera los medios sintéticos de prueba |
 | `bun run db:migrate` | Aplica migraciones |
+| `bun run check:public` | Guardia del repo público sobre todo el árbol (ver "Repo público") |
 
 **Antes de cada commit:** `bun run lint && bun run typecheck && bun test`.
 **Antes de mergear a `main`:** además `bun run test:media` y `bun run e2e`.
@@ -106,6 +125,7 @@ Scripts de la raíz que tienen que existir y funcionar. Si cambian, se actualiza
 - Una rama por área o tarea: `infra/…`, `ingesta/…`, `medios/…`, `frontend/…`.
 - Commits chicos con Conventional Commits en español, por ejemplo: `feat(ingesta): reanudar subidas cortadas`.
 - Push frecuente: el humano sigue el progreso desde GitHub.
+- **Sin coautor:** ningún commit ni descripción de PR lleva `Co-Authored-By: Claude`, "Generated with Claude Code" ni nada parecido. Está desactivado en `.claude/settings.json`, el hook `commit-msg` lo rechaza y la guardia de CI revisa todo el historial.
 
 ## Trabajo con varios agentes
 

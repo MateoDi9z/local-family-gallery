@@ -1,0 +1,6 @@
+#!/bin/sh
+# Ningún commit lleva a Claude como coautor ni la firma "Generated with Claude Code".
+if grep -qiE '^co-authored-by:.*(claude|anthropic)|generated with .*claude' "$1"; then
+  echo "El mensaje del commit menciona a Claude como coautor o firma. Sacá esa línea (ver CLAUDE.md, Git)."
+  exit 1
+fi

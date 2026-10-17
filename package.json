@@ -1,0 +1,10 @@
+{
+  "name": "local-family-gallery",
+  "private": true,
+  "type": "module",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "prepare": "git config core.hooksPath .githooks",
+    "check:public": "bun scripts/check-public-repo.ts --all"
+  }
+}

@@ -1,0 +1,31 @@
+name: guardia-repo-publico
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  guardia:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+      - name: Medios, datos privados y lista privada
+        run: bun scripts/check-public-repo.ts --all
+        env:
+          # Términos privados (dominio, IP, nombres), uno por línea. Nunca se imprimen.
+          PRIVATE_DENYLIST: ${{ secrets.PRIVATE_DENYLIST }}
+      - name: Ningún commit con Claude como coautor
+        run: |
+          if git log --all --format=%B | grep -iE '^co-authored-by:.*(claude|anthropic)|generated with .*claude'; then
+            echo "Hay commits con Claude como coautor o firma"; exit 1
+          fi
+      - name: Secretos en todo el historial (gitleaks)
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz | tar xz gitleaks
+          ./gitleaks git --redact --no-banner --config .gitleaks.toml .

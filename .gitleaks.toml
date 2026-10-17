@@ -1,0 +1,18 @@
+title = "Galería familiar: reglas por defecto + dominio y token de DuckDNS"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "duckdns-subdominio"
+description = "Subdominio real de DuckDNS (va solo en el .env del servidor)"
+regex = '''(?i)\b[a-z0-9-]+\.duckdns\.org\b'''
+keywords = ["duckdns"]
+[[rules.allowlists]]
+regexes = ['''(?i)^(www|ejemplo|example|tu-subdominio)\.duckdns\.org$''']
+
+[[rules]]
+id = "duckdns-token"
+description = "Token de DuckDNS"
+regex = '''(?i)duckdns[a-z_]*\s*[=:]\s*["']?([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})'''
+keywords = ["duckdns"]

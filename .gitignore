@@ -1,0 +1,25 @@
+# Dependencias y builds
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+
+# Secretos y configuración local
+.env
+.env.*
+!.env.example
+.denylist.local
+
+# Fotos reales y datos (nunca al repo público)
+/fixtures-reales/
+/data/
+/storage/
+/uploads/
+*.sqlite
+*.sqlite-*
+*.db
+
+# Herramientas locales
+.codegraph/
+.DS_Store

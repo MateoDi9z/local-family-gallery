@@ -1,0 +1,26 @@
+# Todo lo de .gitignore (lo verifica scripts/check-public-repo.ts)
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.env
+.env.*
+!.env.example
+.denylist.local
+/fixtures-reales/
+/data/
+/storage/
+/uploads/
+*.sqlite
+*.sqlite-*
+*.db
+.codegraph/
+.DS_Store
+
+# Además, nada que la imagen pública no necesite
+.git
+.githooks/
+.github/
+.claude/
+fixtures/
