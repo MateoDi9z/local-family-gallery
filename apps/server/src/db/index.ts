@@ -7,33 +7,48 @@ const MIGRATIONS_DIR = join(import.meta.dir, "migrations");
 export function openDb(path: string): Database {
   if (path !== ":memory:") mkdirSync(dirname(path), { recursive: true });
   const db = new Database(path, { strict: true, create: true });
-  db.exec("PRAGMA journal_mode = WAL");
+  // busy_timeout primero: api y worker abren la base a la vez al arrancar.
+  db.exec("PRAGMA busy_timeout = 10000");
+  // Pasar a WAL no respeta busy_timeout cuando otro proceso está creando la base: reintentar.
+  for (let i = 0; ; i++) {
+    try {
+      db.exec("PRAGMA journal_mode = WAL");
+      break;
+    } catch (e) {
+      if (i >= 100 || (e as { code?: string }).code !== "SQLITE_BUSY") throw e;
+      Bun.sleepSync(50);
+    }
+  }
   db.exec("PRAGMA foreign_keys = ON");
-  db.exec("PRAGMA busy_timeout = 5000");
   db.exec("PRAGMA synchronous = NORMAL");
   return db;
 }
 
-/** Aplica en orden las migraciones `NNN_*.sql` que falten. Devuelve las aplicadas. */
+/**
+ * Aplica en orden las migraciones `NNN_*.sql` que falten. Devuelve las aplicadas.
+ * Todo en una transacción IMMEDIATE: si api y worker arrancan juntos, el segundo espera y no re-aplica.
+ */
 export function migrate(db: Database): string[] {
-  db.exec("CREATE TABLE IF NOT EXISTS schema_migrations (name TEXT PRIMARY KEY, applied_at TEXT NOT NULL)");
-  const done = new Set(
-    db
-      .query<{ name: string }, []>("SELECT name FROM schema_migrations")
-      .all()
-      .map((r) => r.name),
-  );
-  const pending = readdirSync(MIGRATIONS_DIR)
-    .filter((f) => /^\d{3}_.+\.sql$/.test(f) && !done.has(f))
+  const files = readdirSync(MIGRATIONS_DIR)
+    .filter((f) => /^\d{3}_.+\.sql$/.test(f))
     .sort();
-  for (const f of pending) {
-    const sql = readFileSync(join(MIGRATIONS_DIR, f), "utf8");
-    db.transaction(() => {
-      db.exec(sql);
-      db.query("INSERT INTO schema_migrations (name, applied_at) VALUES (?, ?)").run(f, new Date().toISOString());
-    })();
-  }
-  return pending;
+  return db
+    .transaction(() => {
+      db.exec("CREATE TABLE IF NOT EXISTS schema_migrations (name TEXT PRIMARY KEY, applied_at TEXT NOT NULL)");
+      const done = new Set(
+        db
+          .query<{ name: string }, []>("SELECT name FROM schema_migrations")
+          .all()
+          .map((r) => r.name),
+      );
+      const pending = files.filter((f) => !done.has(f));
+      for (const f of pending) {
+        db.exec(readFileSync(join(MIGRATIONS_DIR, f), "utf8"));
+        db.query("INSERT INTO schema_migrations (name, applied_at) VALUES (?, ?)").run(f, new Date().toISOString());
+      }
+      return pending;
+    })
+    .immediate();
 }
 
 /** Lee un valor JSON de `settings`. */

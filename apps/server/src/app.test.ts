@@ -14,3 +14,13 @@ test("GET /api/health responde y las migraciones aplican", async () => {
   expect(await res.json()).toEqual({ ok: true, version: "dev" });
   expect((await app.request("/api/nada")).status).toBe(404);
 });
+
+test("dos procesos migrando a la vez no se pisan", async () => {
+  const { mkdtemp } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const dir = await mkdtemp(join(tmpdir(), "lfg-mig-"));
+  const script = `import { migrate, openDb } from "${join(import.meta.dir, "db")}"; migrate(openDb("${join(dir, "x.sqlite")}"));`;
+  const procs = [0, 1, 2].map(() => Bun.spawn(["bun", "-e", script], { stderr: "pipe" }));
+  expect(await Promise.all(procs.map((p) => p.exited))).toEqual([0, 0, 0]);
+});

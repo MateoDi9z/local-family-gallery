@@ -5,9 +5,20 @@
 - 2026-10-17 · E0: los spikes de tus, Range, HEIC, dHash, GPS en MOV, HDR y Playwright funcionan. Resultados en `DECISIONES.md`; ajustes en `PLAN.md` (`[CAMBIO E0]`).
 - 2026-10-17 · Guardia del repo público: `pre-commit`, `pre-push` y el workflow `guardia-repo-publico`. Agentes en `.claude/agents/`.
 
+- 2026-10-17 · E1:
+  - monorepo, contratos en `packages/shared`, migración 001 y servidor Hono (`/api/health`);
+  - storage y encolado; web mínima;
+  - Biome, typecheck (TS 7), CI (`ci` + guardia) en verde;
+  - imagen `dev` y 7 fixtures sintéticos; skills.
+  - Se arregló una carrera de migraciones entre api y worker.
+
 ## Falta
 
-- E1 en adelante (ver `PLAN.md`).
+- E2 en adelante (ver `PLAN.md`).
+
+## Cómo retomar
+
+- `PLAN.md` marca las etapas (✅/🔄). Las ramas `infra/…`, `ingesta/…`, `medios/…` y `frontend/…` son de E2, cada una en su worktree bajo `../lfg-wt/`.
 
 ## Para revisar el humano
 

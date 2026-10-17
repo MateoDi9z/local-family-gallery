@@ -35,7 +35,7 @@ Pruebas mínimas, descartables, para validar el stack antes de construir encima.
 
 **Terminado cuando:** cada spike tiene su resultado y la opción elegida en `DECISIONES.md`, y este plan está ajustado si algo cambió.
 
-### E1 — Cimientos · coordinador · en serie · ⬜
+### E1 — Cimientos · coordinador · en serie · ✅
 - Monorepo con workspaces de Bun: `apps/server`, `apps/web`, `packages/shared`.
 - TypeScript estricto, Biome y `bun test` configurados, más los scripts de la raíz de `CLAUDE.md`.
 - `packages/shared`: todos los contratos de la §3 (esquemas zod, tipos de API y de trabajos).
