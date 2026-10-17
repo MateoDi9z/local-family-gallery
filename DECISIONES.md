@@ -150,6 +150,12 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 - **Cómo se nombra el original:** al subirlo, ingesta lo nombra con el `lastModified` del cliente, o con la hora de subida si no hay. Cuando `extract_metadata` conoce la fecha real, medios lo **renombra** dentro del mismo disco (rename atómico; los bytes no cambian).
 - **Alternativa descartada:** correr exiftool de forma sincrónica al terminar cada subida. Acopla las dos áreas y hace más lento el final de la subida.
 
+## 2026-10-17 — E3 · `up --wait` y el worker de e2e
+
+- **Decisión:** en `docker-compose.e2e.yml` el worker tiene un healthcheck que solo comprueba que el proceso 1 siga vivo (`bun -e process.kill(1,0)`).
+- **Por qué:** en el Compose del runner de GitHub, `docker compose up --wait` sale con error si algún servicio no tiene healthcheck (`container has no healthcheck configured`). En local, con un Compose más viejo, el mismo comando pasaba. El worker no abre un puerto.
+- **Alternativa:** esperar solo el healthcheck de la app en el workflow. Se descarta: el comentario del compose y CI dicen `up --wait`, y el fallo volvería en cualquier otro servicio sin chequeo.
+
 ## 2026-10-17 — E1 · Tests de medios y e2e
 
 - **Tests de medios:** los que necesitan vips, exiftool o ffmpeg usan `mediaTest` (`apps/server/src/test-utils.ts`). Corren solo con `MEDIA_TESTS=1`, dentro de la imagen `dev` (`bun run test:media`), con `node_modules` en un volumen de Docker aparte.

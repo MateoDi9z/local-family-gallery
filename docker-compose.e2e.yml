@@ -27,8 +27,14 @@ services:
   worker:
     <<: *e2e
     command: ["bun", "apps/server/src/main.ts", "worker"]
+    # Compose reciente falla `up --wait` si un servicio no tiene healthcheck.
+    # El worker no escucha HTTP: alcanza con que el proceso 1 siga vivo.
     healthcheck:
-      disable: true
+      test: ["CMD", "bun", "-e", "process.kill(1,0)"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
     depends_on:
       app:
         condition: service_healthy
