@@ -16,6 +16,8 @@ export async function inDocker(cmd: string[], env: Record<string, string> = {}):
   ]);
   if (built !== 0) return built;
   const envArgs = Object.entries(env).flatMap(([k, v]) => ["-e", `${k}=${v}`]);
+  // --ignore-scripts: el prepare configura hooks de git y adentro no hay repositorio
+  // (en un worktree, .git apunta afuera del directorio montado).
   return run([
     "docker",
     "run",
@@ -28,6 +30,6 @@ export async function inDocker(cmd: string[], env: Record<string, string> = {}):
     "lfg-dev",
     "sh",
     "-c",
-    `bun install --frozen-lockfile >/dev/null && ${cmd.join(" ")}`,
+    `bun install --frozen-lockfile --ignore-scripts >/dev/null && ${cmd.join(" ")}`,
   ]);
 }

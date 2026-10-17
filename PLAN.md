@@ -78,8 +78,8 @@ Cada subagente trabaja en su worktree y su rama, solo en su área (§4), y respe
 
 **Terminado cuando:** hay tests de deduplicación (mismo archivo dos veces = un solo registro), de subida cortada y reanudada, de elección de disco y de resumen de lote, y un e2e por API sube los fixtures y quedan encolados.
 
-#### E2.medios · 🔄
-> [CAMBIO E2] Código en `medios/e2` (2026-10-17). 56 tests unitarios en verde. Falta `bun run test:media` para los tres tests con vips, exiftool y ffmpeg.
+#### E2.medios · ✅
+> [CAMBIO E2] Código en `medios/e2` (2026-10-17). 56 tests unitarios y 3 de `test:media` (HEIC, MOV HDR y dHash) en verde.
 - Cola en `bun:sqlite`: tomar trabajos con lease, prioridades, reintentos con backoff, y liberar trabajos de un worker que murió.
 - Detección de GPU al arrancar (NVENC sí/no) y concurrencia configurable (imágenes: N, videos: 1).
 - Trabajos (§3.2): metadata, miniatura, versión mediana, poster, conversión de video, geocodificación, viajes, sugerencias de ubicación y hash perceptual.

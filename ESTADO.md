@@ -14,12 +14,12 @@
 - 2026-10-17 · E2 en ramas (todavía no mergeadas a `main`):
   - `infra/e2`: imagen de producción, Caddy, compose, CI, `deploy.sh` y guía del servidor;
   - `ingesta/e2`: asistente, PIN, tus con reanudación, dedup, resumen de lote, `/files` y Atajo (31 tests);
-  - `medios/e2`: cola, pipeline, geo y rutas de lectura (56 tests). Falta correr `bun run test:media`;
+  - `medios/e2`: cola, pipeline, geo y rutas de lectura. 56 tests y 3 de `test:media` (HEIC, MOV HDR → SDR, dHash) en verde;
   - `frontend/e2`: PWA (globo, galería, visor, subida, compartir). Faltan los e2e contra el backend real.
 
 ## Falta
 
-- E3: mergear en orden infra → ingesta → medios → frontend. Antes, `test:media` (Docker no estaba corriendo) y los e2e de Playwright.
+- E3: mergear en orden infra → ingesta → medios → frontend, y los e2e de Playwright contra el backend real.
 
 ## Cómo retomar
 

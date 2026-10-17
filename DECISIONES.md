@@ -156,3 +156,4 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 - **e2e:** los archivos se llaman `*.e2e.ts` para que `bun test` no los levante.
 - **HTTPS en desarrollo:** no se usa. `localhost` ya es un contexto seguro para la PWA y el service worker.
 - **Fixtures:** `bun run fixtures` genera 7 archivos dentro de la imagen `dev` (jellyfin-ffmpeg trae zscale y libx265).
+- **`bun install` dentro del contenedor** va con `--ignore-scripts`. El `prepare` configura los hooks de git, y en un worktree `.git` apunta afuera de la carpeta montada.
