@@ -1,0 +1,13 @@
+# Actualización automática (opcional): baja la imagen nueva y despliega solo si cambió.
+# Instalación: ver "Actualizaciones automáticas" en SETUP-SERVIDOR.md.
+[Unit]
+Description=Galería familiar: actualizar si hay versión nueva
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/galeria
+Environment=ONLY_IF_NEW=1
+ExecStart=/opt/galeria/deploy.sh
