@@ -1,0 +1,48 @@
+# Reverse proxy HTTPS de la galería. Todo lo personal entra por variables de entorno:
+#   DOMAIN         p. ej. ejemplo.duckdns.org (apunta a la IP LOCAL del servidor)
+#   DUCKDNS_TOKEN  token de la cuenta de DuckDNS
+# El certificado sale de Let's Encrypt por DNS-01: no hace falta abrir puertos en el router.
+#
+# Timeouts: Caddy no limita por defecto ni el tamaño del body ni el tiempo de lectura/escritura,
+# así que las partes de tus (50 MiB) y los archivos enteros del Atajo de iOS pasan sin cortes.
+
+{$DOMAIN} {
+	tls {
+		dns duckdns {$DUCKDNS_TOKEN}
+		# Resolver público para chequear el TXT: el DNS del router suele no verlo o filtrar DuckDNS.
+		resolvers 1.1.1.1 9.9.9.9
+	}
+
+	# Comprimir solo texto. Los medios ya vienen comprimidos y se sirven con Range.
+	# text/event-stream (SSE) queda afuera para que los eventos lleguen al instante.
+	encode zstd gzip {
+		match {
+			header Content-Type text/html*
+			header Content-Type text/css*
+			header Content-Type text/plain*
+			header Content-Type text/javascript*
+			header Content-Type application/javascript*
+			header Content-Type application/json*
+			header Content-Type application/manifest+json*
+			header Content-Type image/svg+xml*
+		}
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "same-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(self)"
+		-Server
+	}
+
+	reverse_proxy app:3000 {
+		# Que la respuesta (SSE, descargas grandes) se mande a medida que llega.
+		flush_interval -1
+		transport http {
+			# Una subida grande puede tardar en confirmarse mientras el servidor calcula el SHA-256.
+			response_header_timeout 10m
+		}
+	}
+}

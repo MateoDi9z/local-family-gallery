@@ -1,0 +1,11 @@
+# Revisa una vez por día, de madrugada, si hay versión nueva de la galería.
+[Unit]
+Description=Galería familiar: revisar actualizaciones todos los días
+
+[Timer]
+OnCalendar=*-*-* 04:00
+RandomizedDelaySec=30m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

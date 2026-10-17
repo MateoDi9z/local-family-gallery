@@ -1,0 +1,48 @@
+# Desarrollo en Docker con recarga: api + worker con las mismas herramientas de medios que producción.
+#   docker compose -f docker-compose.dev.yml up
+# La web conviene correrla nativa en la Mac (HMR más rápido), con el proxy de Vite a :3000:
+#   cd apps/web && bun --bun vite
+# Sin Docker, `bun run dev` levanta las tres cosas nativas (sin vips/ffmpeg de la imagen).
+# Datos en ./data (gitignored). node_modules en un volumen: los binarios de la Mac no sirven en Linux
+# (es el mismo volumen que usa `bun run test:media`). --ignore-scripts: el `prepare` configura
+# hooks de git, que son cosa del host (y en un worktree el .git apunta afuera del contenedor).
+name: lfg-dev
+
+x-dev: &dev
+  image: lfg-dev
+  volumes:
+    - .:/app
+    - node-modules:/app/node_modules
+  environment:
+    DATA_FAST_PATH: /app/data/fast
+    DATA_BULK_PATHS: /app/data/bulk1
+    GPU: "off"
+    LOG_LEVEL: debug
+
+services:
+  api:
+    <<: *dev
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+      target: dev
+    command: sh -c "bun install --frozen-lockfile --ignore-scripts && exec bun --watch apps/server/src/main.ts api"
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3000/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  worker:
+    <<: *dev
+    # Espera a la api: así no corren dos `bun install` a la vez sobre el mismo volumen.
+    command: ["bun", "--watch", "apps/server/src/main.ts", "worker"]
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  node-modules:
+    name: lfg-node-modules

@@ -1,0 +1,58 @@
+# Producción. Se usa desde /opt/galeria con ./deploy.sh (ver SETUP-SERVIDOR.md).
+# Imágenes públicas de GHCR; toda la configuración sale de .env.
+# GPU NVIDIA: opcional, la suma docker-compose.gpu.yml (deploy.sh lo hace solo si nvidia-smi anda).
+name: galeria
+
+# Discos de datos, montados igual en app y worker. Adentro del contenedor las rutas son fijas
+# (/data/fast, /data/bulk1, /data/bulk2...); afuera las elige .env.
+# Para AGREGAR UN DISCO: sumá una línea acá (p. ej. "- ${HOST_BULK2_PATH:?Falta HOST_BULK2_PATH}:/data/bulk2"),
+# definí HOST_BULK2_PATH en .env y agregá /data/bulk2 a DATA_BULK_PATHS.
+x-data-volumes: &data-volumes
+  - ${HOST_FAST_PATH:?Falta HOST_FAST_PATH en .env}:/data/fast
+  - ${HOST_BULK1_PATH:?Falta HOST_BULK1_PATH en .env}:/data/bulk1
+
+x-app: &app
+  image: ghcr.io/${GHCR_OWNER:?Falta GHCR_OWNER en .env}/local-family-gallery-app:${TAG:-latest}
+  restart: unless-stopped
+  env_file: .env
+  environment:
+    # Fijo: es donde se monta el disco rápido (gana sobre .env).
+    DATA_FAST_PATH: /data/fast
+  volumes: *data-volumes
+
+services:
+  caddy:
+    image: ghcr.io/${GHCR_OWNER}/local-family-gallery-caddy:${TAG:-latest}
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?Falta DOMAIN en .env}
+      DUCKDNS_TOKEN: ${DUCKDNS_TOKEN:?Falta DUCKDNS_TOKEN en .env}
+    volumes:
+      # Certificados: si se pierden, Let's Encrypt limita cuántos se pueden volver a pedir.
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+
+  app:
+    <<: *app
+    # El healthcheck viene en la imagen (GET /api/health).
+
+  worker:
+    <<: *app
+    command: ["bun", "apps/server/src/main.ts", "worker"]
+    # No escucha HTTP: si se cae, lo levanta restart.
+    healthcheck:
+      disable: true
+    depends_on:
+      app:
+        condition: service_healthy
+
+volumes:
+  caddy-data:
+  caddy-config:

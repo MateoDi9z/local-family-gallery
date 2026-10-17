@@ -1,0 +1,15 @@
+# GPU NVIDIA para el worker (NVENC/NVDEC). Se suma encima de docker-compose.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+# deploy.sh lo incluye solo si `nvidia-smi` funciona. Requiere NVIDIA Container Toolkit.
+services:
+  worker:
+    environment:
+      # "video" es lo que habilita NVENC/NVDEC dentro del contenedor.
+      NVIDIA_DRIVER_CAPABILITIES: compute,video,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu, video]
