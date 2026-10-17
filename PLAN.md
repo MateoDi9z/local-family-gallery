@@ -104,6 +104,7 @@ Cada subagente trabaja en su worktree y su rama, solo en su área (§4), y respe
 - Hito B: Chromecast (Cast Web Sender + Default Media Receiver, slideshow), administración, bandejas "Sin ubicación" y "Duplicados", guía del Atajo de iOS dentro de la app.
 
 **Terminado cuando:** los flujos de Playwright en viewport de Android pasan contra el backend real después de la integración, y en el build de producción el Lighthouse de la PWA es instalable.
+> [CAMBIO E4] Lighthouse 11.7.1 (la 13 ya no trae la categoría PWA) sobre `vite build` + `vite preview`: puntaje PWA 1, manifiesto instalable y service worker.
 
 ### E3 — Integración · coordinador · 🔄
 > [CAMBIO E3] Ramas mergeadas a `main` en orden. El e2e de Android (`apps/web/e2e/flujo.e2e.ts`) pasó contra `docker-compose.e2e.yml`: asistente, subida del fixture con GPS, globo, visor y original byte a byte. Falta el verde de CI y las imágenes en GHCR.
@@ -113,7 +114,8 @@ Cada subagente trabaja en su worktree y su rama, solo en su área (§4), y respe
 
 **Terminado cuando:** todos los e2e pasan en CI y la imagen nueva está en GHCR.
 
-### E4 — QA · subagente qa · ⬜
+### E4 — QA · subagente qa · ✅
+> [CAMBIO E4] Revisión contra SPEC y CLAUDE el 2026-10-17. `bun run check:public` y `gitleaks git --redact .` en limpio. El único faltante de producto era la documentación de la §14 (`README.md` y `GUIA-FAMILIA.md`); quedó escrita. `fixtures-reales/` no existe: la prueba con un HEIC y un MOV reales de iPhone sigue para el humano.
 - Revisión punto por punto contra SPEC y CLAUDE: privacidad, cero nombres hardcodeados, originales intactos, nada se borra solo.
 - Pruebas con `fixtures-reales/` si existen.
 - Reporte en `ESTADO.md`. Lo que encuentre se corrige y se vuelve a pasar hasta que quede limpio.
