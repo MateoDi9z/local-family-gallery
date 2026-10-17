@@ -11,15 +11,15 @@
   - Biome, typecheck (TS 7), CI (`ci` + guardia) en verde;
   - imagen `dev` y 7 fixtures sintéticos; skills.
   - Se arregló una carrera de migraciones entre api y worker.
-- 2026-10-17 · E2.infra (mergeada): imagen de producción, Caddy con DuckDNS, compose de dev y de producción, CI con `test:media` y e2e, `deploy.sh` y la guía del servidor.
+- 2026-10-17 · E2.infra (mergeada): imagen de producción, Caddy con DuckDNS, compose, CI, `deploy.sh` y la guía del servidor.
+- 2026-10-17 · E2.ingesta (mergeada): asistente, PIN, miembros, tus con reanudación, deduplicación, resumen de lote, `/files`, Atajo y mover de disco. 31 tests en verde.
 - 2026-10-17 · E2 todavía en ramas:
-  - `ingesta/e2`: asistente, PIN, tus con reanudación, dedup, resumen de lote, `/files` y Atajo (31 tests);
   - `medios/e2`: cola, pipeline, geo y rutas de lectura. 56 tests y 3 de `test:media` en verde;
   - `frontend/e2`: PWA (globo, galería, visor, subida, compartir). Faltan los e2e contra el backend real.
 
 ## Falta
 
-- E3: mergear ingesta, medios y frontend, y los e2e de Playwright contra el backend real.
+- E3: mergear medios y frontend, y los e2e de Playwright contra el backend real.
 
 ## Cómo retomar
 
