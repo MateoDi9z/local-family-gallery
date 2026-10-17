@@ -1,0 +1,37 @@
+# e2e contra la imagen de producción real, sin Caddy, en http://localhost:8080.
+#   docker compose -f docker-compose.e2e.yml up -d --build --wait
+#   E2E_BASE_URL=http://localhost:8080 bun run e2e
+#   docker compose -f docker-compose.e2e.yml down -v     # borra los datos de prueba
+# Datos en un volumen descartable: solo fixtures sintéticos.
+name: lfg-e2e
+
+x-e2e: &e2e
+  image: lfg-app:e2e
+  environment:
+    GPU: "off"
+  volumes:
+    - e2e-data:/data
+
+services:
+  app:
+    <<: *e2e
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+      target: prod
+      args:
+        APP_VERSION: e2e
+    ports:
+      - "8080:3000"
+
+  worker:
+    <<: *e2e
+    command: ["bun", "apps/server/src/main.ts", "worker"]
+    healthcheck:
+      disable: true
+    depends_on:
+      app:
+        condition: service_healthy
+
+volumes:
+  e2e-data:
