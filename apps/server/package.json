@@ -1,0 +1,13 @@
+{
+  "name": "@lfg/server",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@lfg/shared": "workspace:*",
+    "@tus/file-store": "2.1.1",
+    "@tus/server": "2.4.6",
+    "hono": "^4.13.13",
+    "ulid": "^3.0.2",
+    "zod": "^4.6.7"
+  }
+}
