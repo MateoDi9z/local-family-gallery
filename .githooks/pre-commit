@@ -3,4 +3,6 @@
 set -e
 command -v gitleaks >/dev/null 2>&1 || { echo "Falta gitleaks: brew install gitleaks"; exit 1; }
 bun scripts/check-public-repo.ts --staged
+bun run --silent lint
+bun run --silent typecheck
 gitleaks git --staged --redact --no-banner --config .gitleaks.toml .

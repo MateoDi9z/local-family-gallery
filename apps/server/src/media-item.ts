@@ -64,9 +64,9 @@ export function toMediaItems(db: Database, rows: MediaRow[], memberId: string | 
       `SELECT media_id, variant FROM derivatives WHERE media_id IN (${ph})`,
     )
     .all(...ids)) {
-    let set = variants.get(d.media_id);
-    if (!set) variants.set(d.media_id, (set = new Set()));
+    const set = variants.get(d.media_id) ?? new Set<string>();
     set.add(d.variant);
+    variants.set(d.media_id, set);
   }
   const favs = new Set(
     memberId
