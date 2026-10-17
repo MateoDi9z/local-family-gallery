@@ -11,10 +11,11 @@
   - Biome, typecheck (TS 7), CI (`ci` + guardia) en verde;
   - imagen `dev` y 7 fixtures sintéticos; skills.
   - Se arregló una carrera de migraciones entre api y worker.
+- 2026-10-17 · E2.medios: cola con lease, pipeline de fotos y videos, geo, viajes, parecidos y rutas de lectura. `bun test` en verde (56). Tres tests de vips/exiftool/ffmpeg quedan para `bun run test:media` (en esta máquina no había Docker).
 
 ## Falta
 
-- E2 en adelante (ver `PLAN.md`).
+- E3: integrar `infra/e2`, `ingesta/e2`, `medios/e2` y `frontend/e2`. Correr `test:media` y los e2e.
 
 ## Cómo retomar
 
