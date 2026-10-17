@@ -1,16 +1,19 @@
 // Área ingesta: setup, auth, miembros, ajustes, subidas (tus), lotes, Atajo de iOS, /files y /cast.
-// E1: solo el punto de montaje. Lo completa el agente ingesta en E2.
-import type { MiddlewareHandler } from "hono";
 import { Hono } from "hono";
 import type { AppEnv, Ctx } from "../context";
+import { authRoutes } from "./auth";
+import { fileRoutes } from "./files";
+import { shortcutRoutes } from "./shortcut";
+import { tusRoutes } from "./tus";
+import { uploadRoutes } from "./uploads";
 
-/** Pone `deviceId` y `memberId` en el contexto y corta con 401 lo que requiere PIN. */
-export function authMiddleware(_ctx: Ctx): MiddlewareHandler<AppEnv> {
-  return async (_c, next) => {
-    await next();
-  };
-}
+export { authMiddleware } from "./auth";
 
-export function ingestRoutes(_ctx: Ctx) {
-  return new Hono<AppEnv>();
+export function ingestRoutes(ctx: Ctx) {
+  return new Hono<AppEnv>()
+    .route("/", authRoutes(ctx))
+    .route("/", uploadRoutes(ctx))
+    .route("/", tusRoutes(ctx))
+    .route("/", fileRoutes(ctx))
+    .route("/", shortcutRoutes(ctx));
 }

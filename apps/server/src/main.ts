@@ -33,6 +33,21 @@ if (cmd === "migrate") {
     idleTimeout: 120,
   });
   log.info("api escuchando", { port: server.port });
+} else if (cmd === "move-volume") {
+  const { parseArgs } = await import("node:util");
+  const { moveVolume } = await import("./ingest/move-volume");
+  const { values } = parseArgs({
+    args: process.argv.slice(3),
+    options: { from: { type: "string" }, to: { type: "string" } },
+  });
+  if (!values.from || !values.to) {
+    console.error("Uso: move-volume --from <ruta> --to <ruta>");
+    process.exit(1);
+  }
+  const sum = await moveVolume(ctx, values.from, values.to);
+  console.log(`Movidos: ${sum.moved} (${(sum.bytes / 1024 ** 3).toFixed(2)} GiB). Con error: ${sum.failed}.`);
+  db.close();
+  if (sum.failed) process.exit(2);
 } else {
   log.error("comando desconocido", { cmd });
   process.exit(1);
