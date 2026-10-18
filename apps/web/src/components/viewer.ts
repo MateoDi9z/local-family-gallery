@@ -7,11 +7,7 @@ import PhotoSwipe from "photoswipe";
 import { api, errorText } from "../api/client";
 import { castItems, castState, isIOS, SLIDE_MS } from "../cast";
 import { t } from "../i18n";
-
-const DOWNLOAD = `<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M11 4h2v8.2l3.6-3.6L18 10l-6 6-6-6 1.4-1.4L11 12.2zM5 18h14v2H5z"/></svg>`;
-const TV = `<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M3 5h18v11H3zm2 2v7h14V7zM8 19h8v2H8z"/></svg>`;
-const TRASH = `<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4zm-3 6h12l-1 12H7z"/></svg>`;
-const HEART = `<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 21s-7.5-4.6-10-9.3C.4 8.4 2.3 4 6.4 4 8.6 4 10.4 5.3 12 7.2 13.6 5.3 15.4 4 17.6 4 21.7 4 23.6 8.4 22 11.7 19.5 16.4 12 21 12 21z"/></svg>`;
+import { iconSvg } from "./icons";
 
 /** Alto de la barra de arriba de PhotoSwipe (contador, zoom y cerrar). */
 const TOP_BAR_PX = 60;
@@ -117,17 +113,17 @@ export function openViewer(items: MediaItem[], index: number, { onDeleted, prese
       appendTo: "root",
       onInit: (el) => {
         el.className = "pswp__actions";
-        const dl = action("a", DOWNLOAD, t.viewer.downloadShort, t.viewer.download);
+        const dl = action("a", iconSvg("download"), t.viewer.downloadShort, t.viewer.download);
         dl.setAttribute("download", "");
-        const fav = action("button", HEART, t.viewer.favoriteShort);
-        const cast = action("button", TV, t.viewer.castShort, t.viewer.cast);
-        const del = action("button", TRASH, t.viewer.delete);
+        const fav = action("button", iconSvg("heart"), t.viewer.favoriteShort);
+        const cast = action("button", iconSvg("tv"), t.viewer.castShort, t.viewer.cast);
+        const del = action("button", iconSvg("trash"), t.viewer.delete);
         const ios = isIOS();
         el.append(dl, fav);
         if (castState.get().available || ios) el.append(cast);
         el.append(del);
         showPresenting = () => {
-          cast.innerHTML = `${TV}<span>${presenting ? t.viewer.stopShow : t.viewer.castShort}</span>`;
+          cast.innerHTML = `${iconSvg("tv")}<span>${presenting ? t.viewer.stopShow : t.viewer.castShort}</span>`;
           cast.setAttribute("aria-label", presenting ? t.viewer.stopShow : t.viewer.cast);
         };
 

@@ -148,12 +148,23 @@ export const es = {
   },
 
   select: {
-    start: "Elegir fotos",
+    start: "Elegir",
     label: "Fotos elegidas",
     count: (n: number) => (n === 0 ? "Tocá las fotos que querés borrar" : `${plural(n, "elegida", "elegidas")}`),
-    all: "Elegir todas",
+    all: "Todas",
     none: "Ninguna",
     delete: "Borrar",
+    download: "Descargar",
+    downloading: (i: number, n: number) => `Descargando ${i} de ${n}…`,
+    downloaded: (n: number) => `Listo: ${plural(n, "foto descargada", "fotos descargadas")}.`,
+    share: "Compartir",
+    shareTitle: (n: number) => `Compartir ${plural(n, "foto", "fotos")}`,
+    preparing: (i: number, n: number) => `Preparando ${i} de ${n}…`,
+    shareReady: (ios: boolean) =>
+      ios
+        ? "Listas. Tocá «Compartir»; para guardarlas en Fotos, elegí «Guardar imágenes»."
+        : "Listas. Tocá «Compartir» y elegí dónde mandarlas.",
+    tooBig: "Son demasiadas para compartir juntas. Elegí menos, o usá «Descargar».",
     confirmTitle: (n: number) => `¿Borrar ${plural(n, "foto", "fotos")}?`,
     confirmBody: "Se van a quitar de la galería para todos. Los originales quedan en la papelera del servidor.",
     confirm: (n: number) => `Sí, borrar ${plural(n, "foto", "fotos")}`,
@@ -209,9 +220,8 @@ export const es = {
     viewLabel: "Ver",
     views: { viajes: "Viajes", fecha: "Por fecha", lugar: "Por lugar" },
     help: {
-      fecha:
-        "Todas las fotos. Las sacadas con menos de un día y medio de diferencia van juntas: suelen ser de la misma salida.",
-      lugar: "Todas las fotos, una ciudad por grupo. La más reciente, primero.",
+      fecha: "Juntas las que se sacaron con menos de un día y medio de diferencia.",
+      lugar: "Una ciudad por grupo, la más reciente primero.",
     },
     noPlace: "Sin ubicación",
     noDate: "Sin fecha",

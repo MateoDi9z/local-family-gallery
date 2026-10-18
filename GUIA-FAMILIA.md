@@ -64,9 +64,17 @@ Al terminar, la galería muestra un resumen. Si alguna foto no tiene lugar, te p
 
 Abrí la foto y tocá el tachito. Pide confirmación y se quita de la galería para todos. El original no se pierde: queda en la papelera del servidor, por si fue sin querer.
 
-## Borrar varias fotos juntas
+## Ver todas las fotos por fecha o por lugar
 
-En un lugar o en un viaje, tocá **«Elegir fotos»** y tocá las que querés borrar (les aparece un tilde). También está **«Elegir todas»**. Después, **«Borrar»**: pide confirmación y los originales quedan en la papelera del servidor.
+En **Viajes**, arriba, elegí **«Por fecha»** o **«Por lugar»**. Por fecha, las fotos sacadas con menos de un día y medio de diferencia van juntas (suelen ser de la misma salida, aunque sean pocas). Por lugar, una ciudad por grupo.
+
+## Elegir varias fotos: descargar, compartir o borrar
+
+En un lugar, un viaje o «Por fecha», tocá **«Elegir»** y tocá las fotos (les aparece un tilde), o **«Todas»**. Abajo aparece una barra:
+
+- **Descargar:** baja los originales, de a uno.
+- **Compartir:** las manda a WhatsApp, a otra app o, en iPhone, **«Guardar imágenes»** para tenerlas en Fotos. Primero se preparan; después se toca «Compartir» de nuevo.
+- **Borrar:** pide confirmación; los originales quedan en la papelera del servidor.
 
 ## Borrar todas las fotos de un lugar
 
@@ -74,7 +82,7 @@ Entrá al lugar y, abajo de todo, tocá **«Borrar todas las fotos de este lugar
 
 ## Verlas en la tele
 
-En **Más → Ver en la tele** está la guía completa, y un chequeo que dice si tu celular puede y si encuentra la tele.
+En **Más → Ver en la tele** está la guía completa, y un chequeo que dice si tu celular puede y si encuentra la tele. Desde Android se usa Chromecast; desde iPhone, AirPlay (Apple TV o tele con AirPlay): los videos van directo y las fotos se ven con «Duplicar pantalla» y la presentación que pasa sola.
 
 1. El Chromecast y el celular tienen que estar en el mismo wifi.
 2. Abrí una foto, un viaje o un lugar y tocá el botón de Cast (el de la tele).

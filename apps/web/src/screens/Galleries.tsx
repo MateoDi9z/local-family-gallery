@@ -5,10 +5,12 @@ import { z } from "zod";
 import { api, errorText } from "../api/client";
 import { useApi } from "../api/hooks";
 import { castItems, castState, isIOS } from "../cast";
-import { useBulkDelete } from "../components/BulkDelete";
+
 import { DeletePlace } from "../components/DeletePlace";
 import { Grid, type Group } from "../components/Grid";
+import { Icon } from "../components/icons";
 import { MemberFilter, useMemberFiltered } from "../components/MemberFilter";
+import { useSelection } from "../components/Selection";
 import { openViewer } from "../components/viewer";
 import { groupByDate, groupByPlace } from "../grouping";
 import { formatDate, t } from "../i18n";
@@ -35,10 +37,11 @@ function CastButton({ items }: { items: MediaItem[] }) {
   return (
     <button
       type="button"
-      className="btn"
+      className="btn small"
       onClick={() => (ios ? openViewer(items, 0, { present: true }) : castItems(items, 0, true))}
     >
-      {t.trips.slideshow}
+      <Icon name="tv" />
+      <span>{t.trips.slideshow}</span>
     </button>
   );
 }
@@ -60,7 +63,7 @@ export function PlaceGallery({ id }: { id: string }) {
   );
   const filtered = useMemberFiltered(groups);
   const visible = filtered.flatMap((g) => g.items);
-  const bulk = useBulkDelete(visible, data?.place.count ?? 0, (allGone) => (allGone ? navigate("/") : reload()));
+  const bulk = useSelection(visible, data?.place.count ?? 0, (allGone) => (allGone ? navigate("/") : reload()));
   if (error) return <Failure text={error} />;
   if (!data) return <Loading />;
   return (
@@ -68,10 +71,10 @@ export function PlaceGallery({ id }: { id: string }) {
       <Link href="/" className="btn link">
         {t.back}
       </Link>
-      <h1>{data.place.name}</h1>
-      <p className="muted">{t.gallery.count(data.place.count)}</p>
+      <h1 className="page-title">{data.place.name}</h1>
+      <p className="muted page-sub">{t.gallery.count(data.place.count)}</p>
       <MemberFilter />
-      <div className="row">
+      <div className="toolbar">
         <CastButton items={visible} />
         {bulk.button}
       </div>
@@ -87,7 +90,7 @@ export function TripGallery({ id }: { id: string }) {
   const groups = useMemo<Group[]>(() => (data ? [{ key: data.trip.id, items: data.media }] : []), [data]);
   const filtered = useMemberFiltered(groups);
   const visible = filtered.flatMap((g) => g.items);
-  const bulk = useBulkDelete(visible, data?.trip.count ?? 0, (allGone) => (allGone ? navigate("/viajes") : reload()));
+  const bulk = useSelection(visible, data?.trip.count ?? 0, (allGone) => (allGone ? navigate("/viajes") : reload()));
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -123,27 +126,31 @@ export function TripGallery({ id }: { id: string }) {
         </div>
       ) : (
         <>
-          <h1>{data.trip.name}</h1>
-          <p className="muted">
-            {tripDates(data.trip)} · {t.gallery.count(data.trip.count)}
-          </p>
-          <div className="row">
+          <div className="title-row">
+            <h1 className="page-title">{data.trip.name}</h1>
             <button
               type="button"
-              className="btn"
+              className="icon-btn"
+              aria-label={t.trips.rename}
+              title={t.trips.rename}
               onClick={() => {
                 setName(data.trip.name);
                 setEditing(true);
               }}
             >
-              {t.trips.rename}
+              <Icon name="edit" />
             </button>
-            <CastButton items={visible} />
-            {bulk.button}
           </div>
+          <p className="muted page-sub">
+            {tripDates(data.trip)} · {t.gallery.count(data.trip.count)}
+          </p>
         </>
       )}
       <MemberFilter />
+      <div className="toolbar">
+        <CastButton items={visible} />
+        {bulk.button}
+      </div>
       <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i, { onDeleted: reload })} {...bulk.gridProps} />
       {bulk.bar}
     </main>
@@ -254,14 +261,14 @@ function PhotoGroups({ by }: { by: "fecha" | "lugar" }) {
   }, [items, by, places.data]);
   const filtered = useMemberFiltered(groups);
   const visible = filtered.flatMap((g) => g.items);
-  const bulk = useBulkDelete(visible, items?.length ?? 0, reload);
+  const bulk = useSelection(visible, items?.length ?? 0, reload);
   if (error) return <p className="error">{error}</p>;
   if (!items) return <p role="status">{t.loading}</p>;
   return (
     <>
       <p className="muted">{t.photos.help[by]}</p>
       <MemberFilter />
-      <div className="row">
+      <div className="toolbar">
         <CastButton items={visible} />
         {bulk.button}
       </div>
