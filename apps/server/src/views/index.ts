@@ -18,6 +18,7 @@ import {
   SimilarAction,
   sameName,
   type Trip,
+  TripMembers,
   TripMerge,
   TripPatch,
 } from "@lfg/shared";
@@ -44,6 +45,8 @@ type TripRow = {
   count: number;
   cover_sha: string | null;
   merged: number;
+  manual_members: string | null;
+  uploaders: string | null;
 };
 
 const TRIP_SELECT = `SELECT t.id, t.name, t.name_is_custom, t.start_at, t.end_at,
@@ -54,7 +57,9 @@ const TRIP_SELECT = `SELECT t.id, t.name, t.name_is_custom, t.start_at, t.end_at
     (SELECT cm.sha256 FROM media cm JOIN derivatives d ON d.media_id = cm.id AND d.variant = 'thumb'
       WHERE cm.trip_id = t.id AND cm.deleted_at IS NULL ORDER BY cm.taken_at LIMIT 1)
   ) AS cover_sha,
-  EXISTS (SELECT 1 FROM trip_joins j WHERE j.start_at <= t.end_at AND j.end_at >= t.start_at) AS merged
+  EXISTS (SELECT 1 FROM trip_joins j WHERE j.start_at <= t.end_at AND j.end_at >= t.start_at) AS merged,
+  (SELECT group_concat(tm.member_id) FROM trip_members tm WHERE tm.trip_id = t.id) AS manual_members,
+  (SELECT group_concat(DISTINCT x.member_id) FROM media x WHERE x.trip_id = t.id AND x.deleted_at IS NULL) AS uploaders
   FROM trips t`;
 
 const toTrip = (r: TripRow): Trip => ({
@@ -66,6 +71,8 @@ const toTrip = (r: TripRow): Trip => ({
   count: r.count,
   coverThumbUrl: r.cover_sha ? fileUrl(r.cover_sha, "thumb") : null,
   merged: r.merged === 1,
+  memberIds: (r.manual_members ?? r.uploaders ?? "").split(",").filter(Boolean),
+  membersCustom: r.manual_members !== null,
 });
 
 type PlaceRow = {
@@ -256,6 +263,22 @@ export function viewRoutes(ctx: Ctx, opts: ViewOptions = {}) {
     const { name } = TripPatch.parse(await c.req.json());
     if (!db.query("UPDATE trips SET name = ?, name_is_custom = 1 WHERE id = ?").run(name, id).changes)
       return notFound(c, texts.http.tripNotFound);
+    return c.json(toTrip(tripById(id) as TripRow));
+  });
+
+  // Quiénes fueron, a mano. Vacío vuelve a lo automático.
+  app.put("/trips/:id/members", async (c) => {
+    const id = Id.parse(c.req.param("id"));
+    const { memberIds } = TripMembers.parse(await c.req.json().catch(() => undefined));
+    if (!tripById(id)) return notFound(c, texts.http.tripNotFound);
+    const ids = [...new Set(memberIds)];
+    const known = db.query<{ id: string }, [string]>("SELECT id FROM members WHERE id = ?");
+    if (ids.some((m) => !known.get(m))) return c.json({ error: "invalid", message: texts.http.memberNotFound }, 400);
+    db.transaction(() => {
+      db.query("DELETE FROM trip_members WHERE trip_id = ?").run(id);
+      const add = db.query("INSERT INTO trip_members (trip_id, member_id) VALUES (?, ?)");
+      for (const m of ids) add.run(id, m);
+    })();
     return c.json(toTrip(tripById(id) as TripRow));
   });
 

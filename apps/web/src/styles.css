@@ -560,6 +560,7 @@ input:focus {
 }
 .trip-card h2 {
   margin: 0 0 4px;
+  font-size: 1.15rem;
 }
 
 /* Visor: barra de acciones grande abajo */
@@ -944,4 +945,66 @@ ol.steps li {
 /* El título que abre una tarjeta no necesita margen arriba (la tarjeta ya tiene el suyo). */
 .card > h2:first-child {
   margin-top: 0;
+}
+
+/* Quiénes fueron: círculos chicos con la inicial (lista de viajes y viaje) */
+.member-dots {
+  display: flex;
+  margin-top: 6px;
+}
+.member-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  border: 2px solid var(--surface);
+  margin-left: -6px;
+}
+.member-dot:first-child {
+  margin-left: 0;
+}
+.member-dot.more {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.trip-members {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  margin: 0 0 10px;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+}
+.trip-members .member-dots {
+  margin-top: 0;
+  flex: none;
+}
+.trip-members-names {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.trip-members-edit {
+  flex: none;
+  display: inline-flex;
+  color: var(--primary);
+}
+/* En un diálogo, las personas sí pasan a otra línea (ahí no hay grilla que empujar). */
+.chips.wrap {
+  flex-wrap: wrap;
 }

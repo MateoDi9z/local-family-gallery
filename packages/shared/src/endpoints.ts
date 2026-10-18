@@ -26,6 +26,7 @@ export const endpoints = {
   trips: "/trips",
   trip: (id: string) => `/trips/${id}`,
   tripMerge: (id: string) => `/trips/${id}/merge`,
+  tripMembers: (id: string) => `/trips/${id}/members`,
   media: "/media",
   mediaItem: (id: string) => `/media/${id}`,
   mediaLocation: (id: string) => `/media/${id}/location`,

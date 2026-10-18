@@ -30,6 +30,7 @@ export const texts = {
     notFound: "No encontramos esa foto o video.",
     tripNotFound: "No encontramos ese viaje.",
     placeNotFound: "No encontramos ese lugar.",
+    memberNotFound: "Esa persona no está en la galería.",
     confirmMismatch: "El nombre no coincide. Escribilo igual que el del lugar para borrar.",
     pairNotFound: "No encontramos ese par de fotos.",
     memberRequired: "Primero elegí quién sos en este dispositivo.",

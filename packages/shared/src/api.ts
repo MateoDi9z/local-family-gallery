@@ -128,7 +128,12 @@ export const Trip = z.object({
   coverThumbUrl: z.string().nullable(),
   /** Unido a mano con otro (se puede separar). */
   merged: z.boolean(),
+  /** Quiénes fueron: los puestos a mano o, si no, los que subieron fotos del viaje. */
+  memberIds: z.array(Id),
+  membersCustom: z.boolean(),
 });
+/** Quiénes fueron a un viaje. Vacío vuelve a lo automático (los que subieron fotos). */
+export const TripMembers = z.object({ memberIds: z.array(Id).max(100) });
 /** Unir este viaje con otro: quedan como uno solo. */
 export const TripMerge = z.object({ otherId: Id });
 export const TripMergeResponse = z.object({ tripId: Id });

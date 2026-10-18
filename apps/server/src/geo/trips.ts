@@ -174,6 +174,17 @@ export function mergeTrips(db: Database, keepId: string, otherId: string): strin
         "SELECT id FROM media WHERE trip_id = ? AND deleted_at IS NULL LIMIT 1",
       );
       const witness = anyMedia.get(a.id) ?? anyMedia.get(b.id);
+      // Quiénes fueron: si alguno lo tenía puesto a mano, el unido queda con los de los dos.
+      const manual = db.query<{ member_id: string }, [string]>("SELECT member_id FROM trip_members WHERE trip_id = ?");
+      const uploaders = db.query<{ member_id: string }, [string]>(
+        "SELECT DISTINCT member_id FROM media WHERE trip_id = ? AND deleted_at IS NULL",
+      );
+      const effective = (id: string) => {
+        const m = manual.all(id);
+        return (m.length ? m : uploaders.all(id)).map((r) => r.member_id);
+      };
+      const people =
+        manual.all(a.id).length || manual.all(b.id).length ? new Set([...effective(a.id), ...effective(b.id)]) : null;
       db.query("INSERT INTO trip_joins (id, start_at, end_at, created_at) VALUES (?, ?, ?, ?)").run(
         ulid(),
         a.start_at < b.start_at ? a.start_at : b.start_at,
@@ -188,6 +199,11 @@ export function mergeTrips(db: Database, keepId: string, otherId: string): strin
       if (!merged) return null;
       const custom = a.name_is_custom ? a.name : b.name_is_custom ? b.name : null;
       if (custom) db.query("UPDATE trips SET name = ?, name_is_custom = 1 WHERE id = ?").run(custom, merged);
+      if (people) {
+        db.query("DELETE FROM trip_members WHERE trip_id = ?").run(merged);
+        const add = db.query("INSERT INTO trip_members (trip_id, member_id) VALUES (?, ?)");
+        for (const m of people) add.run(merged, m);
+      }
       // El otro, si quedó vacío (los de nombre a mano no se borran solos), ya es parte de este.
       for (const id of [a.id, b.id])
         if (id !== merged)
