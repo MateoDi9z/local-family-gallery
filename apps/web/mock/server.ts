@@ -37,7 +37,16 @@ function fresh() {
     media: [] as Media[],
     places: [...PLACES] as PlaceRow[],
     trips: new Map<string, TripRow>(),
-    batches: new Map<string, { memberId: string | null; mediaIds: string[]; duplicates: number }>(),
+    batches: new Map<
+      string,
+      {
+        memberId: string | null;
+        mediaIds: string[];
+        duplicates: number;
+        source: z.infer<typeof S.BatchSource>;
+        createdAt: string;
+      }
+    >(),
     uploads: new Map<string, { length: number; parts: Uint8Array[]; offset: number; meta: Record<string, string> }>(),
     similar: [] as { id: string; a: string; b: string; status: string }[],
     tokens: [] as z.infer<typeof S.ShortcutToken>[],
@@ -376,9 +385,15 @@ on(
   "POST",
   E.batches,
   async (c) => {
-    S.BatchCreate.parse(await c.body());
+    const { source } = S.BatchCreate.parse(await c.body());
     const batchId = id("bt");
-    db.batches.set(batchId, { memberId: dev(c)?.memberId ?? null, mediaIds: [], duplicates: 0 });
+    db.batches.set(batchId, {
+      memberId: dev(c)?.memberId ?? null,
+      mediaIds: [],
+      duplicates: 0,
+      source,
+      createdAt: new Date().toISOString(),
+    });
     return json(S.BatchCreated, { batchId }, 201);
   },
   "member",
@@ -541,6 +556,33 @@ on("DELETE", "/trips/:id/merge", (_c, p) => {
   if (!t) return fail(404, "not_found", "No encontramos ese viaje.");
   t.merged = false;
   return noContent();
+});
+on("GET", E.activity, () => {
+  const processing = db.media
+    .filter((m) => m.status === "processing")
+    .map((m) => ({ media: pub(m), steps: ["thumb" as const], running: true }));
+  const batches = [...db.batches]
+    .filter(([, b]) => b.mediaIds.length > 0)
+    .reverse()
+    .slice(0, 10)
+    .map(([batchId, b]) => {
+      const items = db.media.filter((m) => b.mediaIds.includes(m.id));
+      return {
+        batchId,
+        memberId: b.memberId ?? (db.members[0]?.id as string),
+        source: b.source,
+        createdAt: b.createdAt,
+        total: items.length,
+        processing: items.filter((m) => m.status === "processing").length,
+        items: items.slice(0, 8).map(pub),
+      };
+    });
+  return json(S.ActivityResponse, {
+    processing,
+    processingTotal: processing.length,
+    failed: db.media.filter((m) => m.status === "error").map(pub),
+    batches,
+  });
 });
 on("GET", E.media, (c) => {
   const q = S.MediaListQuery.parse(Object.fromEntries(c.url.searchParams));

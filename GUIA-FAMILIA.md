@@ -72,6 +72,15 @@ Las fotos y videos están en orden, separados por día: **«Día 1 · 14/5/26»*
 
 A veces un viaje aparece partido en dos (por ejemplo, si pasaron unos días sin sacar fotos). Entrá a uno, tocá **«Unir»** y elegí el otro: los de fechas más cercanas aparecen primero. Quedan como un solo viaje, y las fotos de esos días que se suban después también entran. Si te equivocaste, entrá al viaje y tocá **«Separar»**.
 
+## Ver qué se está subiendo y procesando
+
+Después de subir, las fotos tardan un poco en estar listas (los videos, unos minutos). En **Subir → «Ver subidas y procesamiento»** (o tocando el aviso de arriba mientras subís, o en **Más → Subidas**):
+
+- **Procesándose:** cada foto o video que todavía no está listo y qué le falta («Haciendo la miniatura…», «Convirtiendo el video…»). Si alguna falló, aparece abajo con **«Reintentar»**.
+- **Recién subidas:** quién subió, cuándo y desde dónde, con las miniaturas. Tocá un lote para ver su resumen.
+
+Se actualiza sola mientras hay algo en curso.
+
 ## Ver todas las fotos por fecha o por lugar
 
 En **Viajes**, arriba, elegí **«Por fecha»** o **«Por lugar»**. Por fecha, las fotos sacadas con menos de un día y medio de diferencia van juntas (suelen ser de la misma salida, aunque sean pocas). Por lugar, una ciudad por grupo.

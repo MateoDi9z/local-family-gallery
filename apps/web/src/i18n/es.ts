@@ -171,6 +171,38 @@ export const es = {
     busy: "Borrando…",
   },
 
+  activity: {
+    title: "Subidas",
+    open: "Ver subidas y procesamiento",
+    processing: "Procesándose",
+    allReady: "Todo listo: no hay fotos ni videos esperando.",
+    processingCount: (n: number) =>
+      n === 1 ? "1 foto o video todavía no está listo." : `${n} fotos y videos todavía no están listos.`,
+    more: (n: number) => `Y ${n} más.`,
+    waiting: "Esperando su turno",
+    steps: {
+      extract_metadata: "Leyendo la fecha y el lugar…",
+      thumb: "Haciendo la miniatura…",
+      video_poster: "Sacando la tapa del video…",
+      preview: "Haciendo la versión para ver…",
+      video_transcode: "Convirtiendo el video…",
+      geocode: "Buscando el nombre del lugar…",
+      suggest_location: "Buscando dónde fue…",
+      phash: "Comparando con otras fotos…",
+      find_similar: "Comparando con otras fotos…",
+      assign_trips: "Armando los viajes…",
+    },
+    failed: "No se pudieron procesar",
+    failedItem: "No se pudo procesar",
+    retry: "Reintentar",
+    retried: "Listo, se van a volver a procesar.",
+    recent: "Recién subidas",
+    noRecent: "Todavía no se subió nada.",
+    batchProcessing: (n: number) => `${n} todavía procesándose`,
+    source: { web: "desde el celu", share: "compartidas", shortcut: "desde iPhone", desktop: "desde la compu" },
+    justNow: "recién",
+  },
+
   deletePlace: {
     button: "Borrar todas las fotos de este lugar",
     title: (name: string) => `¿Borrar todo lo de ${name}?`,

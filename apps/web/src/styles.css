@@ -878,3 +878,70 @@ ol.steps li {
   flex: none;
   font-weight: 400;
 }
+
+/* Subidas: filas con miniatura, y lotes recientes */
+.activity-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.act-row {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+.act-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.act-name {
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.act-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--surface-2);
+}
+.act-thumb.ph,
+.act-thumb.more {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-weight: 700;
+}
+.batch-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+}
+.batch-head {
+  display: flex;
+  flex-direction: column;
+}
+.batch-thumbs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+  gap: 4px;
+}
+.batch-thumbs .act-thumb {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+/* El título que abre una tarjeta no necesita margen arriba (la tarjeta ya tiene el suyo). */
+.card > h2:first-child {
+  margin-top: 0;
+}

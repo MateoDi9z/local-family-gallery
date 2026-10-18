@@ -38,6 +38,7 @@ export const endpoints = {
   adminStatus: "/admin/status",
   adminRetryFailed: "/admin/jobs/retry",
   events: "/events",
+  activity: "/activity",
   castSign: "/cast/sign",
 } as const;
 
