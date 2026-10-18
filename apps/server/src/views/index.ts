@@ -11,6 +11,7 @@ import {
   Id,
   LocationBulk,
   LocationPatch,
+  MediaDeleteBulk,
   MediaListQuery,
   PlaceDeleteAll,
   type ServerEvent,
@@ -385,6 +386,14 @@ export function viewRoutes(ctx: Ctx, opts: ViewOptions = {}) {
   app.delete("/media/:id", async (c) =>
     (await deleteMedia(Id.parse(c.req.param("id")))) ? c.body(null, 204) : notFound(c),
   );
+
+  // Borrar varias elegidas a mano, cada una como si fuera sola. Las que ya no estaban no cuentan.
+  app.post(endpoints.mediaDeleteBulk, async (c) => {
+    const { mediaIds } = MediaDeleteBulk.parse(await c.req.json().catch(() => undefined));
+    let deleted = 0;
+    for (const id of new Set(mediaIds)) if (await deleteMedia(id)) deleted++;
+    return c.json({ deleted });
+  });
 
   // Borrar todas las fotos de un lugar. El nombre escrito se revisa también acá, no solo en la pantalla.
   // Cada foto se borra como una sola (atómica): si algo falla a la mitad, las ya borradas quedan borradas.

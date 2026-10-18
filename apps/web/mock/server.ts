@@ -557,7 +557,14 @@ on("POST", "/places/:id/delete-all", async (c, p) => {
   const gone = new Set(db.media.filter((m) => m.placeId === place.id).map((m) => m.id));
   db.media = db.media.filter((m) => !gone.has(m.id));
   db.similar = db.similar.filter((s) => !gone.has(s.a) && !gone.has(s.b));
-  return json(S.PlaceDeleteAllResponse, { deleted: gone.size });
+  return json(S.DeletedCount, { deleted: gone.size });
+});
+on("POST", E.mediaDeleteBulk, async (c) => {
+  const gone = new Set(S.MediaDeleteBulk.parse(await c.body()).mediaIds);
+  const before = db.media.length;
+  db.media = db.media.filter((m) => !gone.has(m.id));
+  db.similar = db.similar.filter((s) => !gone.has(s.a) && !gone.has(s.b));
+  return json(S.DeletedCount, { deleted: before - db.media.length });
 });
 on("PATCH", "/media/:id/location", async (c, p) => {
   const m = mediaOr404(p.id as string);

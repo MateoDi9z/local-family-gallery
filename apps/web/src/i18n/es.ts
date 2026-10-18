@@ -147,6 +147,19 @@ export const es = {
     video: "Video",
   },
 
+  select: {
+    start: "Elegir fotos",
+    label: "Fotos elegidas",
+    count: (n: number) => (n === 0 ? "Tocá las fotos que querés borrar" : `${plural(n, "elegida", "elegidas")}`),
+    all: "Elegir todas",
+    none: "Ninguna",
+    delete: "Borrar",
+    confirmTitle: (n: number) => `¿Borrar ${plural(n, "foto", "fotos")}?`,
+    confirmBody: "Se van a quitar de la galería para todos. Los originales quedan en la papelera del servidor.",
+    confirm: (n: number) => `Sí, borrar ${plural(n, "foto", "fotos")}`,
+    busy: "Borrando…",
+  },
+
   deletePlace: {
     button: "Borrar todas las fotos de este lugar",
     title: (name: string) => `¿Borrar todo lo de ${name}?`,
@@ -275,7 +288,7 @@ export const es = {
     server: "Servidor de la galería",
     serverOk: (ms: number, version: string) => `Responde en ${ms} ms · versión ${version}.`,
     version: "Versión de la app",
-    versionOk: (v: string) => `${v}, la misma que el servidor.`,
+    versionOk: (v: string) => `${v}.`,
     versionStale: (app: string, server: string) =>
       `Este dispositivo tiene la ${app} y el servidor la ${server}. Tocá «Actualizar la app».`,
     updateApp: "Actualizar la app",

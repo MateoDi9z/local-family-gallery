@@ -233,6 +233,25 @@ test("DELETE /media/:id: el original va a la papelera (mismo disco), se borran d
   expect((await req(`/media/${m}`, { method: "DELETE" })).status).toBe(404);
 });
 
+test("borrar varias elegidas: cada una a la papelera; repetidas o inexistentes no cuentan", async () => {
+  env = await testEnv();
+  const p = addMember(env.db);
+  const rels = ["originales/1.jpg", "originales/2.jpg", "originales/3.jpg"];
+  const ids = rels.map((rel) => addMedia(env.db, p, { original_path: rel }));
+  for (const rel of rels) await Bun.write(join(env.bulk, rel), "bytes");
+  const req = app();
+  const borrar = (mediaIds: string[]) =>
+    req("/media/delete-bulk", { method: "POST", body: JSON.stringify({ mediaIds }) });
+  const [a, b, c] = ids as [string, string, string];
+  const res = await borrar([a, b, a, "01J0000000000000000000ZZZZ"]);
+  expect(res.status).toBe(200);
+  expect(await res.json()).toEqual({ deleted: 2 });
+  const vivos = env.db.query<{ id: string }, []>("SELECT id FROM media WHERE deleted_at IS NULL").all();
+  expect(vivos.map((r) => r.id)).toEqual([c]);
+  expect(await Bun.file(join(env.bulk, "papelera", rels[1] as string)).exists()).toBe(true);
+  expect((await borrar([])).status).toBe(400);
+});
+
 test("borrar un lugar entero: solo con el nombre escrito; los originales van a la papelera", async () => {
   env = await testEnv();
   const p = addMember(env.db);

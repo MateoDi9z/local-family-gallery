@@ -130,7 +130,8 @@ export const TripDetail = z.object({ trip: Trip, media: z.array(MediaItem) });
 /** Grupos de un lugar: un viaje, o `trip: null` para las fotos sin viaje (locales). */
 /** Borrar todas las fotos de un lugar: hay que escribir su nombre. */
 export const PlaceDeleteAll = z.object({ confirmName: z.string().max(200) });
-export const PlaceDeleteAllResponse = z.object({ deleted: z.number().int() });
+/** Cuántas se borraron (borrar un lugar o varias elegidas). */
+export const DeletedCount = z.object({ deleted: z.number().int() });
 /** Misma regla en la pantalla y en el servidor: sin importar mayúsculas, tildes ni espacios de más. */
 const normName = (s: string) =>
   s.normalize("NFD").replace(/\p{M}/gu, "").trim().replace(/\s+/g, " ").toLocaleLowerCase("es");
@@ -162,6 +163,8 @@ export const MediaPage = z.object({ items: z.array(MediaItem), nextCursor: z.str
 
 export const LocationPatch = LatLon;
 export const LocationBulk = LatLon.extend({ mediaIds: z.array(Id).min(1).max(10000) });
+/** Borrar varias elegidas a mano en la grilla. */
+export const MediaDeleteBulk = z.object({ mediaIds: z.array(Id).min(1).max(10000) });
 
 // ── Bandejas y administración ──────────────────────────────────────
 export const NoLocationInbox = z.object({

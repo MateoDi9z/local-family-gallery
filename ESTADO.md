@@ -23,6 +23,8 @@
 - 2026-10-18 · Android: las fotos del visor se veían corridas hacia abajo y cortadas. Era la fila de personas (un `<fieldset>` que no se achica) ensanchando la página; ahora pasa a otra línea. La barra del visor va en una fila (ícono + texto) y la foto queda entre las barras.
 - 2026-10-18 · Página **Ver en la tele** (`/tele`, desde Más): guía de Chromecast con un chequeo en vivo (iPhone, navegador, si hay una tele en el wifi) y un botón para buscar la tele.
 - 2026-10-18 · **Borrar todas las fotos de un lugar**, al final del lugar: pide escribir el nombre (sin importar mayúsculas ni tildes) y el servidor lo vuelve a revisar. Los originales van a la papelera.
+- 2026-10-18 · Versión numerada: archivo `VERSION` (arranca en **0.6**). Se ve en Más y en Estado del sistema (avisa si el celular quedó con una versión vieja). Las imágenes salen también con tag `v0.6`, para volver atrás con `TAG=v0.5`.
+- 2026-10-18 · Borrar varias fotos juntas: «Elegir fotos» en el lugar y en el viaje, con «Elegir todas» y confirmación (`POST /media/delete-bulk`, mismo borrado que una sola). Los títulos largos de los grupos ya no se enciman con las fotos.
 
 ## Falta
 
