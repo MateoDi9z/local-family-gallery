@@ -258,6 +258,44 @@ test("unir y separar viajes por la API: la marca merged y 404 si no existe", asy
   ).toBe(404);
 });
 
+test("quiénes fueron: los que subieron fotos, o a mano; vacío vuelve a lo automático; al unir se juntan", async () => {
+  env = await testEnv();
+  const p1 = addMember(env.db, "Persona 1");
+  const p2 = addMember(env.db, "Persona 2");
+  const p3 = addMember(env.db, "Persona 3");
+  for (const [day, who] of [
+    ["01", p1],
+    ["05", p2],
+  ] as const)
+    for (let h = 10; h < 16; h++)
+      addMedia(env.db, who, { taken_at: `2023-07-${day}T${h}:00:00.000Z`, lat: 48.8584, lon: 2.2945 });
+  assignTrips(env.db);
+  const req = app();
+  type T = { id: string; memberIds: string[]; membersCustom: boolean };
+  const list = async () => (await (await req("/trips")).json()) as T[];
+  const [a, b] = (await list()).sort((x, y) => (x.memberIds[0] === p1 ? -1 : y.memberIds[0] === p1 ? 1 : 0));
+  expect(a).toMatchObject({ memberIds: [p1], membersCustom: false });
+
+  const put = (id: string, memberIds: string[]) =>
+    req(`/trips/${id}/members`, { method: "PUT", body: JSON.stringify({ memberIds }) });
+  const res = await put(a?.id as string, [p1, p3, p1]);
+  expect(res.status).toBe(200);
+  expect(((await res.json()) as T).memberIds.sort()).toEqual([p1, p3].sort());
+  expect((await put(a?.id as string, ["no-existe"])).status).toBe(400);
+  expect((await put("nada", [p1])).status).toBe(404);
+
+  // Al unir, como uno tenía la lista a mano, quedan los de los dos (a mano del primero + los que subieron al otro).
+  const merged = (await (
+    await req(`/trips/${a?.id}/merge`, { method: "POST", body: JSON.stringify({ otherId: b?.id }) })
+  ).json()) as { tripId: string };
+  const [m] = await list();
+  expect(m?.id).toBe(merged.tripId);
+  expect(m?.memberIds.sort()).toEqual([p1, p2, p3].sort());
+
+  expect(((await (await put(merged.tripId, [])).json()) as T).membersCustom).toBe(false);
+  expect((await list())[0]?.memberIds.sort()).toEqual([p1, p2].sort());
+});
+
 test("borrar varias elegidas: cada una a la papelera; repetidas o inexistentes no cuentan", async () => {
   env = await testEnv();
   const p = addMember(env.db);

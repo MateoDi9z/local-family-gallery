@@ -9,9 +9,11 @@ import { castItems, castState, isIOS } from "../cast";
 import { DeletePlace } from "../components/DeletePlace";
 import { Grid, type Group } from "../components/Grid";
 import { Icon } from "../components/icons";
+import { MemberDots } from "../components/MemberDots";
 import { MemberFilter, useMemberFiltered } from "../components/MemberFilter";
 import { MergeTrip } from "../components/MergeTrip";
 import { useSelection } from "../components/Selection";
+import { TripMembers } from "../components/TripMembers";
 import { openViewer } from "../components/viewer";
 import { groupByDate, groupByDay, groupByPlace } from "../grouping";
 import { formatDate, formatDay, formatShortDate, t } from "../i18n";
@@ -199,6 +201,7 @@ export function TripGallery({ id }: { id: string }) {
             {t.trips.dates(formatShortDate(data.trip.startAt), formatShortDate(data.trip.endAt))} ·{" "}
             {t.gallery.count(data.trip.count)}
           </p>
+          <TripMembers trip={data.trip} onChanged={reload} />
         </>
       )}
       <MemberFilter />
@@ -263,8 +266,9 @@ function TripList() {
           <span>
             <h2>{tr.name}</h2>
             <span className="muted">
-              {tripDates(tr)} · {t.gallery.count(tr.count)}
+              {t.trips.dates(formatShortDate(tr.startAt), formatShortDate(tr.endAt))} · {t.gallery.count(tr.count)}
             </span>
+            <MemberDots ids={tr.memberIds} />
           </span>
         </Link>
       ))}

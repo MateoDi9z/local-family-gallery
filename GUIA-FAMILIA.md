@@ -68,6 +68,10 @@ Abrí la foto y tocá el tachito. Pide confirmación y se quita de la galería p
 
 Las fotos y videos están en orden, separados por día: **«Día 1 · 14/5/26»**. Si ese día estuvieron en un solo lugar, el lugar aparece abajo de la fecha; si estuvieron en varios, adentro del día hay un título chico por cada lugar, en el orden en que los visitaron.
 
+## Quiénes fueron a un viaje
+
+En **Viajes**, cada viaje muestra en chiquito quiénes fueron (un círculo con las iniciales y el color de cada uno). Al principio son los que subieron fotos de ese viaje. Para cambiarlo, entrá al viaje y tocá **«Fueron: …»**: marcá a los que fueron aunque no hayan subido nada, y **Guardar**. Con **«Volver a los que subieron fotos»** vuelve a lo automático.
+
 ## Unir dos viajes que son el mismo
 
 A veces un viaje aparece partido en dos (por ejemplo, si pasaron unos días sin sacar fotos). Entrá a uno, tocá **«Unir»** y elegí el otro: los de fechas más cercanas aparecen primero. Quedan como un solo viaje, y las fotos de esos días que se suban después también entran. Si te equivocaste, entrá al viaje y tocá **«Separar»**.

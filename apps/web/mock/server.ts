@@ -17,7 +17,14 @@ const PROCESS_MS = Number(process.env.MOCK_PROCESS_MS ?? 1200);
 
 type Media = S.MediaItem & { bytes: Uint8Array | null; mime: string; partialHash: string; batchId: string | null };
 type PlaceRow = { id: string; name: string; admin1: string | null; countryCode: string; lat: number; lon: number };
-type TripRow = { id: string; name: string; nameIsCustom: boolean; placeId: string; merged?: boolean };
+type TripRow = {
+  id: string;
+  name: string;
+  nameIsCustom: boolean;
+  placeId: string;
+  merged?: boolean;
+  memberIds?: string[];
+};
 
 const PLACES: PlaceRow[] = [
   { id: "pl1", name: "Ciudad de ejemplo 1", admin1: "Región de ejemplo", countryCode: "XA", lat: 48.86, lon: 2.29 },
@@ -110,6 +117,8 @@ function tripOut(t: TripRow): S.Trip {
     count: items.length,
     coverThumbUrl: items[0]?.thumbUrl ?? null,
     merged: t.merged ?? false,
+    memberIds: t.memberIds ?? [...new Set(items.map((m) => m.memberId))],
+    membersCustom: !!t.memberIds,
   };
 }
 
@@ -539,6 +548,13 @@ on("PATCH", "/trips/:id", async (c, p) => {
   const t = [...db.trips.values()].find((x) => x.id === p.id);
   if (!t) return fail(404, "not_found", "No encontramos ese viaje.");
   Object.assign(t, { name: S.TripPatch.parse(await c.body()).name, nameIsCustom: true });
+  return json(S.Trip, tripOut(t));
+});
+on("PUT", "/trips/:id/members", async (c, p) => {
+  const t = [...db.trips.values()].find((x) => x.id === p.id);
+  if (!t) return fail(404, "not_found", "No encontramos ese viaje.");
+  const { memberIds } = S.TripMembers.parse(await c.body());
+  t.memberIds = memberIds.length ? [...new Set(memberIds)] : undefined;
   return json(S.Trip, tripOut(t));
 });
 // Unir: las fotos del otro pasan a este. Separar en el mock solo apaga la marca (no hay recálculo).

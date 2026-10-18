@@ -267,3 +267,9 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 
 - **Problema:** «Procesamiento» en Estado del sistema siempre decía 0. No era un error: cuenta trabajos de la cola, y una foto pasa por todos en menos de un segundo; la pantalla mira cada 15 s. Lo que se sube tampoco pasa por la cola.
 - **Decisión:** `GET /activity` lista cada media que todavía no está lista: `status = 'processing'` o con pasos visibles pendientes (fecha y lugar, miniatura, tapa, versión para ver, video, nombre del lugar; los de fondo como parecidas o viajes no cuentan). Con los pasos que le faltan, las que fallaron y los últimos 10 lotes (solo lo nuevo, sin repetidas). La pantalla `/subidas` suma el progreso de este dispositivo y se actualiza en vivo (SSE + cada 3 s) mientras haya algo en curso, y cada 20 s si no.
+
+## 2026-10-18 — Quiénes fueron a un viaje
+
+- **Decisión:** por defecto, los que subieron fotos del viaje. A mano se guarda en `trip_members` (migración 004) y reemplaza a lo automático; vacío vuelve a lo automático (`PUT /trips/:id/members`). `Trip` suma `memberIds` y `membersCustom`.
+- **En cascada con el viaje:** los viajes se recalculan; si uno desaparece se lleva su lista (las claves foráneas están activas). Al unir, si alguno tenía lista a mano, el unido queda con los de los dos.
+- **Iniciales:** dos letras si el nombre tiene más de una palabra («María José» → «MJ»).
