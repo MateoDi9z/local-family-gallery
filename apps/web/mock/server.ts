@@ -17,7 +17,7 @@ const PROCESS_MS = Number(process.env.MOCK_PROCESS_MS ?? 1200);
 
 type Media = S.MediaItem & { bytes: Uint8Array | null; mime: string; partialHash: string; batchId: string | null };
 type PlaceRow = { id: string; name: string; admin1: string | null; countryCode: string; lat: number; lon: number };
-type TripRow = { id: string; name: string; nameIsCustom: boolean; placeId: string };
+type TripRow = { id: string; name: string; nameIsCustom: boolean; placeId: string; merged?: boolean };
 
 const PLACES: PlaceRow[] = [
   { id: "pl1", name: "Ciudad de ejemplo 1", admin1: "Región de ejemplo", countryCode: "XA", lat: 48.86, lon: 2.29 },
@@ -100,6 +100,7 @@ function tripOut(t: TripRow): S.Trip {
     endAt: items.at(-1)?.takenAt ?? new Date().toISOString(),
     count: items.length,
     coverThumbUrl: items[0]?.thumbUrl ?? null,
+    merged: t.merged ?? false,
   };
 }
 
@@ -167,6 +168,7 @@ function makeMedia(o: {
     originalName: o.name,
     memberId: o.memberId,
     takenAt: o.takenAt,
+    takenTz: null,
     width: 400,
     height: 400,
     durationMs: kind === "video" ? 3000 : null,
@@ -523,6 +525,22 @@ on("PATCH", "/trips/:id", async (c, p) => {
   if (!t) return fail(404, "not_found", "No encontramos ese viaje.");
   Object.assign(t, { name: S.TripPatch.parse(await c.body()).name, nameIsCustom: true });
   return json(S.Trip, tripOut(t));
+});
+// Unir: las fotos del otro pasan a este. Separar en el mock solo apaga la marca (no hay recálculo).
+on("POST", "/trips/:id/merge", async (c, p) => {
+  const keep = [...db.trips.values()].find((x) => x.id === p.id);
+  const { otherId } = S.TripMerge.parse(await c.body());
+  const other = [...db.trips.values()].find((x) => x.id === otherId);
+  if (!keep || !other || keep === other) return fail(404, "not_found", "No encontramos ese viaje.");
+  for (const m of db.media) if (m.tripId === other.id) m.tripId = keep.id;
+  keep.merged = true;
+  return json(S.TripMergeResponse, { tripId: keep.id });
+});
+on("DELETE", "/trips/:id/merge", (_c, p) => {
+  const t = [...db.trips.values()].find((x) => x.id === p.id);
+  if (!t) return fail(404, "not_found", "No encontramos ese viaje.");
+  t.merged = false;
+  return noContent();
 });
 on("GET", E.media, (c) => {
   const q = S.MediaListQuery.parse(Object.fromEntries(c.url.searchParams));

@@ -4,7 +4,7 @@ import { loadConfig } from "../config";
 import { addMedia, addMember, citiesTsv, HOME, jobsOf, TEST_CITIES, type TestEnv, testEnv } from "../worker/testing";
 import { CityIndex, distanceKm, loadCities, parseCities } from "./cities";
 import { geocode, resuggestAround, suggestLocation } from "./locate";
-import { assignTrips, detectTrips, type TripPoint } from "./trips";
+import { assignTrips, detectTrips, mergeTrips, splitTrip, type TripPoint } from "./trips";
 
 let env: TestEnv;
 afterEach(() => env?.cleanup());
@@ -149,6 +149,17 @@ test("detectTrips: menos de 5 fotos se descarta, y cerca de casa (< 30 km) no es
   expect(detectTrips(pts(10, 0, H, { lat: HOME.lat + 0.1, lon: HOME.lon }), HOME)).toEqual([]);
 });
 
+test("detectTrips: un rango unido a mano junta los grupos que toca, aunque haya uno chico en el medio", () => {
+  const a = pts(5, 0);
+  const chico = pts(3, 50 * H); // 3 fotos, a más de 36 h de cada lado
+  const b = pts(5, 100 * H);
+  expect(detectTrips([...a, ...chico, ...b], HOME).map((t) => t.length)).toEqual([5, 5]);
+  const join = { start: 0, end: 104 * H };
+  expect(detectTrips([...a, ...chico, ...b], HOME, [join]).map((t) => t.length)).toEqual([13]);
+  // Un grupo fuera del rango sigue aparte.
+  expect(detectTrips([...a, ...b, ...pts(5, 300 * H)], HOME, [join]).map((t) => t.length)).toEqual([10, 5]);
+});
+
 async function seedTrip(member: string, n: number, startIso: string, place?: string) {
   const ids: string[] = [];
   const t0 = Date.parse(startIso);
@@ -225,4 +236,38 @@ test("assignTrips: sin casa configurada no hace nada", async () => {
   await seedTrip(addMember(env.db), 6, "2023-01-10T10:00:00.000Z");
   expect(assignTrips(env.db)).toEqual({ trips: 0 });
   expect(trips()).toEqual([]);
+});
+
+test("unir viajes: queda uno, con el nombre puesto a mano; las fotos nuevas del medio entran; separar lo deshace", async () => {
+  env = await testEnv();
+  const p = addMember(env.db);
+  await seedTrip(p, 6, "2023-07-01T08:00:00.000Z");
+  await seedTrip(p, 6, "2023-07-05T08:00:00.000Z");
+  assignTrips(env.db);
+  const rows = () =>
+    env.db
+      .query<{ id: string; name: string; name_is_custom: number; start_at: string }, []>(
+        "SELECT id, name, name_is_custom, start_at FROM trips ORDER BY start_at",
+      )
+      .all();
+  const [a, b] = rows();
+  expect(rows()).toHaveLength(2);
+  env.db.query("UPDATE trips SET name = 'Vacaciones', name_is_custom = 1 WHERE id = ?").run(a?.id as string);
+
+  const merged = mergeTrips(env.db, a?.id as string, b?.id as string);
+  expect(rows()).toMatchObject([{ id: merged, name: "Vacaciones", name_is_custom: 1 }]);
+  const count = () =>
+    env.db.query<{ n: number }, [string]>("SELECT count(*) AS n FROM media WHERE trip_id = ?").get(merged as string)?.n;
+  expect(count()).toBe(12);
+
+  // Una foto que se sube después, de un día del medio, entra sola en el viaje unido.
+  await seedTrip(p, 1, "2023-07-03T12:00:00.000Z");
+  assignTrips(env.db);
+  expect(rows()).toHaveLength(1);
+  expect(count()).toBe(13);
+
+  expect(splitTrip(env.db, merged as string)).toBe(true);
+  expect(rows().map((t) => t.start_at)).toEqual([a?.start_at as string, b?.start_at as string]);
+  expect(mergeTrips(env.db, a?.id as string, "no-existe")).toBeNull();
+  expect(splitTrip(env.db, "no-existe")).toBe(false);
 });

@@ -12,17 +12,24 @@ export const GAP_MS = TRIP_GAP_MS;
 export const MIN_TRIP_MEDIA = 5;
 
 export type TripPoint = { id: string; t: number; lat: number; lon: number };
+/** Rango de un viaje unido a mano (`trip_joins`), en ms. */
+export type TripJoin = { start: number; end: number };
 
 /**
  * Agrupa en viajes las medias a más de 30 km de casa, ordenadas por fecha. Corta cuando pasan más de 36 h
- * sin medias lejos de casa o cuando aparece una media en casa entre medio. Descarta los de menos de 5.
+ * sin medias lejos de casa o cuando aparece una media en casa entre medio. Los grupos que tocan un mismo
+ * rango unido a mano quedan en un solo viaje. Al final descarta los de menos de 5.
  */
-export function detectTrips(points: TripPoint[], home: { lat: number; lon: number }): TripPoint[][] {
+export function detectTrips(
+  points: TripPoint[],
+  home: { lat: number; lon: number },
+  joins: TripJoin[] = [],
+): TripPoint[][] {
   const sorted = [...points].sort((a, b) => a.t - b.t || (a.id < b.id ? -1 : 1));
-  const trips: TripPoint[][] = [];
+  const groups: TripPoint[][] = [];
   let cur: TripPoint[] = [];
   const close = () => {
-    if (cur.length >= MIN_TRIP_MEDIA) trips.push(cur);
+    if (cur.length) groups.push(cur);
     cur = [];
   };
   for (const p of sorted) {
@@ -35,7 +42,15 @@ export function detectTrips(points: TripPoint[], home: { lat: number; lon: numbe
     cur.push(p);
   }
   close();
-  return trips;
+  // Uniones a mano: un grupo se suma al anterior si los dos tocan el mismo rango.
+  const touches = (g: TripPoint[], j: TripJoin) => (g[0]?.t ?? 0) <= j.end && (g.at(-1)?.t ?? 0) >= j.start;
+  const joined: TripPoint[][] = [];
+  for (const g of groups) {
+    const prev = joined.at(-1);
+    if (prev && joins.some((j) => touches(prev, j) && touches(g, j))) prev.push(...g);
+    else joined.push(g);
+  }
+  return joined.filter((g) => g.length >= MIN_TRIP_MEDIA);
 }
 
 type Row = {
@@ -66,9 +81,14 @@ export function assignTrips(db: Database): { trips: number } {
         )
         .all();
       const byId = new Map(rows.map((r) => [r.id, r]));
+      const joins = db
+        .query<{ start_at: string; end_at: string }, []>("SELECT start_at, end_at FROM trip_joins")
+        .all()
+        .map((j) => ({ start: Date.parse(j.start_at), end: Date.parse(j.end_at) }));
       const detected = detectTrips(
         rows.map((r) => ({ id: r.id, t: new Date(r.taken_at).getTime(), lat: r.lat, lon: r.lon })),
         home,
+        joins,
       );
       const existing = db.query<TripRow, []>("SELECT id, name_is_custom, start_at, end_at FROM trips").all();
       const existingById = new Map(existing.map((t) => [t.id, t]));
@@ -135,4 +155,59 @@ function pickTripId(media: Row[], startAt: string, endAt: string, existing: Trip
   if (voted && existing.some((t) => t.id === voted)) return voted;
   // Viaje custom vacío (o sin medias propias) que se solapa en fechas: se recupera con su nombre.
   return existing.find((t) => !used.has(t.id) && t.start_at <= endAt && t.end_at >= startAt)?.id;
+}
+
+/**
+ * Une dos viajes: guarda el rango que los cubre (de los dos extremos) y recalcula. El nombre puesto a mano
+ * se conserva (primero el de `keepId`). Devuelve el id del viaje que quedó, o null si alguno no existe.
+ */
+export function mergeTrips(db: Database, keepId: string, otherId: string): string | null {
+  return db
+    .transaction(() => {
+      const q = db.query<TripRow & { name: string }, [string]>(
+        "SELECT id, name, name_is_custom, start_at, end_at FROM trips WHERE id = ?",
+      );
+      const a = q.get(keepId);
+      const b = q.get(otherId);
+      if (!a || !b || a.id === b.id) return null;
+      const anyMedia = db.query<{ id: string }, [string]>(
+        "SELECT id FROM media WHERE trip_id = ? AND deleted_at IS NULL LIMIT 1",
+      );
+      const witness = anyMedia.get(a.id) ?? anyMedia.get(b.id);
+      db.query("INSERT INTO trip_joins (id, start_at, end_at, created_at) VALUES (?, ?, ?, ?)").run(
+        ulid(),
+        a.start_at < b.start_at ? a.start_at : b.start_at,
+        a.end_at > b.end_at ? a.end_at : b.end_at,
+        new Date().toISOString(),
+      );
+      assignTrips(db);
+      const merged = witness
+        ? db.query<{ trip_id: string | null }, [string]>("SELECT trip_id FROM media WHERE id = ?").get(witness.id)
+            ?.trip_id
+        : null;
+      if (!merged) return null;
+      const custom = a.name_is_custom ? a.name : b.name_is_custom ? b.name : null;
+      if (custom) db.query("UPDATE trips SET name = ?, name_is_custom = 1 WHERE id = ?").run(custom, merged);
+      // El otro, si quedó vacío (los de nombre a mano no se borran solos), ya es parte de este.
+      for (const id of [a.id, b.id])
+        if (id !== merged)
+          db.query("DELETE FROM trips WHERE id = ? AND NOT EXISTS (SELECT 1 FROM media WHERE trip_id = ?)").run(id, id);
+      return merged;
+    })
+    .immediate();
+}
+
+/** Deshace las uniones que tocan este viaje y recalcula. false si el viaje no existe. */
+export function splitTrip(db: Database, id: string): boolean {
+  return db
+    .transaction(() => {
+      const t = db
+        .query<TripRow, [string]>("SELECT id, name_is_custom, start_at, end_at FROM trips WHERE id = ?")
+        .get(id);
+      if (!t) return false;
+      db.query("DELETE FROM trip_joins WHERE start_at <= ? AND end_at >= ?").run(t.end_at, t.start_at);
+      assignTrips(db);
+      return true;
+    })
+    .immediate();
 }

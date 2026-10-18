@@ -75,6 +75,8 @@ export const MediaItem = z.object({
   originalName: z.string(),
   memberId: Id,
   takenAt: IsoDate.nullable(),
+  /** Zona horaria de la toma («+08:00»), para saber el día local; null si la cámara no la guardó. */
+  takenTz: z.string().nullable(),
   width: z.number().int().nullable(),
   height: z.number().int().nullable(),
   durationMs: z.number().int().nullable(),
@@ -123,7 +125,12 @@ export const Trip = z.object({
   endAt: IsoDate,
   count: z.number().int(),
   coverThumbUrl: z.string().nullable(),
+  /** Unido a mano con otro (se puede separar). */
+  merged: z.boolean(),
 });
+/** Unir este viaje con otro: quedan como uno solo. */
+export const TripMerge = z.object({ otherId: Id });
+export const TripMergeResponse = z.object({ tripId: Id });
 export const TripPatch = z.object({ name: z.string().trim().min(1).max(80) });
 export const TripDetail = z.object({ trip: Trip, media: z.array(MediaItem) });
 

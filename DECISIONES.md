@@ -246,3 +246,14 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 
 - **Descargar:** los originales de a uno, con medio segundo entre cada uno (Chrome descarta descargas seguidas muy juntas). No es un ZIP: en el celu, un ZIP hay que abrirlo aparte y las fotos no aparecen en la galería.
 - **Compartir:** Web Share con los originales. Se preparan primero y se comparten con un segundo toque, porque Safari exige que `share()` salga directo de un toque. Tope de 300 MB en memoria; si se pasa, sugiere «Descargar».
+
+## 2026-10-18 — Unir viajes
+
+- **Problema:** los viajes se recalculan desde cero con cada foto nueva (`assign_trips`). Mover las fotos de un viaje al otro se deshace en el próximo recálculo.
+- **Decisión:** la unión es una regla: `trip_joins` guarda el rango de fechas que cubre a los dos viajes (migración 003). `detectTrips` suma un grupo al anterior cuando los dos tocan el mismo rango, antes de descartar los de menos de 5 fotos; así entra también un grupo chico del medio, y las fotos de esos días que se suban después. El nombre puesto a mano se conserva (primero el del viaje desde donde se unió).
+- **Separar:** borra las reglas que tocan el viaje y recalcula. El nombre a mano del otro viaje no vuelve: su fila se borró al unir.
+- **`Trip.merged`** dice si hay una regla que lo toca, para mostrar «Separar».
+
+## 2026-10-18 — Días dentro de un viaje
+
+- **Decisión:** el viaje muestra un grupo por día y, dentro del día, uno por cada tramo seguido en el mismo lugar (`groupByDay`). El día es el **local de la toma**: `MediaItem` suma `takenTz` (de `media.taken_tz`). Las fotos sin zona usan la más común del viaje y, si ninguna tiene, la del celu. «Día N» cuenta días de calendario desde el primero (un día sin fotos se saltea).
