@@ -14,6 +14,7 @@ import { MemberFilter, useMemberFiltered } from "../components/MemberFilter";
 import { MergeTrip } from "../components/MergeTrip";
 import { useSelection } from "../components/Selection";
 import { TripMembers } from "../components/TripMembers";
+import { startTvShow } from "../components/tvshow";
 import { openViewer } from "../components/viewer";
 import { groupByDate, groupByDay, groupByPlace } from "../grouping";
 import { formatDate, formatDay, formatShortDate, t } from "../i18n";
@@ -65,7 +66,7 @@ function CastButton({ items }: { items: MediaItem[] }) {
       type="button"
       className="btn small"
       aria-label={t.trips.slideshow}
-      onClick={() => (cast ? castItems(items, 0, true) : openViewer(items, 0, { present: true }))}
+      onClick={() => (cast ? castItems(items, 0, true) : startTvShow(items, 0))}
     >
       <Icon name="tv" />
       <span>{t.trips.slideshowShort}</span>

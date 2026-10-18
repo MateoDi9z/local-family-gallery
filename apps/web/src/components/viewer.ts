@@ -1,13 +1,13 @@
 // Visor PhotoSwipe 5: swipe, pantalla completa, video, "Descargar original", favorita, tele y borrar.
-// En iPhone la tele va por AirPlay: los videos con el selector de AirPlay y las fotos con una presentación
-// que pasa sola, para verla con "Duplicar pantalla".
+// "Tele": Chromecast si hay uno; en iPhone, un video va por AirPlay; si no, la presentación para la tele (tvshow).
 import "photoswipe/style.css";
 import { endpoints, type MediaItem } from "@lfg/shared";
 import PhotoSwipe from "photoswipe";
 import { api, errorText } from "../api/client";
-import { castItems, castState, type Platform, platform, SLIDE_MS } from "../cast";
+import { castItems, castState, platform } from "../cast";
 import { t } from "../i18n";
 import { iconSvg } from "./icons";
+import { startTvShow } from "./tvshow";
 
 /** Alto de la barra de arriba de PhotoSwipe (contador, zoom y cerrar). */
 const TOP_BAR_PX = 60;
@@ -27,11 +27,9 @@ type AirPlayVideo = HTMLVideoElement & { webkitShowPlaybackTargetPicker?: () => 
 export type ViewerOptions = {
   /** Alguien borró la foto que estaba viendo: el visor se cierra y la pantalla recarga. */
   onDeleted?: () => void;
-  /** Empezar como presentación para la tele (en iPhone, con la ayuda de "Duplicar pantalla"). */
-  present?: boolean;
 };
 
-export function openViewer(items: MediaItem[], index: number, { onDeleted, present }: ViewerOptions = {}) {
+export function openViewer(items: MediaItem[], index: number, { onDeleted }: ViewerOptions = {}) {
   const list = items.map((m) => ({ ...m }));
   const pswp = new PhotoSwipe({
     dataSource: list.map((m) => ({
@@ -81,50 +79,7 @@ export function openViewer(items: MediaItem[], index: number, { onDeleted, prese
     for (const v of document.querySelectorAll<HTMLVideoElement>(".pswp video")) v.pause();
   });
 
-  // Presentación: las fotos pasan cada SLIDE_MS; un video se ve entero y después sigue.
   const currentVideo = () => pswp.currSlide?.content.element?.querySelector<AirPlayVideo>("video") ?? null;
-  let presenting = false;
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  let showPresenting = () => {};
-  const schedule = () => {
-    clearTimeout(timer);
-    if (!presenting) return;
-    const v = currentVideo();
-    if (v) {
-      v.onended = () => presenting && pswp.next();
-      v.play().catch(() => {
-        timer = setTimeout(() => pswp.next(), SLIDE_MS);
-      });
-    } else timer = setTimeout(() => pswp.next(), SLIDE_MS);
-  };
-  // Duplicando la pantalla, si el celu se apaga la tele queda en negro: pantalla prendida mientras pasa.
-  let wakeLock: WakeLockSentinel | null = null;
-  const keepAwake = (on: boolean) => {
-    if (on && !wakeLock)
-      navigator.wakeLock?.request("screen").then(
-        (l) => {
-          wakeLock = l;
-        },
-        () => {},
-      );
-    if (!on) {
-      wakeLock?.release().catch(() => {});
-      wakeLock = null;
-    }
-  };
-  const setPresenting = (on: boolean) => {
-    presenting = on;
-    keepAwake(on);
-    // Sin botones encima mientras pasa (tocar la pantalla los vuelve a mostrar).
-    pswp.element?.classList.toggle("pswp--ui-visible", !on);
-    showPresenting();
-    schedule();
-  };
-  pswp.on("change", schedule);
-  pswp.on("destroy", () => {
-    clearTimeout(timer);
-    keepAwake(false);
-  });
 
   pswp.on("uiRegister", () => {
     pswp.ui?.registerElement({
@@ -139,10 +94,6 @@ export function openViewer(items: MediaItem[], index: number, { onDeleted, prese
         const del = action("button", iconSvg("trash"), t.viewer.delete);
         // Siempre: sin Chromecast queda duplicar la pantalla o la presentación (Samsung, LG, el navegador de la tele).
         el.append(dl, fav, cast, del);
-        showPresenting = () => {
-          cast.innerHTML = `${iconSvg("tv")}<span>${presenting ? t.viewer.stopShow : t.viewer.castShort}</span>`;
-          cast.setAttribute("aria-label", presenting ? t.viewer.stopShow : t.viewer.cast);
-        };
 
         const current = () => list[pswp.currIndex];
         const sync = () => {
@@ -168,7 +119,6 @@ export function openViewer(items: MediaItem[], index: number, { onDeleted, prese
           }
         };
         cast.onclick = () => {
-          if (presenting) return setPresenting(false);
           const p = platform();
           // Con un Chromecast a la vista, va por Cast.
           if (p !== "ios" && castState.get().devices) return castItems(list, pswp.currIndex);
@@ -176,7 +126,7 @@ export function openViewer(items: MediaItem[], index: number, { onDeleted, prese
           const v = currentVideo();
           if (p === "ios" && current()?.kind === "video" && v?.webkitShowPlaybackTargetPicker)
             return v.webkitShowPlaybackTargetPicker();
-          startShow(p);
+          startTvShow(list, pswp.currIndex, pswp.element, () => pswp.close());
         };
         del.onclick = () => {
           const m = current();
@@ -190,54 +140,7 @@ export function openViewer(items: MediaItem[], index: number, { onDeleted, prese
     });
   });
   pswp.init();
-  /** iPhone y Android: primero cómo duplicar la pantalla; la tele y la compu arrancan directo. */
-  function startShow(p: Platform) {
-    if (p !== "ios" && p !== "android") return setPresenting(true);
-    const cast = p === "android" && castState.get().available ? () => castItems(list, pswp.currIndex) : undefined;
-    mirrorHelp(pswp.element, p, () => setPresenting(true), cast);
-  }
-  if (present) startShow(platform());
   return pswp;
-}
-
-/** Cómo duplicar la pantalla del celu en la tele (AirPlay en iPhone, Smart View y parecidos en Android). */
-function mirrorHelp(root: HTMLElement | undefined, kind: "ios" | "android", start: () => void, cast?: () => void) {
-  const texts = t.viewer.mirror[kind];
-  const d = document.createElement("dialog");
-  d.setAttribute("aria-labelledby", "viewer-mirror-title");
-  const box = document.createElement("div");
-  box.className = "stack";
-  const title = document.createElement("h2");
-  title.id = "viewer-mirror-title";
-  title.textContent = texts.title;
-  const steps = document.createElement("ol");
-  steps.className = "steps";
-  for (const s of texts.steps) {
-    const li = document.createElement("li");
-    li.textContent = s;
-    steps.append(li);
-  }
-  const note = document.createElement("p");
-  note.className = "muted";
-  note.textContent = texts.note;
-  const button = (label: string, cls: string, onClick: () => void) => {
-    const b = document.createElement("button");
-    b.type = "button";
-    b.className = cls;
-    b.textContent = label;
-    b.onclick = () => {
-      d.close();
-      onClick();
-    };
-    return b;
-  };
-  box.append(title, steps, note, button(t.viewer.startShow, "btn primary", start));
-  if (cast) box.append(button(t.viewer.findChromecast, "btn", cast));
-  box.append(button(t.cancel, "btn", () => {}));
-  d.append(box);
-  (root ?? document.body).append(d);
-  d.addEventListener("close", () => d.remove());
-  d.showModal();
 }
 
 /** Diálogo de confirmación (dentro del visor, para que PhotoSwipe no le robe el foco). Nada se borra sin el «Sí». */

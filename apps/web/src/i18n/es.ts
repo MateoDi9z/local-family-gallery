@@ -203,6 +203,16 @@ export const es = {
     justNow: "recién",
   },
 
+  tvshow: {
+    label: "Presentación para la tele",
+    prev: "Anterior",
+    next: "Siguiente",
+    pause: "Pausar",
+    play: "Seguir",
+    exit: "Salir",
+    rotate: "Girá el celu para que se vea más grande en la tele",
+  },
+
   deletePlace: {
     button: "Borrar todas las fotos de este lugar",
     title: (name: string) => `¿Borrar todo lo de ${name}?`,
@@ -218,7 +228,6 @@ export const es = {
     downloadShort: "Descargar",
     favoriteShort: "Favorita",
     castShort: "Tele",
-    stopShow: "Parar",
     startShow: "Empezar",
     findChromecast: "Buscar un Chromecast",
     mirror: {
@@ -229,7 +238,7 @@ export const es = {
           "Tocá «Duplicar pantalla» y elegí la tele.",
           "Volvé acá y tocá «Empezar»: las fotos pasan solas.",
         ],
-        note: "Hace falta un Apple TV o una tele con AirPlay. Para cortar, tocá la pantalla y después «Parar».",
+        note: "Hace falta un Apple TV o una tele con AirPlay. Para cortar, tocá la pantalla y después «Salir».",
       },
       android: {
         title: "Ver en la tele duplicando la pantalla",
@@ -238,7 +247,7 @@ export const es = {
           "Elegí la tele.",
           "Volvé acá y tocá «Empezar»: las fotos pasan solas.",
         ],
-        note: "Sirve para teles Samsung, LG y otras que no traen Chromecast. Para cortar, tocá la pantalla y después «Parar».",
+        note: "Sirve para teles Samsung, LG y otras que no traen Chromecast. Para cortar, tocá la pantalla y después «Salir».",
       },
     },
     favorite: "Marcar como favorita",
@@ -540,7 +549,7 @@ export const es = {
         {
           title: "Terminar",
           steps: [
-            "Tocá la pantalla y después «Parar».",
+            "Tocá la pantalla y después «Salir».",
             "En el Centro de control, tocá «Duplicar pantalla» y después «Dejar de duplicar».",
           ],
         },

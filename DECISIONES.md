@@ -286,3 +286,9 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 - **Problema:** desde Android a una Samsung Smart no andaba. Las Samsung (Tizen) y la mayoría de las LG (webOS) no traen Chromecast: el SDK de Cast de Chrome no las ve.
 - **Decisión:** `platform()` (`cast.ts`) decide: con un Chromecast a la vista, Cast; en iPhone, AirPlay; en Android sin Chromecast, explicar Smart View / duplicar pantalla y arrancar la presentación (más «Buscar un Chromecast»); en el navegador de la tele o una compu, la presentación directa. El botón «Tele» está siempre. La presentación pide wake lock: si el celu se apaga, la tele queda en negro.
 - **Alternativa descartada:** DLNA desde el servidor (las Samsung son renderizadores DLNA). Necesita descubrir la tele por multicast en la red de casa, o sea el contenedor con `network_mode: host`, y cambiar cómo Caddy llega a la app. Mucho cambio en el deploy para algo que duplicar la pantalla ya resuelve.
+
+## 2026-10-18 — Presentación para la tele
+
+- **Decisión:** una vista propia (`tvshow.ts`) para duplicar la pantalla o abrir en el navegador de la tele, en vez de la presentación dentro de PhotoSwipe (que reserva lugar para barras, contador y zoom). Pide pantalla completa y, después, `screen.orientation.lock("landscape")`: en Android el celu gira solo y un video 16:9 llena la tele. Donde no se puede (iPhone), un aviso pide girarlo. Cada foto o video va absoluto y del tamaño de la pantalla con `object-fit: contain` (dentro de una grilla, el alto salía de la proporción y se recortaba).
+- **Controles:** aparecen al tocar y se esconden a los 3 s; deslizar cambia de foto; flechas, OK y volver del control remoto (incluida la tecla 10009 de Tizen) en el navegador de la tele. Wake lock mientras está abierta.
+- **Pantalla completa exige un toque:** la vista se abre desde el «Empezar» de la ayuda o desde «Pasar en la tele», nunca sola.
