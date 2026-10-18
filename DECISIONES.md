@@ -273,3 +273,10 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 - **Decisión:** por defecto, los que subieron fotos del viaje. A mano se guarda en `trip_members` (migración 004) y reemplaza a lo automático; vacío vuelve a lo automático (`PUT /trips/:id/members`). `Trip` suma `memberIds` y `membersCustom`.
 - **En cascada con el viaje:** los viajes se recalculan; si uno desaparece se lleva su lista (las claves foráneas están activas). Al unir, si alguno tenía lista a mano, el unido queda con los de los dos.
 - **Iniciales:** dos letras si el nombre tiene más de una palabra («María José» → «MJ»).
+
+## 2026-10-18 — Atajo de a una foto
+
+- **Problema:** la receta ponía la entrada del Atajo (varias fotos) en un solo campo del formulario, y iOS mandaba solo la primera.
+- **Decisión:** la receta usa «Repetir con cada» y un «Obtener contenido de URL» por foto, con «Elemento de repetición» en el campo `file`. Además no arma un pedido gigante en memoria y un archivo que falla no frena al resto.
+- **Lote:** cada pedido armaba su propio lote. Ahora las fotos que llegan por el Atajo de la misma persona con menos de 30 minutos entre una y otra van al mismo lote (un video grande puede tardar varios minutos en subir).
+- **Alternativa descartada:** que el Atajo pida un lote y lo mande en cada foto. Agrega pasos a una receta que ya es larga para la familia.

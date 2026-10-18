@@ -132,3 +132,27 @@ test("Atajo: token válido sube varios archivos en un lote; revocado → 401", a
   ).toBe(401);
   expect((await (await c.req("/api/shortcut/tokens")).json())[0]?.revoked).toBe(true);
 });
+
+test("Atajo de a una: las que llegan seguidas van al mismo lote; después de un rato, a otro", async () => {
+  const { app, db } = await makeEnv();
+  const { c, members } = await setupGallery(app);
+  const created = await c.req("/api/shortcut/tokens", { json: { memberId: members[0]?.id, label: "iPhone" } });
+  const { token } = (await created.json()) as { token: string };
+  const send = async (fixture: string) => {
+    const res = await app.request("/api/shortcut/upload", {
+      method: "POST",
+      headers: { authorization: `Bearer ${token}` },
+      body: await form(fixture),
+    });
+    expect(res.status).toBe(200);
+    return ((await res.json()) as { batchId: string }).batchId;
+  };
+  const first = await send("foto-gps.jpg");
+  expect(await send("foto-sin-gps.jpg")).toBe(first);
+  // Una hora sin mandar nada: lo próximo es otro lote.
+  const hourAgo = new Date(Date.now() - 3600_000).toISOString();
+  db.query("UPDATE batch_items SET created_at = ?").run(hourAgo);
+  db.query("UPDATE batches SET created_at = ?").run(hourAgo);
+  expect(await send("captura.png")).not.toBe(first);
+  expect(db.query("SELECT count(*) AS n FROM batches WHERE source = 'shortcut'").get()).toEqual({ n: 2 });
+});

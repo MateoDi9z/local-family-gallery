@@ -403,12 +403,16 @@ export const es = {
     steps: [
       "Abrí la app Atajos y tocá + para crear uno nuevo. Ponele de nombre «Enviar a la galería».",
       "Tocá el ícono de información (i) y activá «Mostrar en la hoja para compartir». En tipos, dejá solo Imágenes y Multimedia.",
-      "Agregá la acción «Obtener archivo original»… si no aparece, usá «Obtener contenido de» la entrada del Atajo, sin convertir.",
-      "Agregá «Obtener contenido de URL». Pegá la dirección de arriba. Método: POST. Cuerpo de la solicitud: Formulario.",
-      "En el formulario agregá un campo de tipo Archivo, con nombre «file», y elegí la entrada del Atajo.",
+      "Agregá la acción «Repetir con cada» (buscá «Repetir») y elegí «Entrada del atajo». Así manda las fotos de a una.",
+      "Adentro del Repetir, agregá «Obtener contenido de URL». Pegá la dirección de arriba. Método: POST. Cuerpo de la solicitud: Formulario.",
+      "En el formulario agregá un campo de tipo Archivo, con nombre «file», y elegí «Elemento de repetición».",
       "En Encabezados agregá «Authorization» con el valor «Bearer » seguido de la clave (con un espacio después de Bearer).",
-      "Listo: en Fotos elegí fotos, tocá Compartir y «Enviar a la galería».",
+      "Afuera del Repetir, al final, agregá «Mostrar notificación» con el texto «Listo, ya están en la galería» (es opcional, para saber cuándo terminó).",
+      "Listo: en Fotos elegí todas las fotos que quieras, tocá Compartir y «Enviar a la galería». En la galería, Más › Subidas muestra cómo van llegando.",
     ],
+    updateTitle: "¿Ya lo tenías armado y manda una sola foto?",
+    update:
+      "No hace falta rehacerlo: agregá «Repetir con cada» con la «Entrada del atajo», meté adentro el «Obtener contenido de URL» que ya tenías, y en el formulario cambiá el archivo por «Elemento de repetición».",
     keepTitle: "Para que lleguen con ubicación y en buena calidad",
     keep: [
       "En Ajustes › Fotos › Transferir a Mac o PC, elegí «Mantener originales».",

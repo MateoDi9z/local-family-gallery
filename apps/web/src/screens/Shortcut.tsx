@@ -90,6 +90,10 @@ export function Shortcut({ members, me }: { members: Member[]; me: string | null
             <li key={s}>{s}</li>
           ))}
         </ol>
+        <div className="notice stack">
+          <strong>{t.shortcut.updateTitle}</strong>
+          <span>{t.shortcut.update}</span>
+        </div>
       </section>
       <section className="card">
         <h2>{t.shortcut.keepTitle}</h2>
