@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
@@ -5,6 +6,8 @@ import { ICON_SIZES, ICON_SVG, iconPng } from "./build/icons";
 import { es } from "./src/i18n/es";
 
 const THEME = "#b9420b";
+/** Única fuente del número de versión: el archivo VERSION de la raíz (0.6, 0.7…). */
+const VERSION = readFileSync(new URL("../../VERSION", import.meta.url), "utf8").trim();
 const BG = "#fff8f0";
 
 /** Íconos generados en el build (y servidos en dev): sin PNG en el repo. */
@@ -31,6 +34,7 @@ function icons(): Plugin {
 }
 
 export default defineConfig({
+  define: { __APP_VERSION__: JSON.stringify(VERSION) },
   plugins: [
     react(),
     icons(),

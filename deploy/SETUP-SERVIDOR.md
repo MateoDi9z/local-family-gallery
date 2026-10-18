@@ -165,11 +165,12 @@ La primera vez el certificado puede tardar uno o dos minutos. Si el navegador av
 ## 8. Actualizar y volver atrás
 
 - **Actualizar** a la última versión: `cd /opt/galeria && ./deploy.sh`.
-- **Volver a una versión anterior:** buscá el tag en GitHub (*Packages → local-family-gallery-app*, tags `sha-xxxxxxx`) y:
+- **Qué versión corre:** en la app, **Más** (abajo de todo) o **Más → Estado del sistema**. Las versiones son `0.6`, `0.7`… y cada una tiene su imagen con tag `v0.6`, `v0.7`… (y también `sha-xxxxxxx`).
+- **Volver a una versión anterior:**
   ```bash
-  TAG=sha-xxxxxxx ./deploy.sh
+  TAG=v0.5 ./deploy.sh
   ```
-  Para que quede fija (y el timer no la vuelva a actualizar), poné `TAG=sha-xxxxxxx` en `.env`. Para volver a seguir la última: `TAG=latest`.
+  Para que quede fija (y el timer no la vuelva a actualizar), poné `TAG=v0.5` en `.env`. Para volver a seguir la última: `TAG=latest`.
 - Las migraciones de la base solo agregan cosas, pero **hacé un backup antes de volver atrás** entre versiones lejanas.
 
 ### Actualizaciones automáticas (opcional)
