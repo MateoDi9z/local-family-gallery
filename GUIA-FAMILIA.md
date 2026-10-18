@@ -66,7 +66,7 @@ Abrí la foto y tocá el tachito. Pide confirmación y se quita de la galería p
 
 ## Adentro de un viaje
 
-Las fotos y videos están en orden, separados por día y lugar: **«Día 1 · 14/5/26»** y abajo el lugar. Si un día estuvieron en dos lugares, aparece dos veces, uno por cada lugar.
+Las fotos y videos están en orden, separados por día: **«Día 1 · 14/5/26»**. Si ese día estuvieron en un solo lugar, el lugar aparece abajo de la fecha; si estuvieron en varios, adentro del día hay un título chico por cada lugar, en el orden en que los visitaron.
 
 ## Unir dos viajes que son el mismo
 

@@ -136,7 +136,7 @@ Scripts de la raíz que tienen que existir y funcionar. Si cambian, se actualiza
 
 ## Versión
 
-- El número está en `VERSION` (raíz): `0.6`, `0.7`… Lo leen el build de la web y el workflow de imágenes, que publica el tag `v<VERSION>` y se lo pasa al servidor como `APP_VERSION`.
+- El número está en `VERSION` (raíz): `0.6`, `0.7`… `0.9`, `1.0`, `1.1`… (después de `x.9` viene el entero siguiente, no `x.10`). Lo leen el build de la web y el workflow de imágenes, que publica el tag `v<VERSION>` y se lo pasa al servidor como `APP_VERSION`.
 - **Cada PR que cambia lo que usa la familia o el servidor sube la versión en uno** (0.6 → 0.7). Las de solo docs o CI, no.
 
 ## Git

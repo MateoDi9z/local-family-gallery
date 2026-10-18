@@ -35,21 +35,29 @@ test("por lugar: una ciudad por grupo, la más reciente primero y sin lugar al f
   ]);
 });
 
-test("dentro de un viaje: por día local y por tramo de lugar; los días sin fotos se saltean", () => {
+test("dentro de un viaje: un grupo por día local, con los lugares juntos en el orden en que se visitaron", () => {
   const at = (iso: string, placeId: string, takenTz: string | null = "+08:00") =>
     ({ id: iso + placeId, takenAt: iso, takenTz, placeId }) as MediaItem;
   const g = groupByDay([
     at("2026-05-13T17:00:00.000Z", "isla"), // 14/5 a la 1 de la mañana en +08:00: ya es el día 1
     at("2026-05-14T03:00:00.000Z", "isla"),
     at("2026-05-14T06:00:00.000Z", "centro"),
-    at("2026-05-14T09:00:00.000Z", "isla", null), // sin zona: usa la del viaje
+    at("2026-05-14T09:00:00.000Z", "isla", null), // sin zona: usa la del viaje; vuelve a la isla
     at("2026-05-16T02:00:00.000Z", "centro"),
+    { id: "sin", takenAt: null, takenTz: null, placeId: null } as MediaItem,
   ]);
-  expect(g.map((x) => [x.day, x.date, x.placeId, x.items.length])).toEqual([
-    [1, "2026-05-14", "isla", 2],
-    [1, "2026-05-14", "centro", 1],
-    [1, "2026-05-14", "isla", 1],
-    [3, "2026-05-16", "centro", 1],
+  expect(g.map((d) => [d.day, d.date, d.places.map((p) => [p.placeId, p.items.length])])).toEqual([
+    [
+      1,
+      "2026-05-14",
+      [
+        ["isla", 3],
+        ["centro", 1],
+      ],
+    ],
+    [3, "2026-05-16", [["centro", 1]]],
+    [0, "", [[null, 1]]],
   ]);
+  expect(g[0]?.items.map((m) => m.placeId)).toEqual(["isla", "isla", "isla", "centro"]);
   expect(groupByDay([])).toEqual([]);
 });

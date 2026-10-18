@@ -4,11 +4,20 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { type ReactNode, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { t } from "../i18n";
 
-export type Group = { key: string; title?: ReactNode; items: MediaItem[] };
+export type Group = {
+  key: string;
+  title?: ReactNode;
+  items: MediaItem[];
+  /** Subtítulo chico (un lugar dentro de un día). */
+  small?: boolean;
+  /** Se muestra aunque no tenga fotos propias (el día, cuando las fotos van en sus lugares). */
+  headerOnly?: boolean;
+};
 type Row = { kind: "head"; group: Group } | { kind: "items"; items: MediaItem[]; first: number };
 
 const GAP = 4;
 const HEAD = 84;
+const SMALL_HEAD = 44;
 
 function useWidth(ref: React.RefObject<HTMLElement | null>) {
   const [w, setW] = useState(360);
@@ -42,7 +51,7 @@ export function Grid({
     const rows: Row[] = [];
     const flat: MediaItem[] = [];
     for (const g of groups) {
-      if (g.items.length === 0) continue;
+      if (g.items.length === 0 && !g.headerOnly) continue;
       if (g.title) rows.push({ kind: "head", group: g });
       for (let i = 0; i < g.items.length; i += cols) {
         rows.push({ kind: "items", items: g.items.slice(i, i + cols), first: flat.length + i });
@@ -54,7 +63,10 @@ export function Grid({
 
   const v = useWindowVirtualizer({
     count: rows.length,
-    estimateSize: (i) => (rows[i]?.kind === "head" ? HEAD : tile + GAP),
+    estimateSize: (i) => {
+      const r = rows[i];
+      return r?.kind === "head" ? (r.group.small ? SMALL_HEAD : HEAD) : tile + GAP;
+    },
     overscan: 3,
     scrollMargin: ref.current?.offsetTop ?? 0,
   });
@@ -79,7 +91,7 @@ export function Grid({
             }}
           >
             {row.kind === "head" ? (
-              <div className="group-head">{row.group.title}</div>
+              <div className={row.group.small ? "group-head small" : "group-head"}>{row.group.title}</div>
             ) : (
               <div className="grid-row" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
                 {row.items.map((m, j) => (
