@@ -192,6 +192,12 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 - **Después de borrar:** el visor se cierra y la pantalla recarga. Sacar la foto de PhotoSwipe sin cerrarlo es más código para casi nada.
 - **Alternativa descartada:** `window.confirm()`. Es menos código, pero no muestra la foto y queda fuera del estilo de la app.
 
+## 2026-10-18 — Formato por contenido, no por nombre
+
+- **Problema:** el Atajo de iOS puede mandar el archivo sin nombre, sin extensión o con la extensión de antes de convertirlo (un `.HEIC` que ya es JPEG). Se decidía el formato por la extensión: el archivo se salteaba (415) o se guardaba con el MIME equivocado. Con `filename=""` en el multipart, Bun deja `File.name` en `undefined` y la subida caía con un 500.
+- **Decisión:** `sniffExt` (`ingest/common.ts`) mira los primeros 16 bytes: JPEG, PNG, WebP y las marcas `ftyp` de HEIC/HEIF, MOV, MP4, M4V y 3GP. Manda el contenido y el nombre queda de respaldo. Lo usa `finalizeUpload`, así que vale para el Atajo y para tus. El nombre guardado (que es el de la descarga) se corrige con la extensión real.
+- **Alternativa descartada:** confiar en el `Content-Type` del multipart. iOS suele mandar `application/octet-stream`.
+
 ## 2026-10-18 — Fotos corridas en Android: el filtro de personas
 
 - **Problema:** en Android las fotos del visor se veían corridas hacia abajo y cortadas, y la barra de botones quedaba afuera. La fila de personas es un `<fieldset>`, que por defecto no se achica por debajo de su contenido (`min-inline-size: min-content`): con 3 o más personas ensanchaba toda la página. Chrome de Android agrandaba el viewport (710 × 1314 en un celu de 393 × 851) y PhotoSwipe centraba la foto en ese tamaño.
