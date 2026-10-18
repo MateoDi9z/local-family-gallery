@@ -149,6 +149,9 @@ export const es = {
 
   viewer: {
     download: "Descargar original",
+    downloadShort: "Descargar",
+    favoriteShort: "Favorita",
+    castShort: "Tele",
     favorite: "Marcar como favorita",
     unfavorite: "Quitar de favoritas",
     videoPreparing: "El video se está preparando. Probá en un ratito.",

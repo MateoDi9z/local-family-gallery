@@ -360,8 +360,11 @@ input:focus {
 /* Chips de filtro */
 .chips {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  overflow-x: auto;
+  /* Un fieldset no se achica por defecto (min-inline-size: min-content): la fila ensanchaba toda la página
+     y en Android el visor centraba las fotos en ese ancho de más (se veían corridas y cortadas). */
+  min-inline-size: 0;
   padding: 4px 0 8px;
 }
 .chip {
@@ -542,18 +545,16 @@ input:focus {
   color: #33241a;
   border-color: transparent;
 }
-/* Con cuatro botones en un celu angosto: los de ícono van redondos, el texto no se corta y pasa a dos filas. */
-.pswp__actions {
-  flex-wrap: wrap;
-}
+/* Una sola fila aunque sean cuatro: ícono grande y texto corto abajo. */
 .pswp__actions .btn {
+  flex: 1 1 0;
+  max-width: 96px;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 4px;
+  border-radius: 18px;
+  font-size: 0.8rem;
   white-space: nowrap;
-  padding: 12px 16px;
-}
-.pswp__actions .btn.icon {
-  flex: none;
-  width: var(--tap);
-  padding: 0;
 }
 .pswp__actions .btn[aria-pressed="true"] {
   color: #b3261e;
