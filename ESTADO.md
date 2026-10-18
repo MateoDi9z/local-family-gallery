@@ -32,6 +32,7 @@
 - 2026-10-18 · **1.1** · Pantalla **Subidas** (`/subidas`, desde Subir, Más, Estado y el aviso de subida): lo que sube este dispositivo, cada foto que todavía no está lista y qué le falta, las que fallaron (con reintentar) y los últimos 10 lotes. `GET /activity`. El contador de la cola de Estado del sistema no estaba roto: una foto pasa por la cola en menos de un segundo.
 - 2026-10-18 · **1.2** · Quiénes fueron a un viaje: automático (los que subieron fotos) o a mano (`trip_members`, migración 004, en cascada con el viaje). En la lista de viajes, círculos chicos con las iniciales; en el viaje, «Fueron: …» para editarlo. Al unir viajes se juntan las dos listas.
 - 2026-10-18 · **1.3** · Atajo de iOS de a una foto: la receta usa «Repetir con cada» con un «Obtener contenido de URL» por foto (antes mandaba solo la primera). El servidor junta en un mismo lote las que llegan seguidas de la misma persona (hasta 30 min entre una y otra). Aviso en la app para quien ya lo tenía armado.
+- 2026-10-18 · **1.4** · Teles sin Chromecast (Samsung, LG): en Android sin un Chromecast a la vista, «Tele» y «Pasar en la tele» explican Smart View / duplicar pantalla y arrancan la presentación (con «Buscar un Chromecast» por las dudas). En el navegador de la tele, la presentación arranca directo. La presentación mantiene la pantalla prendida (wake lock). Guía `/tele` con la sección nueva.
 
 ## Falta
 
