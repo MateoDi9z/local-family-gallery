@@ -3,7 +3,7 @@ import type { Database } from "bun:sqlite";
 import { type DerivativeVariant, fileUrl, type MediaItem, originalUrl } from "@lfg/shared";
 
 /** Columnas que necesita `toMediaItem`. Usar `MEDIA_COLUMNS` en el SELECT (alias `m`). */
-export const MEDIA_COLUMNS = `m.id, m.kind, m.sha256, m.original_name, m.member_id, m.taken_at, m.width, m.height,
+export const MEDIA_COLUMNS = `m.id, m.kind, m.sha256, m.original_name, m.member_id, m.taken_at, m.taken_tz, m.width, m.height,
   m.duration_ms, m.lat, m.lon, m.location_source, m.location_confirmed, m.place_id, m.trip_id, m.status`;
 
 export type MediaRow = {
@@ -13,6 +13,7 @@ export type MediaRow = {
   original_name: string;
   member_id: string;
   taken_at: string | null;
+  taken_tz: string | null;
   width: number | null;
   height: number | null;
   duration_ms: number | null;
@@ -34,6 +35,7 @@ export function toMediaItem(row: MediaRow, variants: ReadonlySet<string>, favori
     originalName: row.original_name,
     memberId: row.member_id,
     takenAt: row.taken_at,
+    takenTz: row.taken_tz,
     width: row.width,
     height: row.height,
     durationMs: row.duration_ms,

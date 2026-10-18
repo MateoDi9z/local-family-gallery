@@ -215,6 +215,7 @@ export const es = {
     renameLabel: "Nombre del viaje",
     slideshow: "Pasar en la tele",
     slideshowShort: "Tele",
+    day: (n: number) => `Día ${n}`,
     merge: "Unir",
     split: "Separar",
     mergeTitle: "Unir con otro viaje",

@@ -13,13 +13,29 @@ import { MemberFilter, useMemberFiltered } from "../components/MemberFilter";
 import { MergeTrip } from "../components/MergeTrip";
 import { useSelection } from "../components/Selection";
 import { openViewer } from "../components/viewer";
-import { groupByDate, groupByPlace } from "../grouping";
-import { formatDate, t } from "../i18n";
+import { groupByDate, groupByDay, groupByPlace } from "../grouping";
+import { formatDate, formatDay, formatShortDate, t } from "../i18n";
 import { Link, navigate, usePath } from "../router";
 import { useStore } from "../store";
 
 const tripDates = (tr: { startAt: string; endAt: string }) =>
   t.trips.dates(formatDate(tr.startAt), formatDate(tr.endAt));
+
+function DayTitle({ day, date, place, count }: { day: number; date: string; place: string | null; count: number }) {
+  const label = date ? formatDay(date) : t.photos.noDate;
+  return (
+    <>
+      <h2 title={place ? `${t.trips.day(day)} · ${label} · ${place}` : label}>
+        {day > 0 && <span className="day-badge">{t.trips.day(day)}</span>}
+        {label}
+      </h2>
+      <span className="muted">
+        {place ? `${place} · ` : ""}
+        {t.gallery.count(count)}
+      </span>
+    </>
+  );
+}
 
 function GroupTitle({ title, sub }: { title: string; sub: string }) {
   return (
@@ -89,7 +105,23 @@ export function PlaceGallery({ id }: { id: string }) {
 
 export function TripGallery({ id }: { id: string }) {
   const { data, error, reload } = useApi(endpoints.trip(id), TripDetail);
-  const groups = useMemo<Group[]>(() => (data ? [{ key: data.trip.id, items: data.media }] : []), [data]);
+  const places = useApi(endpoints.places, Places);
+  // Por día y lugar, en orden: «Día 1 · 14/5/26», y abajo el lugar y cuántas fotos.
+  const groups = useMemo<Group[]>(() => {
+    const names = new Map((places.data ?? []).map((p) => [p.id, p.name]));
+    return groupByDay(data?.media ?? []).map((g) => ({
+      key: g.key,
+      title: (
+        <DayTitle
+          day={g.day}
+          date={g.date}
+          place={g.placeId ? (names.get(g.placeId) ?? null) : null}
+          count={g.items.length}
+        />
+      ),
+      items: g.items,
+    }));
+  }, [data, places.data]);
   const filtered = useMemberFiltered(groups);
   const visible = filtered.flatMap((g) => g.items);
   const bulk = useSelection(visible, data?.trip.count ?? 0, (allGone) => (allGone ? navigate("/viajes") : reload()));
@@ -144,7 +176,8 @@ export function TripGallery({ id }: { id: string }) {
             </button>
           </div>
           <p className="muted page-sub">
-            {tripDates(data.trip)} · {t.gallery.count(data.trip.count)}
+            {t.trips.dates(formatShortDate(data.trip.startAt), formatShortDate(data.trip.endAt))} ·{" "}
+            {t.gallery.count(data.trip.count)}
           </p>
         </>
       )}

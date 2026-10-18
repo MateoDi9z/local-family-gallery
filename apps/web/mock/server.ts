@@ -168,6 +168,7 @@ function makeMedia(o: {
     originalName: o.name,
     memberId: o.memberId,
     takenAt: o.takenAt,
+    takenTz: null,
     width: 400,
     height: 400,
     durationMs: kind === "video" ? 3000 : null,

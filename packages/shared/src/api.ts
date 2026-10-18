@@ -75,6 +75,8 @@ export const MediaItem = z.object({
   originalName: z.string(),
   memberId: Id,
   takenAt: IsoDate.nullable(),
+  /** Zona horaria de la toma («+08:00»), para saber el día local; null si la cámara no la guardó. */
+  takenTz: z.string().nullable(),
   width: z.number().int().nullable(),
   height: z.number().int().nullable(),
   durationMs: z.number().int().nullable(),

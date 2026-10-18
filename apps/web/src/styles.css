@@ -713,6 +713,18 @@ ol.steps li {
   font-size: 0.95rem;
 }
 
+/* Días dentro de un viaje: «Día 1» como etiqueta antes de la fecha */
+.day-badge {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 1px 10px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--primary-text);
+  font-size: 0.85rem;
+  vertical-align: 0.15em;
+}
+
 /* Unir viajes: la lista de candidatos, dentro del diálogo */
 .merge-list {
   max-height: 50dvh;

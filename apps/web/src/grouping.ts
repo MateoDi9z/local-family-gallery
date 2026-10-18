@@ -55,3 +55,57 @@ export function groupByPlace(items: MediaItem[]): PhotoGroup[] {
   const groups = [...by].map(([placeId, ms]) => ({ ...group(`p-${placeId ?? "sin-lugar"}`, ms), placeId }));
   return [...groups.filter((g) => g.placeId), ...groups.filter((g) => !g.placeId)];
 }
+
+export type DayGroup = PhotoGroup & {
+  /** Día del viaje: 1 el primero; cuenta días de calendario, así que un día sin fotos se saltea. */
+  day: number;
+  /** Fecha local de la toma, «2026-05-14». */
+  date: string;
+};
+
+const offsetMs = (tz: string | null) => {
+  const m = tz && /^([+-])(\d{2}):?(\d{2})$/.exec(tz);
+  return m ? (m[1] === "-" ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3])) * 60_000 : null;
+};
+
+/**
+ * Dentro de un viaje: un grupo por día y, en un mismo día, uno por cada tramo seguido en el mismo lugar.
+ * El día es el local de la toma; las fotos sin zona horaria usan la más común del viaje (o la del celu).
+ * `items` en orden cronológico, como las da el viaje.
+ */
+export function groupByDay(items: MediaItem[]): DayGroup[] {
+  const tzs = new Map<string, number>();
+  for (const m of items)
+    if (offsetMs(m.takenTz) !== null) tzs.set(m.takenTz as string, (tzs.get(m.takenTz as string) ?? 0) + 1);
+  const common = offsetMs([...tzs].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null);
+  const localDate = (m: MediaItem & { takenAt: string }) => {
+    const t = Date.parse(m.takenAt);
+    const off = offsetMs(m.takenTz) ?? common ?? -new Date(t).getTimezoneOffset() * 60_000;
+    return new Date(t + off).toISOString().slice(0, 10);
+  };
+  const out: DayGroup[] = [];
+  const noDate: MediaItem[] = [];
+  let first: number | null = null;
+  let cur: { date: string; placeId: string | null; items: MediaItem[] } | null = null;
+  const close = () => {
+    if (!cur || first === null) return;
+    const day = Math.round((Date.parse(cur.date) - first) / 86_400_000) + 1;
+    out.push({ ...group(`day-${cur.date}-${out.length}`, cur.items), placeId: cur.placeId, day, date: cur.date });
+  };
+  for (const m of items) {
+    if (!m.takenAt) {
+      noDate.push(m);
+      continue;
+    }
+    const date = localDate(m as MediaItem & { takenAt: string });
+    first ??= Date.parse(date);
+    if (!cur || cur.date !== date || cur.placeId !== m.placeId) {
+      close();
+      cur = { date, placeId: m.placeId, items: [] };
+    }
+    cur.items.push(m);
+  }
+  close();
+  if (noDate.length) out.push({ ...group("day-sin-fecha", noDate), day: 0, date: "" });
+  return out;
+}

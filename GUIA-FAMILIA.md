@@ -64,6 +64,14 @@ Al terminar, la galería muestra un resumen. Si alguna foto no tiene lugar, te p
 
 Abrí la foto y tocá el tachito. Pide confirmación y se quita de la galería para todos. El original no se pierde: queda en la papelera del servidor, por si fue sin querer.
 
+## Adentro de un viaje
+
+Las fotos y videos están en orden, separados por día y lugar: **«Día 1 · 14/5/26»** y abajo el lugar. Si un día estuvieron en dos lugares, aparece dos veces, uno por cada lugar.
+
+## Unir dos viajes que son el mismo
+
+A veces un viaje aparece partido en dos (por ejemplo, si pasaron unos días sin sacar fotos). Entrá a uno, tocá **«Unir»** y elegí el otro: los de fechas más cercanas aparecen primero. Quedan como un solo viaje, y las fotos de esos días que se suban después también entran. Si te equivocaste, entrá al viaje y tocá **«Separar»**.
+
 ## Ver todas las fotos por fecha o por lugar
 
 En **Viajes**, arriba, elegí **«Por fecha»** o **«Por lugar»**. Por fecha, las fotos sacadas con menos de un día y medio de diferencia van juntas (suelen ser de la misma salida, aunque sean pocas). Por lugar, una ciudad por grupo.
