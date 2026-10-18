@@ -25,6 +25,7 @@
 - 2026-10-18 · **Borrar todas las fotos de un lugar**, al final del lugar: pide escribir el nombre (sin importar mayúsculas ni tildes) y el servidor lo vuelve a revisar. Los originales van a la papelera.
 - 2026-10-18 · Versión numerada: archivo `VERSION` (arranca en **0.6**). Se ve en Más y en Estado del sistema (avisa si el celular quedó con una versión vieja). Las imágenes salen también con tag `v0.6`, para volver atrás con `TAG=v0.5`.
 - 2026-10-18 · Borrar varias fotos juntas: «Elegir fotos» en el lugar y en el viaje, con «Elegir todas» y confirmación (`POST /media/delete-bulk`, mismo borrado que una sola). Los títulos largos de los grupos ya no se enciman con las fotos.
+- 2026-10-18 · **0.7** · Atajo de iOS: seguía fallando cuando la parte del archivo llega sin `filename` (Bun la volvía texto y rompía los bytes: «No llegó ningún archivo»). Ahora el multipart se lee a mano con los bytes intactos.
 
 ## Falta
 

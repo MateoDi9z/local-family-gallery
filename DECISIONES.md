@@ -224,3 +224,9 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 ## 2026-10-18 — Borrar varias fotos
 
 - **Decisión:** «Elegir fotos» en el lugar y en el viaje (la grilla ya sabía elegir). `POST /media/delete-bulk` reusa `deleteMedia`: cada una atómica, a la papelera. Confirmación común, sin escribir nada: es la misma acción que borrar de a una, solo que junta. Si no queda ninguna, vuelve al mapa o a Viajes.
+
+## 2026-10-18 — Multipart del Atajo leído a mano
+
+- **Problema:** el Atajo seguía sin andar. Cuando iOS manda la parte sin el parámetro `filename` (ni siquiera vacío), `Request.formData()` la devuelve como texto, decodificada en UTF-8: los bytes de la foto se rompen (156 578 bytes → 148 973 caracteres) y el servidor respondía «No llegó ningún archivo».
+- **Decisión:** `ingest/multipart.ts` parte el body por el boundary y deja cada parte con sus bytes (vistas sobre el mismo buffer, sin copias). Cuentan las partes `file` y cualquier otra que sea una foto o un video por su contenido.
+- **Alternativa descartada:** pedir en la guía que el Atajo mande el nombre. Depende de cómo cada versión de iOS arme el formulario, y no lo controlamos.

@@ -121,6 +121,7 @@ Scripts de la raíz que tienen que existir y funcionar. Si cambian, se actualiza
 - **Rutas de vips:** `vipsthumbnail -o` es relativo al archivo de entrada, así que siempre se pasan rutas absolutas.
 - **Hash del cliente:** es solo un chequeo rápido. La verdad es el SHA-256 calculado en el servidor.
 - **iOS al subir:** Safari o Atajos pueden convertir a JPEG o quitar el GPS. Cualquier cambio en la subida desde iPhone se prueba con un archivo real.
+- **Multipart del Atajo:** iOS puede mandar la parte del archivo sin `filename`. `Request.formData()` la convierte en texto UTF-8 y rompe los bytes; por eso el Atajo usa `ingest/multipart.ts`. El formato sale de los bytes (`sniffExt`), nunca solo del nombre.
 
 ## Frontend: trampas conocidas
 

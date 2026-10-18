@@ -32,6 +32,31 @@ test("Atajo: sin nombre o con la extensión equivocada, el formato sale del cont
     ["video.mov", "video/quicktime", "video"],
   ]);
   expect(rows.map((r) => r.original_path.split(".").at(-1))).toEqual(["jpg", "heic", "jpg", "mov"]);
+
+  // Como lo manda iOS a veces: la parte sin `filename` (formData() la volvería texto y rompería los bytes).
+  const jpg = new Uint8Array(await Bun.file(join(FIXTURES, "foto-parecida.jpg")).arrayBuffer());
+  const enc = new TextEncoder();
+  const raw = new Blob([
+    enc.encode('--b0\r\nContent-Disposition: form-data; name="file"\r\nContent-Type: image/jpeg\r\n\r\n'),
+    jpg,
+    enc.encode("\r\n--b0--\r\n"),
+  ]);
+  const sinNombre = await app.request("/api/shortcut/upload", {
+    method: "POST",
+    headers: { authorization: `Bearer ${token}`, "content-type": "multipart/form-data; boundary=b0" },
+    body: raw,
+  });
+  expect(sinNombre.status).toBe(200);
+  const last = db
+    .query<{ original_name: string; size_bytes: number; sha256: string }, []>(
+      "SELECT original_name, size_bytes, sha256 FROM media ORDER BY rowid DESC LIMIT 1",
+    )
+    .get();
+  expect(last).toEqual({
+    original_name: "archivo.jpg",
+    size_bytes: jpg.length,
+    sha256: new Bun.CryptoHasher("sha256").update(jpg).digest("hex"),
+  });
 });
 
 test("Atajo: token válido sube varios archivos en un lote; revocado → 401", async () => {

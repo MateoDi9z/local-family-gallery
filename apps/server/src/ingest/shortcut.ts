@@ -9,6 +9,7 @@ import { pickBulkVolume, tusTmpDir } from "../storage";
 import { getMember } from "./auth";
 import { body, fail, mediaExtOf, randomToken, sha256Hex, UNSUPPORTED_MESSAGE } from "./common";
 import { finalizeUpload } from "./finalize";
+import { type Part, parseMultipart } from "./multipart";
 
 type TokenRow = { id: string; member_id: string; label: string; created_at: string; revoked_at: string | null };
 const toToken = (r: TokenRow) => ({
@@ -80,16 +81,14 @@ export function shortcutRoutes(ctx: Ctx) {
     if (!member || member.archived_at)
       fail(403, "member_invalid", "La persona de este Atajo ya no está en la galería. Creá uno nuevo.");
 
-    const form = await c.req.formData().catch(() => null);
-    const all = (form?.getAll("file") ?? []).filter((f): f is File => f instanceof File);
-    // Los formatos que no entendemos se saltean: el resto se sube igual. El formato sale del contenido,
-    // porque el Atajo a veces manda el archivo sin nombre o sin extensión.
-    // Con `filename=""` en el multipart, Bun deja `name` en undefined aunque el tipo diga string.
-    const nameOf = (f: File) => f.name ?? "";
-    const known = await Promise.all(
-      all.map(async (f) => mediaExtOf(new Uint8Array(await f.slice(0, 16).arrayBuffer()), nameOf(f)) !== null),
-    );
-    const files = all.filter((_, i) => known[i]);
+    // Multipart a mano: el Atajo puede mandar el archivo sin `filename`, y formData() lo volvería texto.
+    const parts = parseMultipart(new Uint8Array(await c.req.arrayBuffer()), c.req.header("content-type") ?? "");
+    // El formato sale del contenido; el nombre puede faltar o tener la extensión de antes de convertirse.
+    const isMedia = (p: Part) => mediaExtOf(p.data.subarray(0, 16), p.filename) !== null;
+    // Cuenta toda parte "file" (lo que pide la guía) y cualquier otra que sea una foto o un video.
+    const all = parts.filter((p) => p.name === "file" || isMedia(p));
+    // Los formatos que no entendemos se saltean: el resto se sube igual.
+    const files = all.filter(isMedia);
     if (all.length > files.length)
       log.warn("atajo: archivos salteados por formato", { count: all.length - files.length });
     if (!files.length)
@@ -108,13 +107,13 @@ export function shortcutRoutes(ctx: Ctx) {
       // Mismo camino que tus: temporal en un disco bulk y la misma finalización.
       const tmpPath = join(tusTmpDir(await pickBulkVolume(db)), `shortcut-${ulid()}`);
       try {
-        await Bun.write(tmpPath, f);
-        const res = await finalizeUpload(ctx, { tmpPath, batchId, name: nameOf(f) });
-        items.push({ name: nameOf(f), ...res });
+        await Bun.write(tmpPath, f.data);
+        const res = await finalizeUpload(ctx, { tmpPath, batchId, name: f.filename });
+        items.push({ name: f.filename, ...res });
       } catch (e) {
         await rm(tmpPath, { force: true });
         log.error("atajo: falló un archivo", { err: String(e) });
-        fail(500, "upload_failed", `No pudimos guardar "${nameOf(f) || "un archivo"}". Probá mandarlo de nuevo.`);
+        fail(500, "upload_failed", `No pudimos guardar "${f.filename || "un archivo"}". Probá mandarlo de nuevo.`);
       }
     }
     return c.json({ batchId, items });
