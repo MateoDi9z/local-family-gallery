@@ -60,6 +60,10 @@ Al terminar, la galería muestra un resumen. Si alguna foto no tiene lugar, te p
 - **Viajes:** la lista de viajes. El nombre se puede cambiar.
 - Tocá una foto para verla grande. Ahí podés pasar a la siguiente, marcarla como favorita o **descargar el original** (el archivo tal cual se subió).
 
+## Borrar una foto
+
+Abrí la foto y tocá el tachito. Pide confirmación y se quita de la galería para todos. El original no se pierde: queda en la papelera del servidor, por si fue sin querer.
+
 ## Verlas en la tele
 
 1. El Chromecast y el celular tienen que estar en el mismo wifi.

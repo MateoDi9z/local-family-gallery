@@ -34,7 +34,7 @@ function CastButton({ items }: { items: MediaItem[] }) {
 }
 
 export function PlaceGallery({ id }: { id: string }) {
-  const { data, error } = useApi(endpoints.place(id), PlaceDetail);
+  const { data, error, reload } = useApi(endpoints.place(id), PlaceDetail);
   const groups = useMemo<Group[]>(
     () =>
       (data?.groups ?? []).map((g) => ({
@@ -60,7 +60,7 @@ export function PlaceGallery({ id }: { id: string }) {
       <p className="muted">{t.gallery.count(data.place.count)}</p>
       <MemberFilter />
       <CastButton items={filtered.flatMap((g) => g.items)} />
-      <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i)} />
+      <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i, undefined, reload)} />
     </main>
   );
 }
@@ -124,7 +124,7 @@ export function TripGallery({ id }: { id: string }) {
         </>
       )}
       <MemberFilter />
-      <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i)} />
+      <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i, undefined, reload)} />
     </main>
   );
 }

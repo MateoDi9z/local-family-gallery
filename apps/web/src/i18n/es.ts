@@ -153,6 +153,11 @@ export const es = {
     unfavorite: "Quitar de favoritas",
     videoPreparing: "El video se está preparando. Probá en un ratito.",
     cast: "Ver en la tele",
+    delete: "Borrar",
+    deleteTitle: "¿Borrar esta foto?",
+    deleteVideoTitle: "¿Borrar este video?",
+    deleteBody: "Se va a quitar de la galería para todos. El original queda guardado en la papelera del servidor.",
+    deleteConfirm: "Sí, borrar",
   },
 
   trips: {
