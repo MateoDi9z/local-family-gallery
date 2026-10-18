@@ -106,7 +106,7 @@ Entrá al lugar y, abajo de todo, tocá **«Borrar todas las fotos de este lugar
 
 ## Verlas en la tele
 
-**Si tu tele es Samsung o LG** (la mayoría no trae Chromecast): duplicá la pantalla del celu. En un Samsung Galaxy, deslizá desde arriba y tocá **Smart View**; en otros Android, **Transmitir pantalla** o **Duplicar pantalla**. Elegí la tele, y en la galería tocá **«Tele»** (o «Pasar en la tele») y **«Empezar»**: las fotos pasan solas, sin botones, y el celu no se apaga mientras pasa. También podés abrir la galería en el navegador de la tele y tocar «Pasar en la tele» ahí.
+**Si tu tele es Samsung o LG** (la mayoría no trae Chromecast): duplicá la pantalla del celu. En un Samsung Galaxy, deslizá desde arriba y tocá **Smart View**; en otros Android, **Transmitir pantalla** o **Duplicar pantalla**. Elegí la tele, y en la galería tocá **«Tele»** (o «Pasar en la tele») y **«Empezar»**. Se abre la **presentación para la tele**: pantalla completa, fondo negro y cada foto lo más grande posible. **Poné el celu horizontal** (en Android gira solo) y los videos ocupan toda la tele. Las fotos pasan solas; tocando la pantalla aparecen Anterior, Pausar, Siguiente y Salir. El celu no se apaga mientras pasa. También podés abrir la galería en el navegador de la tele y tocar «Pasar en la tele» ahí.
 
 En **Más → Ver en la tele** está la guía completa, y un chequeo que dice si tu celular puede y si encuentra la tele. Desde Android se usa Chromecast; desde iPhone, AirPlay (Apple TV o tele con AirPlay): los videos van directo y las fotos se ven con «Duplicar pantalla» y la presentación que pasa sola.
 
