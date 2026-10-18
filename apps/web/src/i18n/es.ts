@@ -187,6 +187,7 @@ export const es = {
     similar: "Fotos parecidas",
     admin: "Administración",
     status: "Estado del sistema",
+    tv: "Ver en la tele",
     shortcut: "Subir desde iPhone",
     favorites: "Favoritas",
   },
@@ -302,6 +303,66 @@ export const es = {
   map: {
     useHere: "Usar dónde estoy ahora",
     geoError: "No pudimos saber dónde estás. Tocá el mapa.",
+  },
+
+  tv: {
+    title: "Ver en la tele",
+    intro:
+      "Las fotos y los videos se ven en una tele con Chromecast o Google TV. La tele solo muestra: el celular es el control remoto.",
+    checkTitle: "¿Este dispositivo puede?",
+    checkConnected: (name: string) => `Sí. Está conectado a ${name}. Abrí una foto y tocá «Tele».`,
+    checkReady: "Sí. Hay una tele en este wifi. Tocá «Buscar la tele» para probar.",
+    checkNoDevices:
+      "Este dispositivo puede, pero no encuentra ninguna tele. Fijate que la tele esté prendida y en el mismo wifi.",
+    checkLoading: "Revisando… Si en un rato sigue así, actualizá Chrome.",
+    checkIphone:
+      "En iPhone y iPad no se puede: Safari no tiene Chromecast. Usá un celular Android o una compu con Chrome.",
+    checkBrowser: "Con este navegador no se puede. Abrí la galería en Chrome.",
+    connect: "Buscar la tele",
+    sections: [
+      {
+        title: "Qué hace falta",
+        steps: [
+          "Un celular Android o una compu, con Chrome.",
+          "Una tele con Chromecast o Google TV, prendida.",
+          "Los dos conectados al wifi de casa.",
+        ],
+      },
+      {
+        title: "Ver una foto o un video",
+        steps: [
+          "Abrí la foto o el video.",
+          "Tocá «Tele», abajo.",
+          "Elegí la tele de la lista.",
+          "Abajo aparece un panel para pasar a la anterior o a la siguiente, y para pausar.",
+        ],
+      },
+      {
+        title: "Pasar todas las de un viaje o un lugar",
+        steps: [
+          "Entrá al viaje o al lugar.",
+          "Tocá «Pasar en la tele».",
+          "Las fotos pasan solas cada 6 segundos. Los videos se ven enteros y después sigue la próxima.",
+        ],
+      },
+      {
+        title: "Terminar",
+        steps: ["En el panel de abajo, tocá «Dejar de ver en la tele»."],
+      },
+    ],
+    troubleTitle: "Si no anda",
+    trouble: [
+      ["No aparece el botón «Tele».", "Este dispositivo no puede o no encuentra la tele: mirá el chequeo de arriba."],
+      [
+        "La tele no aparece en la lista.",
+        "Prendé la tele, esperá un minuto y fijate que el celular y la tele estén en el mismo wifi (no con datos).",
+      ],
+      [
+        "La tele se queda en negro o muestra un error.",
+        "La tele no llega a la galería. Desenchufá el Chromecast un minuto y probá de nuevo. Si sigue, avisale a quien cuida el servidor.",
+      ],
+      ["Un video no arranca.", "Puede que todavía se esté preparando. Probá en unos minutos."],
+    ] as [string, string][],
   },
 
   cast: {

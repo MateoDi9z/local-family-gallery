@@ -18,7 +18,8 @@ type CastContext = {
   setOptions(o: Record<string, unknown>): void;
   requestSession(): Promise<unknown>;
   getCurrentSession(): CastSession | null;
-  addEventListener(type: string, cb: (e: { sessionState: string }) => void): void;
+  getCastState(): string;
+  addEventListener(type: string, cb: (e: { sessionState: string; castState: string }) => void): void;
 };
 type RemotePlayer = { isPaused: boolean; playerState: string | null };
 type RemoteController = {
@@ -28,7 +29,8 @@ type RemoteController = {
 type CastNs = {
   framework: {
     CastContext: { getInstance(): CastContext };
-    CastContextEventType: { SESSION_STATE_CHANGED: string };
+    CastContextEventType: { SESSION_STATE_CHANGED: string; CAST_STATE_CHANGED: string };
+    CastState: { NO_DEVICES_AVAILABLE: string };
     SessionState: { SESSION_STARTED: string; SESSION_RESUMED: string; SESSION_ENDED: string };
     RemotePlayer: new () => RemotePlayer;
     RemotePlayerController: new (p: RemotePlayer) => RemoteController;
@@ -58,6 +60,8 @@ declare global {
 
 export const castState = createStore({
   available: false,
+  /** Hay al menos una tele con Chromecast en este wifi (según el SDK). */
+  devices: false,
   connected: false,
   device: "",
   index: 0,
@@ -95,6 +99,9 @@ export function initCast() {
       // Un video terminó durante el slideshow: pasar al siguiente.
       if (e.field === "playerState" && e.value === "IDLE" && castState.get().slideshow && !timer) next();
     });
+    const devices = (s: string) => patch({ devices: s !== f.CastState.NO_DEVICES_AVAILABLE });
+    c.addEventListener(f.CastContextEventType.CAST_STATE_CHANGED, (e) => devices(e.castState));
+    devices(c.getCastState());
     c.addEventListener(f.CastContextEventType.SESSION_STATE_CHANGED, (e) => {
       const s = f.SessionState;
       if (e.sessionState === s.SESSION_STARTED || e.sessionState === s.SESSION_RESUMED)
@@ -162,6 +169,12 @@ export function togglePause() {
     }
   }
 }
+
+/** Abre la lista de teles de Chrome, sin mandar nada todavía (para probar desde la guía). */
+export const connectCast = () =>
+  ctx()
+    ?.requestSession()
+    .catch(() => {});
 
 export function stopCast() {
   clearTimeout(timer);

@@ -66,6 +66,8 @@ Abrí la foto y tocá el tachito. Pide confirmación y se quita de la galería p
 
 ## Verlas en la tele
 
+En **Más → Ver en la tele** está la guía completa, y un chequeo que dice si tu celular puede y si encuentra la tele.
+
 1. El Chromecast y el celular tienen que estar en el mismo wifi.
 2. Abrí una foto, un viaje o un lugar y tocá el botón de Cast (el de la tele).
 3. Elegí la tele. El celular sigue siendo el control: anterior, siguiente, pausa, o pasar solas.
