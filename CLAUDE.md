@@ -133,6 +133,11 @@ Scripts de la raíz que tienen que existir y funcionar. Si cambian, se actualiza
 - **Las imágenes de producción solo se construyen en GitHub Actions** y se publican en GHCR. No se publican imágenes desde la Mac.
 - **Lo que depende del entorno** (libvips, ffmpeg, exiftool) se testea dentro del contenedor, no con lo instalado en la Mac.
 
+## Versión
+
+- El número está en `VERSION` (raíz): `0.6`, `0.7`… Lo leen el build de la web y el workflow de imágenes, que publica el tag `v<VERSION>` y se lo pasa al servidor como `APP_VERSION`.
+- **Cada PR que cambia lo que usa la familia o el servidor sube la versión en uno** (0.6 → 0.7). Las de solo docs o CI, no.
+
 ## Git
 
 - `main` siempre desplegable: CI en verde, nunca `push --force`.

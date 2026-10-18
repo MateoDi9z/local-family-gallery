@@ -40,7 +40,7 @@ Antes de cada commit: `bun run lint && bun run typecheck && bun test`. Antes de 
 
 ## Instalación y despliegue
 
-Las imágenes `linux/amd64` se publican solas en GHCR al pushear a `main` (`local-family-gallery-app` y `local-family-gallery-caddy`, tags `latest` y `sha-<corto>`). No se publican imágenes desde la Mac.
+Las imágenes `linux/amd64` se publican solas en GHCR al pushear a `main` (`local-family-gallery-app` y `local-family-gallery-caddy`, tags `latest`, `v<VERSION>` y `sha-<corto>`). La versión (`0.6`, `0.7`…) está en el archivo `VERSION` y se ve en **Más** y en **Estado del sistema**. No se publican imágenes desde la Mac.
 
 En el servidor (Debian o Ubuntu, dentro de la casa):
 

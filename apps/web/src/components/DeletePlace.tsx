@@ -1,6 +1,6 @@
 // Borrar todas las fotos de un lugar. Es lo más grave que se puede hacer desde la app: hay que escribir
 // el nombre del lugar, y el servidor lo vuelve a revisar.
-import { endpoints, type Place, PlaceDeleteAllResponse, sameName } from "@lfg/shared";
+import { DeletedCount, endpoints, type Place, sameName } from "@lfg/shared";
 import { useRef, useState } from "react";
 import { api, errorText } from "../api/client";
 import { t } from "../i18n";
@@ -20,7 +20,7 @@ export function DeletePlace({ place }: { place: Place }) {
     setBusy(true);
     setError(null);
     try {
-      await api.post(endpoints.placeDeleteAll(place.id), { confirmName: typed }, PlaceDeleteAllResponse);
+      await api.post(endpoints.placeDeleteAll(place.id), { confirmName: typed }, DeletedCount);
       dialog.current?.close();
       navigate("/");
     } catch (e) {

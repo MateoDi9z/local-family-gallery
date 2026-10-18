@@ -5,12 +5,13 @@ import { z } from "zod";
 import { api, errorText } from "../api/client";
 import { useApi } from "../api/hooks";
 import { castItems, castState } from "../cast";
+import { useBulkDelete } from "../components/BulkDelete";
 import { DeletePlace } from "../components/DeletePlace";
 import { Grid, type Group } from "../components/Grid";
 import { MemberFilter, useMemberFiltered } from "../components/MemberFilter";
 import { openViewer } from "../components/viewer";
 import { formatDate, t } from "../i18n";
-import { Link } from "../router";
+import { Link, navigate } from "../router";
 import { useStore } from "../store";
 
 const tripDates = (tr: z.infer<typeof Trip>) => t.trips.dates(formatDate(tr.startAt), formatDate(tr.endAt));
@@ -18,7 +19,7 @@ const tripDates = (tr: z.infer<typeof Trip>) => t.trips.dates(formatDate(tr.star
 function GroupTitle({ title, sub }: { title: string; sub: string }) {
   return (
     <>
-      <h2>{title}</h2>
+      <h2 title={title}>{title}</h2>
       <span className="muted">{sub}</span>
     </>
   );
@@ -50,6 +51,8 @@ export function PlaceGallery({ id }: { id: string }) {
     [data],
   );
   const filtered = useMemberFiltered(groups);
+  const visible = filtered.flatMap((g) => g.items);
+  const bulk = useBulkDelete(visible, data?.place.count ?? 0, (allGone) => (allGone ? navigate("/") : reload()));
   if (error) return <Failure text={error} />;
   if (!data) return <Loading />;
   return (
@@ -60,8 +63,12 @@ export function PlaceGallery({ id }: { id: string }) {
       <h1>{data.place.name}</h1>
       <p className="muted">{t.gallery.count(data.place.count)}</p>
       <MemberFilter />
-      <CastButton items={filtered.flatMap((g) => g.items)} />
-      <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i, undefined, reload)} />
+      <div className="row">
+        <CastButton items={visible} />
+        {bulk.button}
+      </div>
+      <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i, undefined, reload)} {...bulk.gridProps} />
+      {bulk.bar}
       <DeletePlace place={data.place} />
     </main>
   );
@@ -71,6 +78,8 @@ export function TripGallery({ id }: { id: string }) {
   const { data, error, reload } = useApi(endpoints.trip(id), TripDetail);
   const groups = useMemo<Group[]>(() => (data ? [{ key: data.trip.id, items: data.media }] : []), [data]);
   const filtered = useMemberFiltered(groups);
+  const visible = filtered.flatMap((g) => g.items);
+  const bulk = useBulkDelete(visible, data?.trip.count ?? 0, (allGone) => (allGone ? navigate("/viajes") : reload()));
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -121,12 +130,14 @@ export function TripGallery({ id }: { id: string }) {
             >
               {t.trips.rename}
             </button>
-            <CastButton items={filtered.flatMap((g) => g.items)} />
+            <CastButton items={visible} />
+            {bulk.button}
           </div>
         </>
       )}
       <MemberFilter />
-      <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i, undefined, reload)} />
+      <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i, undefined, reload)} {...bulk.gridProps} />
+      {bulk.bar}
     </main>
   );
 }

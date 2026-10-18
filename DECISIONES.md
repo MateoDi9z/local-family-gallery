@@ -213,3 +213,14 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 - **Decisión:** `POST /places/:id/delete-all` con `{ confirmName }`. El nombre se compara en la pantalla y también en el servidor, con la misma regla (`sameName` en `packages/shared`: sin importar mayúsculas, tildes ni espacios de más). Cada foto pasa por el mismo borrado que una sola (`deleteMedia`): el original va a `papelera/`.
 - **Por qué POST y no DELETE:** lleva un body, y un DELETE con body no siempre pasa por proxies y clientes.
 - **Si falla a la mitad:** las fotos ya borradas quedan borradas (cada una es atómica) y la respuesta es un error; se puede volver a intentar.
+
+## 2026-10-18 — Versión numerada
+
+- **Decisión:** archivo `VERSION` en la raíz (`0.6`, `0.7`…), única fuente. Vite lo pone en la web (`__APP_VERSION__`); el workflow de imágenes lo valida, publica el tag `v<VERSION>` y se lo pasa al servidor como `APP_VERSION` (antes era `sha-xxxxxxx`). Se sube a mano en cada PR que cambia el producto (regla en `CLAUDE.md`).
+- **Arranca en 0.6:** es la sexta actualización desde que la galería quedó completa (PRs #1 a #5 fueron, de hecho, 0.1 a 0.5; esas imágenes no tienen tag `v`).
+- **Estado del sistema** compara la versión de la web con la del servidor: si el celular quedó con una vieja en caché, avisa y ofrece recargar.
+- **Alternativa descartada:** numerar solo con la cantidad de merges a `main`. No hay que acordarse de nada, pero el número salta (merges de docs) y después de 0.9 viene 0.10, que confunde.
+
+## 2026-10-18 — Borrar varias fotos
+
+- **Decisión:** «Elegir fotos» en el lugar y en el viaje (la grilla ya sabía elegir). `POST /media/delete-bulk` reusa `deleteMedia`: cada una atómica, a la papelera. Confirmación común, sin escribir nada: es la misma acción que borrar de a una, solo que junta. Si no queda ninguna, vuelve al mapa o a Viajes.

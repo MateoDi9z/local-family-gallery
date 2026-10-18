@@ -29,6 +29,7 @@ export const endpoints = {
   mediaItem: (id: string) => `/media/${id}`,
   mediaLocation: (id: string) => `/media/${id}/location`,
   mediaLocationBulk: "/media/location-bulk",
+  mediaDeleteBulk: "/media/delete-bulk",
   mediaFavorite: (id: string) => `/media/${id}/favorite`,
   inboxNoLocation: "/inbox/no-location",
   inboxSimilar: "/inbox/similar",

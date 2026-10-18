@@ -1,5 +1,6 @@
 import { t } from "../i18n";
 import { Link } from "../router";
+import { APP_VERSION } from "../version";
 
 export function More({ onChangeMember }: { onChangeMember: () => void }) {
   const links: [string, string][] = [
@@ -21,6 +22,7 @@ export function More({ onChangeMember }: { onChangeMember: () => void }) {
       <button type="button" className="btn big" onClick={onChangeMember}>
         {t.who.change}
       </button>
+      <p className="muted version">{t.more.version(APP_VERSION)}</p>
     </main>
   );
 }

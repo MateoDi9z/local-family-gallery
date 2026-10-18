@@ -6,6 +6,7 @@ import { api, errorText } from "../api/client";
 import { MAP_STYLE } from "../components/map";
 import { formatBytes, formatDate, t } from "../i18n";
 import { Link } from "../router";
+import { APP_VERSION } from "../version";
 import { useSaver } from "./Admin";
 
 const REFRESH_MS = 15_000;
@@ -77,6 +78,9 @@ export function SystemStatus({ down }: { down?: () => void }) {
   const st = status && "value" in status ? status.value : null;
   const pending = !status && !down ? t.status.checking : t.status.unknown;
   const secure = window.isSecureContext;
+  const serverVersion = health && "value" in health ? health.value.version : null;
+  // Solo se comparan números de versión: en desarrollo y en el e2e el servidor dice "dev" o "e2e".
+  const stale = !!serverVersion && /^\d+\.\d+$/.test(serverVersion) && serverVersion !== APP_VERSION;
   const rows: [string, Level, string][] = [
     [t.status.device, ...deviceCheck()],
     [
@@ -93,6 +97,15 @@ export function SystemStatus({ down }: { down?: () => void }) {
         : "error" in health
           ? t.serverDown
           : t.status.serverOk(health.ms, health.value.version),
+    ],
+    [
+      t.status.version,
+      !serverVersion ? "unknown" : stale ? "warn" : "ok",
+      !serverVersion
+        ? pending
+        : stale
+          ? t.status.versionStale(APP_VERSION, serverVersion)
+          : t.status.versionOk(APP_VERSION),
     ],
     [
       t.status.db,
@@ -142,6 +155,11 @@ export function SystemStatus({ down }: { down?: () => void }) {
             <span className="muted">{detail}</span>
           </div>
         ))}
+        {stale && (
+          <button type="button" className="btn primary" onClick={() => location.reload()}>
+            {t.status.updateApp}
+          </button>
+        )}
         <p className="muted">{t.status.auto}</p>
         <button type="button" className="btn" onClick={refresh}>
           {t.status.recheck}
