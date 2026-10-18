@@ -117,10 +117,11 @@ export async function runWorker(ctx: Ctx, signal: AbortSignal): Promise<void> {
 
   const maintain = () => {
     try {
+      setSetting(ctx.db, "worker_seen_at", new Date().toISOString());
       const n = releaseExpired(ctx.db);
       if (n) ctx.log.warn("trabajos de un worker muerto vuelven a la cola", { count: n });
     } catch (e) {
-      ctx.log.warn("no se pudieron liberar trabajos vencidos", { err: String(e) });
+      ctx.log.warn("falló el mantenimiento de la cola", { err: String(e) });
     }
   };
   const cleanup = () => {

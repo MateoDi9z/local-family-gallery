@@ -170,3 +170,11 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 - **Decisión:** `setWorkerUrl()` con el worker importado con `?url` (`apps/web/src/components/map.ts`). El e2e ahora espera un marcador del globo, que solo aparece si el worker procesa los datos.
 - **De paso:** fondo de espacio y atmósfera alrededor del globo, nombres del mapa en español (`name:es`, si no el del estilo) y zoom inicial calculado para que entre el planeta entero (MapLibre agranda el globo por 1/cos(latitud) del centro). El mapa nace plano y con zoom bajo recorta la latitud del centro, así que se vuelve a centrar después de pasar a globo.
 - **Alternativa descartada:** copiar el worker a `public/` con un plugin. Es más código, y además hay que mantener la versión a mano.
+
+## 2026-10-18 — Página «Estado del sistema»
+
+- **Decisión:** pantalla `/estado`, en Más. Desde el navegador revisa la red del dispositivo (`navigator.onLine` y, en Chrome de Android, `connection.type` para avisar si está con datos), internet (pide el estilo de OpenFreeMap, la única excepción de internet), HTTPS (`isSecureContext`) y `/api/health` con su latencia. Del servidor usa `/admin/status`: base de datos (si responde, la base anda), worker, cola, errores y discos. Se revisa sola cada 15 s.
+- **Worker vivo:** el worker no abre puertos, así que anota `worker_seen_at` en `settings` en cada mantenimiento (30 s). `/admin/status` suma `worker: { alive, seenAt }` (contrato en `packages/shared`, cambio del coordinador); `alive` es un latido de menos de 90 s, con el reloj del servidor.
+- **Servidor caído:** la pantalla de «No podemos conectar» ahora es esta misma página, sin lo que pide PIN. Reintenta sola cada 15 s y entra a la app cuando el servidor vuelve. Si no, la página de estado no se podría abrir justo cuando hace falta.
+- **Administración:** la cola y los discos se mudaron a esta página (SPEC §11 los pide en la parte de administración; siguen ahí, en otra pantalla de Más).
+- **Afuera, a propósito:** vencimiento del certificado (Caddy es otro contenedor), conexión de los eventos en vivo (SSE) e internet visto desde el servidor.

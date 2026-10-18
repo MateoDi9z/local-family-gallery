@@ -184,6 +184,8 @@ export const AdminStatus = z.object({
   errors: z.array(z.object({ jobId: Id, mediaId: Id.nullable(), type: z.string(), error: z.string(), at: IsoDate })),
   volumes: z.array(VolumeStatus),
   gpu: z.object({ nvenc: z.boolean() }).nullable(),
+  /** `seenAt`: último latido del worker; `alive` lo calcula el servidor con su reloj. */
+  worker: z.object({ alive: z.boolean(), seenAt: IsoDate.nullable() }),
 });
 
 /** Eventos SSE de GET /events (campo `data` en JSON). */

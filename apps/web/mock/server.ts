@@ -630,6 +630,7 @@ on("GET", E.adminStatus, () =>
       },
     ],
     gpu: { nvenc: false },
+    worker: { alive: true, seenAt: new Date().toISOString() },
   }),
 );
 on("POST", E.adminRetryFailed, () => noContent());

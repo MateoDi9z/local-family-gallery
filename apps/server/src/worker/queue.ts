@@ -18,6 +18,9 @@ export type Pool = "image" | "video";
 /** Si fallan del todo, la media queda en `error`: sin esto no se puede ver. */
 export const CRITICAL_JOBS: ReadonlySet<string> = new Set(["extract_metadata", "thumb", "video_poster"]);
 
+/** El worker anota `worker_seen_at` en cada mantenimiento (cada 30 s); sin latido en este lapso, está caído. */
+export const WORKER_ALIVE_MS = 90_000;
+
 const BACKOFF_BASE_MS = 30_000;
 const iso = (ms: number) => new Date(ms).toISOString();
 const videoTypes = [...VIDEO_JOBS];
