@@ -197,11 +197,24 @@ export const es = {
 
   trips: {
     title: "Viajes",
-    empty: "Todavía no hay viajes. Aparecen solos cuando suben fotos de lejos de casa.",
+    empty:
+      "Todavía no hay viajes. Aparecen solos cuando hay 5 fotos o más de lejos de casa. Mientras, en «Por fecha» están todas las fotos juntas según cuándo se sacaron.",
     dates: (from: string, to: string) => (from === to ? from : `${from} al ${to}`),
     rename: "Cambiar el nombre",
     renameLabel: "Nombre del viaje",
     slideshow: "Pasar en la tele",
+  },
+
+  photos: {
+    viewLabel: "Ver",
+    views: { viajes: "Viajes", fecha: "Por fecha", lugar: "Por lugar" },
+    help: {
+      fecha:
+        "Todas las fotos. Las sacadas con menos de un día y medio de diferencia van juntas: suelen ser de la misma salida.",
+      lugar: "Todas las fotos, una ciudad por grupo. La más reciente, primero.",
+    },
+    noPlace: "Sin ubicación",
+    noDate: "Sin fecha",
   },
 
   home: {

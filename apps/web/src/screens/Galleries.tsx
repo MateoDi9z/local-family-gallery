@@ -1,6 +1,6 @@
 // Galería de un lugar (agrupada por viaje), detalle de un viaje y línea de tiempo de viajes.
-import { endpoints, type MediaItem, PlaceDetail, Trip, TripDetail } from "@lfg/shared";
-import { useMemo, useState } from "react";
+import { endpoints, type MediaItem, MediaPage, Place, PlaceDetail, Trip, TripDetail } from "@lfg/shared";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { api, errorText } from "../api/client";
 import { useApi } from "../api/hooks";
@@ -10,11 +10,13 @@ import { DeletePlace } from "../components/DeletePlace";
 import { Grid, type Group } from "../components/Grid";
 import { MemberFilter, useMemberFiltered } from "../components/MemberFilter";
 import { openViewer } from "../components/viewer";
+import { groupByDate, groupByPlace } from "../grouping";
 import { formatDate, t } from "../i18n";
-import { Link, navigate } from "../router";
+import { Link, navigate, usePath } from "../router";
 import { useStore } from "../store";
 
-const tripDates = (tr: z.infer<typeof Trip>) => t.trips.dates(formatDate(tr.startAt), formatDate(tr.endAt));
+const tripDates = (tr: { startAt: string; endAt: string }) =>
+  t.trips.dates(formatDate(tr.startAt), formatDate(tr.endAt));
 
 function GroupTitle({ title, sub }: { title: string; sub: string }) {
   return (
@@ -150,14 +152,42 @@ export function TripGallery({ id }: { id: string }) {
 
 const Trips = z.array(Trip);
 
+type View = "viajes" | "fecha" | "lugar";
+const VIEWS: View[] = ["viajes", "fecha", "lugar"];
+
+/** Pestaña Viajes: los viajes detectados, o todas las fotos agrupadas por fecha o por lugar. */
 export function Timeline() {
-  const { data, error } = useApi(endpoints.trips, Trips);
-  if (error) return <Failure text={error} />;
-  if (!data) return <Loading />;
-  const sorted = [...data].sort((a, b) => b.startAt.localeCompare(a.startAt));
+  const ver = new URLSearchParams(usePath().split("?")[1]).get("ver");
+  const view: View = VIEWS.find((v) => v === ver) ?? "viajes";
   return (
     <main className="screen stack">
       <h1>{t.trips.title}</h1>
+      <fieldset className="chips" style={{ border: 0, margin: 0 }}>
+        <legend className="sr-only">{t.photos.viewLabel}</legend>
+        {VIEWS.map((v) => (
+          <button
+            key={v}
+            type="button"
+            className="chip"
+            aria-pressed={view === v}
+            onClick={() => navigate(v === "viajes" ? "/viajes" : `/viajes?ver=${v}`, true)}
+          >
+            {t.photos.views[v]}
+          </button>
+        ))}
+      </fieldset>
+      {view === "viajes" ? <TripList /> : <PhotoGroups by={view} />}
+    </main>
+  );
+}
+
+function TripList() {
+  const { data, error } = useApi(endpoints.trips, Trips);
+  if (error) return <p className="error">{error}</p>;
+  if (!data) return <p role="status">{t.loading}</p>;
+  const sorted = [...data].sort((a, b) => b.startAt.localeCompare(a.startAt));
+  return (
+    <>
       {sorted.length === 0 && <p className="notice">{t.trips.empty}</p>}
       {sorted.map((tr) => (
         <Link key={tr.id} href={`/viaje/${encodeURIComponent(tr.id)}`} className="card trip-card">
@@ -170,7 +200,74 @@ export function Timeline() {
           </span>
         </Link>
       ))}
-    </main>
+    </>
+  );
+}
+
+/** Todas las fotos, de a 500. shortcut: las trae todas a memoria; con más de ~20 000, agrupar en el servidor. */
+function useAllMedia() {
+  const [items, setItems] = useState<MediaItem[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [tick, setTick] = useState(0);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: tick fuerza la recarga.
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const all: MediaItem[] = [];
+      let cursor: string | null = null;
+      do {
+        const q = new URLSearchParams({ limit: "500", ...(cursor ? { cursor } : {}) });
+        const page = await api.get(`${endpoints.media}?${q}`, MediaPage);
+        all.push(...page.items);
+        cursor = page.nextCursor;
+      } while (cursor && alive);
+      if (alive) setItems(all);
+    })().catch((e) => alive && setError(errorText(e)));
+    return () => {
+      alive = false;
+    };
+  }, [tick]);
+  return { items, error, reload: useCallback(() => setTick((n) => n + 1), []) };
+}
+
+const Places = z.array(Place);
+
+function PhotoGroups({ by }: { by: "fecha" | "lugar" }) {
+  const { items, error, reload } = useAllMedia();
+  const places = useApi(endpoints.places, Places);
+  const groups = useMemo<Group[]>(() => {
+    const names = new Map((places.data ?? []).map((p) => [p.id, p.name]));
+    return (items ? (by === "fecha" ? groupByDate(items) : groupByPlace(items)) : []).map((g) => {
+      const dates = g.startAt && g.endAt ? tripDates({ startAt: g.startAt, endAt: g.endAt }) : t.photos.noDate;
+      const place = g.placeId ? names.get(g.placeId) : null;
+      return {
+        key: g.key,
+        title: (
+          <GroupTitle
+            title={place ?? (by === "fecha" ? dates : t.photos.noPlace)}
+            sub={`${place || by === "lugar" ? `${dates} · ` : ""}${t.gallery.count(g.items.length)}`}
+          />
+        ),
+        items: g.items,
+      };
+    });
+  }, [items, by, places.data]);
+  const filtered = useMemberFiltered(groups);
+  const visible = filtered.flatMap((g) => g.items);
+  const bulk = useBulkDelete(visible, items?.length ?? 0, reload);
+  if (error) return <p className="error">{error}</p>;
+  if (!items) return <p role="status">{t.loading}</p>;
+  return (
+    <>
+      <p className="muted">{t.photos.help[by]}</p>
+      <MemberFilter />
+      <div className="row">
+        <CastButton items={visible} />
+        {bulk.button}
+      </div>
+      <Grid groups={filtered} onOpen={(its, i) => openViewer(its, i, { onDeleted: reload })} {...bulk.gridProps} />
+      {bulk.bar}
+    </>
   );
 }
 

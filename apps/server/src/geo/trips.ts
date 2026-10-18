@@ -1,5 +1,6 @@
 // Trabajo `assign_trips` (PLAN §5): recalcula todos los viajes de una vez.
 import type { Database } from "bun:sqlite";
+import { TRIP_GAP_MS } from "@lfg/shared";
 import { ulid } from "ulid";
 import { getSetting } from "../db";
 import { localFromUtc } from "../media/exiftool";
@@ -7,7 +8,7 @@ import { texts } from "../media/texts";
 import { distanceKm } from "./cities";
 
 export const AWAY_KM = 30;
-export const GAP_MS = 36 * 3600_000;
+export const GAP_MS = TRIP_GAP_MS;
 export const MIN_TRIP_MEDIA = 5;
 
 export type TripPoint = { id: string; t: number; lat: number; lon: number };
