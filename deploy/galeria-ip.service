@@ -1,0 +1,10 @@
+# Mantiene el dominio de DuckDNS apuntando a la IP local actual del servidor.
+# Instalación: ver "Dominio con DuckDNS" en SETUP-SERVIDOR.md.
+[Unit]
+Description=Galería familiar: avisar a DuckDNS la IP local del servidor
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/galeria/duckdns-ip.sh

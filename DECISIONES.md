@@ -171,6 +171,13 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 - **De paso:** fondo de espacio y atmósfera alrededor del globo, nombres del mapa en español (`name:es`, si no el del estilo) y zoom inicial calculado para que entre el planeta entero (MapLibre agranda el globo por 1/cos(latitud) del centro). El mapa nace plano y con zoom bajo recorta la latitud del centro, así que se vuelve a centrar después de pasar a globo.
 - **Alternativa descartada:** copiar el worker a `public/` con un plugin. Es más código, y además hay que mantener la versión a mano.
 
+## 2026-10-18 — Instalar sin acceso al router
+
+- **Problema:** `INSTALAR.md` pedía entrar al router para fijarle la IP a la PC (reserva DHCP) y, si hacía falta, para la excepción de DNS rebinding. No siempre se tiene acceso al router.
+- **Decisión:** `deploy/duckdns-ip.sh` le avisa a DuckDNS la IP local actual de la PC (la de la ruta por defecto, no las de Docker), y `galeria-ip.timer` lo repite cada 5 minutos y al arrancar. Si el router le cambia la IP, el dominio la sigue en minutos (el TTL de DuckDNS es corto). Además, ya no hay que cargar la IP a mano en DuckDNS. El token va a curl por stdin, para que no aparezca en `ps`. Para el DNS rebinding sin router: DNS de Cloudflare en cada dispositivo (DNS privado en Android, DNS manual en iPhone, DNS seguro en Chrome).
+- **Por qué:** no toca el router y es un script de 20 líneas sobre lo que ya está en la PC (`ip`, `curl`), con el mismo patrón de systemd que `galeria-update`. SPEC §4 se sigue cumpliendo: el dominio apunta a la IP local.
+- **Alternativas descartadas:** IP fija configurada en la PC (sin ver el rango DHCP del router puede chocar con otro dispositivo); `.local` por mDNS (Let's Encrypt no da certificados para `.local`, y sin HTTPS no hay PWA ni Cast); un contenedor de DuckDNS en el compose (necesitaría `network_mode: host` para ver la IP de la PC y es una imagen más).
+
 ## 2026-10-18 — Página «Estado del sistema»
 
 - **Decisión:** pantalla `/estado`, en Más. Desde el navegador revisa la red del dispositivo (`navigator.onLine` y, en Chrome de Android, `connection.type` para avisar si está con datos), internet (pide el estilo de OpenFreeMap, la única excepción de internet), HTTPS (`isSecureContext`) y `/api/health` con su latencia. Del servidor usa `/admin/status`: base de datos (si responde, la base anda), worker, cola, errores y discos. Se revisa sola cada 15 s.

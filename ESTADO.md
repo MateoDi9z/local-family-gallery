@@ -16,6 +16,7 @@
 - 2026-10-17 · E4: QA contra SPEC y CLAUDE. Guardia y gitleaks en limpio. Lighthouse 11.7.1, PWA 1 (instalable) sobre el build de producción. Se agregaron `README.md` y `GUIA-FAMILIA.md` (SPEC §14).
 - 2026-10-17 · E3 cerrada: CI en verde (checks, `test:media` y e2e) en el run 39078432935, commit `54b7e7a`. Imágenes publicadas: `ghcr.io/mateodi9z/local-family-gallery-app` y `…-caddy`, tags `latest` y `sha-54b7e7a`, `linux/amd64`. La imagen `sha-01e993e` arrancó y `/api/health` respondió `{"ok":true}`.
 - 2026-10-18 · El globo se veía blanco: el worker de MapLibre no se empaquetaba. Quedó arreglado, con un chequeo nuevo en el e2e. También se pulió la UI: espacio y atmósfera alrededor del globo, nombres del mapa en español, el planeta entero a la vista al abrir, créditos que no tapan la tira de lugares, visor con fondo opaco, «Volver» alineado, fotos sin ubicación en grilla y un texto de portada que no dice «no hay fotos» cuando sí hay.
+- 2026-10-18 · Instalación sin acceso al router: `deploy/duckdns-ip.sh` + `galeria-ip.timer` le avisan a DuckDNS la IP local de la PC cada 5 minutos (reemplaza la reserva DHCP y la carga a mano). Para el DNS rebinding sin router, DNS por dispositivo. `INSTALAR.md` y `SETUP-SERVIDOR.md` actualizados.
 - 2026-10-18 · Página **Estado del sistema** (`/estado`, desde Más): red del dispositivo, internet, HTTPS, API, base, worker (latido nuevo), cola, errores y discos. También es la pantalla cuando el servidor no responde. La cola y los discos salieron de Administración.
 
 ## Falta

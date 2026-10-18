@@ -49,7 +49,7 @@ En el servidor (Debian o Ubuntu, dentro de la casa):
 
 `deploy.sh` baja las imágenes, aplica las migraciones, levanta Caddy, la app y el worker, y espera a que `/api/health` responda. Se puede correr las veces que haga falta.
 
-La galería solo se abre desde la red de casa. El dominio apunta a la IP local del servidor; no hay que abrir puertos en el router.
+La galería solo se abre desde la red de casa. El dominio apunta a la IP local del servidor (la mantiene al día `deploy/duckdns-ip.sh`); no hay que abrir puertos ni entrar al router.
 
 ## Agregar un disco
 
