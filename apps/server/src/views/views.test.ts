@@ -304,18 +304,24 @@ test("admin: estado de la cola, errores, discos, gpu y reintentar fallidos", asy
   ins.run("j1", "thumb", m, "failed", now, "vips falló", now, now);
   ins.run("j2", "preview", m, "queued", now, null, now, now);
   setSetting(env.db, "gpu", { nvenc: false, checkedAt: now });
+  setSetting(env.db, "worker_seen_at", now);
   const req = app();
   const st = (await (await req("/admin/status")).json()) as {
     queue: { queued: number; failed: number; byType: Record<string, { queued: number }> };
     errors: { jobId: string; mediaId: string | null; type: string; error: string; at: string }[];
     volumes: { tier: string; totalBytes: number; alert: boolean }[];
     gpu: { nvenc: boolean };
+    worker: { alive: boolean; seenAt: string | null };
   };
   expect(st.queue).toMatchObject({ queued: 1, failed: 1, byType: { preview: { queued: 1, running: 0 } } });
   expect(st.errors).toEqual([{ jobId: "j1", mediaId: m, type: "thumb", error: "vips falló", at: now }]);
   expect(st.volumes.map((v) => v.tier).sort()).toEqual(["bulk", "fast"]);
   expect(st.volumes[0]?.totalBytes).toBeGreaterThan(0);
   expect(st.gpu).toEqual({ nvenc: false });
+  expect(st.worker).toEqual({ alive: true, seenAt: now });
+  // Dos minutos sin latido: el worker se da por caído.
+  const later = app({ now: () => new Date(Date.parse(now) + 120_000) });
+  expect(((await (await later("/admin/status")).json()) as typeof st).worker.alive).toBe(false);
 
   expect(await (await req("/admin/jobs/retry", { method: "POST" })).json()).toEqual({ retried: 1 });
   expect(

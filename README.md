@@ -80,6 +80,7 @@ Las miniaturas y los videos convertidos se pueden regenerar.
 | El celular no encuentra el dominio | Suele ser la protección DNS rebinding del router. Ver `deploy/SETUP-SERVIDOR.md`. |
 | El certificado no es de confianza | `docker compose logs caddy` en `/opt/galeria`. Revisá el dominio y el token. |
 | Los videos tardan mucho | Sin GPU NVIDIA se convierten con la CPU. Con GPU, el log del worker tiene que decir que detectó NVENC. |
-| Un disco está casi lleno | Administración avisa al pasar el 85 %. Sumá otro disco (arriba). |
+| Algo no anda y no se sabe qué | **Más → Estado del sistema** (`/estado`): red del dispositivo, internet, HTTPS, API, base, worker, cola y discos. |
+| Un disco está casi lleno | Estado del sistema avisa al pasar el 85 %. Sumá otro disco (arriba). |
 
 Más casos, en `deploy/SETUP-SERVIDOR.md`.

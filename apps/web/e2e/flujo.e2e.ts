@@ -43,4 +43,10 @@ test("asistente, subida, globo, visor y descarga del original", async ({ page })
   const got = new Uint8Array(await res.body());
   const want = new Uint8Array(await Bun.file(FOTO).arrayBuffer());
   expect(got).toEqual(want);
+
+  // Estado del sistema: el worker real tiene que estar dando latidos.
+  await page.goto("/mas");
+  await page.getByRole("link", { name: "Estado del sistema" }).click();
+  await expect(page.getByText("Funcionando.")).toBeVisible();
+  await expect(page.getByText("Base de datos")).toBeVisible();
 });

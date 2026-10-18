@@ -26,7 +26,7 @@ import { enqueue, enqueueDebounced } from "../jobs/enqueue";
 import { texts } from "../media/texts";
 import { MEDIA_COLUMNS, type MediaRow, toMediaItems } from "../media-item";
 import { getVolume, listVolumes, volumeUsage } from "../storage";
-import { CRITICAL_JOBS } from "../worker/queue";
+import { CRITICAL_JOBS, WORKER_ALIVE_MS } from "../worker/queue";
 
 export type ViewOptions = { now?: () => Date; eventsIntervalMs?: number };
 
@@ -461,6 +461,7 @@ export function viewRoutes(ctx: Ctx, opts: ViewOptions = {}) {
       }),
     );
     const gpu = getSetting<{ nvenc: boolean }>(db, "gpu");
+    const seenAt = getSetting<string>(db, "worker_seen_at");
     const body: AdminStatus = {
       queue: queueCounts(db),
       errors: errors.map((e) => ({
@@ -472,6 +473,7 @@ export function viewRoutes(ctx: Ctx, opts: ViewOptions = {}) {
       })),
       volumes,
       gpu: gpu ? { nvenc: gpu.nvenc } : null,
+      worker: { alive: !!seenAt && now().getTime() - Date.parse(seenAt) < WORKER_ALIVE_MS, seenAt },
     };
     return c.json(body);
   });

@@ -68,7 +68,9 @@ Al terminar, la galería muestra un resumen. Si alguna foto no tiene lugar, te p
 
 ## Si algo no anda
 
+Abrí **Más**, **Estado del sistema**. Muestra con un punto verde, amarillo o rojo qué parte anda y qué no: el wifi del celular, internet, el servidor, la base de datos y el procesador de fotos. Si el servidor no responde, esa pantalla aparece sola.
+
 - «No podemos conectar»: fijate de estar en el wifi de casa, no en los datos del celular.
 - «Se cortó el wifi»: esperá. La subida sigue sola.
 - El PIN no entra: probá de nuevo. Si nadie lo recuerda, alguien con acceso al servidor lo cambia en **Más**, **Administración**.
-- Un disco está casi lleno: Administración lo avisa. Hay que sumar otro disco (eso lo hace quien cuida el servidor).
+- Un disco está casi lleno: Estado del sistema lo avisa. Hay que sumar otro disco (eso lo hace quien cuida el servidor).
