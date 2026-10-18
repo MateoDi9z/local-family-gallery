@@ -1,16 +1,32 @@
 // Guía de la tele: qué hace falta, cómo se usa y un chequeo en vivo de si este dispositivo puede mandar a la tele.
-import { castState, connectCast } from "../cast";
+// Android y compu: Chromecast. iPhone y iPad: AirPlay (Apple TV o tele compatible).
+import { useEffect, useState } from "react";
+import { castState, connectCast, isIOS } from "../cast";
 import { t } from "../i18n";
 import { Link } from "../router";
 import { useStore } from "../store";
 
 type Level = "ok" | "warn" | "bad";
 
-function useCheck(): [Level, string] {
+/** Si Safari avisa que hay una tele con AirPlay en el wifi. `null`: no lo dice (otro navegador, o todavía no). */
+function useAirPlay(): boolean | null {
+  const [available, setAvailable] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!("WebKitPlaybackTargetAvailabilityEvent" in window)) return;
+    const v = document.createElement("video");
+    const on = (e: Event) => setAvailable((e as Event & { availability?: string }).availability === "available");
+    v.addEventListener("webkitplaybacktargetavailabilitychanged", on);
+    return () => v.removeEventListener("webkitplaybacktargetavailabilitychanged", on);
+  }, []);
+  return available;
+}
+
+function useCheck(ios: boolean): [Level, string] {
   const s = useStore(castState);
+  const airplay = useAirPlay();
   const ua = navigator.userAgent;
+  if (ios) return airplay === true ? ["ok", t.tv.checkAirplayFound] : ["ok", t.tv.checkIphone];
   if (s.connected) return ["ok", t.tv.checkConnected(s.device)];
-  if (/iPhone|iPad/.test(ua)) return ["bad", t.tv.checkIphone];
   // Mismo criterio que initCast: sin Chrome no se carga el SDK de Cast.
   if (!/Chrome\//.test(ua)) return ["bad", t.tv.checkBrowser];
   if (!s.available) return ["warn", t.tv.checkLoading];
@@ -20,7 +36,9 @@ function useCheck(): [Level, string] {
 
 export function Tv() {
   const s = useStore(castState);
-  const [level, text] = useCheck();
+  const ios = isIOS();
+  const [level, text] = useCheck(ios);
+  const guide = ios ? t.tv.iphone : t.tv.chrome;
   return (
     <main className="screen stack">
       <Link href="/mas" className="btn link">
@@ -42,7 +60,7 @@ export function Tv() {
         )}
       </section>
 
-      {t.tv.sections.map((sec) => (
+      {guide.sections.map((sec) => (
         <section key={sec.title} className="card stack">
           <h2>{sec.title}</h2>
           <ol className="steps">
@@ -55,7 +73,7 @@ export function Tv() {
 
       <section className="card stack">
         <h2>{t.tv.troubleTitle}</h2>
-        {t.tv.trouble.map(([q, a]) => (
+        {guide.trouble.map(([q, a]) => (
           <p key={q}>
             <strong>{q}</strong> {a}
           </p>

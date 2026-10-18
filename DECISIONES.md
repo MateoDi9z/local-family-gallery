@@ -230,3 +230,19 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 - **Problema:** el Atajo seguía sin andar. Cuando iOS manda la parte sin el parámetro `filename` (ni siquiera vacío), `Request.formData()` la devuelve como texto, decodificada en UTF-8: los bytes de la foto se rompen (156 578 bytes → 148 973 caracteres) y el servidor respondía «No llegó ningún archivo».
 - **Decisión:** `ingest/multipart.ts` parte el body por el boundary y deja cada parte con sus bytes (vistas sobre el mismo buffer, sin copias). Cuentan las partes `file` y cualquier otra que sea una foto o un video por su contenido.
 - **Alternativa descartada:** pedir en la guía que el Atajo mande el nombre. Depende de cómo cada versión de iOS arme el formulario, y no lo controlamos.
+
+## 2026-10-18 — Tele desde iPhone: AirPlay
+
+- **Decisión:** en iPhone, «Tele» de un video abre el selector de AirPlay de Safari (`webkitShowPlaybackTargetPicker`). Las fotos no se pueden mandar por AirPlay desde una web: se explica «Duplicar pantalla» y el visor pasa a una presentación (fotos cada 6 s, videos enteros, sin botones encima). «Pasar en la tele» hace lo mismo en iPhone.
+- **Guía `/tele`:** pasos de Chromecast o de AirPlay según el dispositivo. En iPhone intenta detectar una tele con AirPlay (`webkitplaybacktargetavailabilitychanged`); si Safari no avisa, muestra el texto general.
+- **Sin probar en un iPhone real** con Apple TV: el selector y la detección dependen de Safari.
+
+## 2026-10-18 — Agrupar por fecha y por lugar
+
+- **Decisión:** la pestaña Viajes suma «Por fecha» y «Por lugar» (`?ver=fecha|lugar`). Por fecha corta cuando pasan más de 36 h entre una foto y la siguiente: el mismo criterio que los viajes (`TRIP_GAP_MS`, ahora en `packages/shared`), pero sin pedir 5 fotos ni estar lejos de casa. Se agrupa en la web (`grouping.ts`, con tests).
+- **Atajo con límite:** la web trae todas las fotos (de a 500). Con más de ~20 000 conviene agrupar en el servidor (comentario `shortcut:` en `useAllMedia`).
+
+## 2026-10-18 — Descargar y compartir varias
+
+- **Descargar:** los originales de a uno, con medio segundo entre cada uno (Chrome descarta descargas seguidas muy juntas). No es un ZIP: en el celu, un ZIP hay que abrirlo aparte y las fotos no aparecen en la galería.
+- **Compartir:** Web Share con los originales. Se preparan primero y se comparten con un segundo toque, porque Safari exige que `share()` salga directo de un toque. Tope de 300 MB en memoria; si se pasa, sugiere «Descargar».

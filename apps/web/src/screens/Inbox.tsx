@@ -77,7 +77,7 @@ export function Similar() {
                   type="button"
                   className="tile"
                   aria-label={`${i === 0 ? t.inbox.left : t.inbox.right}: ${m.originalName}`}
-                  onClick={() => openViewer([p.a, p.b], i, undefined, reload)}
+                  onClick={() => openViewer([p.a, p.b], i, { onDeleted: reload })}
                 >
                   {m.thumbUrl && <img src={m.thumbUrl} alt="" loading="lazy" />}
                 </button>

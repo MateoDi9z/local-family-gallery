@@ -386,24 +386,30 @@ input:focus {
 }
 
 /* Chips de filtro */
+/* Una sola fila que se desliza con el dedo: no empuja la grilla hacia abajo. */
 .chips {
   display: flex;
-  flex-wrap: wrap;
   gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
   /* Un fieldset no se achica por defecto (min-inline-size: min-content): la fila ensanchaba toda la página
      y en Android el visor centraba las fotos en ese ancho de más (se veían corridas y cortadas). */
   min-inline-size: 0;
-  padding: 4px 0 8px;
+  padding: 2px 0 8px;
+}
+.chips::-webkit-scrollbar {
+  display: none;
 }
 .chip {
   flex: none;
-  min-height: 48px;
-  padding: 8px 18px;
+  min-height: 44px;
+  padding: 6px 14px;
   border-radius: 999px;
   border: 2px solid var(--border);
   background: var(--surface);
   color: var(--text);
   font: inherit;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
@@ -415,8 +421,8 @@ input:focus {
   background: var(--surface-2);
 }
 .swatch {
-  width: 22px;
-  height: 22px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   display: inline-block;
   flex: none;
@@ -584,6 +590,14 @@ input:focus {
   font-size: 0.8rem;
   white-space: nowrap;
 }
+/* Presentación: sin la barra (tocar la pantalla la vuelve a mostrar). */
+.pswp__actions {
+  transition: opacity 0.3s;
+}
+.pswp:not(.pswp--ui-visible) .pswp__actions {
+  opacity: 0;
+  pointer-events: none;
+}
 .pswp__actions .btn[aria-pressed="true"] {
   color: #b3261e;
 }
@@ -657,6 +671,48 @@ ol.steps li {
   background: var(--danger);
 }
 
+/* Encabezado compacto de lugar, viaje y fotos: título con lápiz, una línea de datos, una fila de botones */
+.page-title {
+  font-size: 1.5rem;
+  margin: 4px 0 0;
+}
+.page-sub {
+  margin: 2px 0 10px;
+}
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+.title-row .page-title {
+  flex: 1;
+  min-width: 0;
+}
+.icon-btn {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.btn.small {
+  min-height: 44px;
+  padding: 6px 14px;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
 /* Elegir varias: barra fija arriba de la navegación */
 .select-bar {
   position: fixed;
@@ -666,9 +722,36 @@ ol.steps li {
   z-index: 25;
   max-width: 736px;
   margin: 0 auto;
+  padding: 10px 12px 12px;
 }
 .select-spacer {
   height: 150px;
+}
+.select-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.select-head .btn.link {
+  min-height: 44px;
+  padding: 4px 8px;
+}
+/* Como la barra del visor: ícono y texto corto, todo en una fila. */
+.select-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+.select-actions .btn {
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 2px;
+  border-radius: 16px;
+  font-size: 0.76rem;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 /* Borrar un lugar entero: separado del resto, al final */

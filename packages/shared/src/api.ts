@@ -128,6 +128,9 @@ export const TripPatch = z.object({ name: z.string().trim().min(1).max(80) });
 export const TripDetail = z.object({ trip: Trip, media: z.array(MediaItem) });
 
 /** Grupos de un lugar: un viaje, o `trip: null` para las fotos sin viaje (locales). */
+/** Fotos con más de esto entre una y la siguiente son de salidas distintas (viajes y agrupar por fecha). */
+export const TRIP_GAP_MS = 36 * 3600_000;
+
 /** Borrar todas las fotos de un lugar: hay que escribir su nombre. */
 export const PlaceDeleteAll = z.object({ confirmName: z.string().max(200) });
 /** Cuántas se borraron (borrar un lugar o varias elegidas). */

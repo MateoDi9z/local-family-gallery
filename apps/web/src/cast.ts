@@ -6,7 +6,12 @@ import { api } from "./api/client";
 import { createStore } from "./store";
 
 const SDK = "https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1";
-const SLIDE_MS = 6000;
+export const SLIDE_MS = 6000;
+
+/** iPhone o iPad (el iPad nuevo dice ser una Mac con pantalla táctil). Ahí la tele va por AirPlay. */
+export const isIOS = () =>
+  /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+  (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 
 // Tipos mínimos del SDK (no publica paquete de tipos propio para el framework).
 type CastSession = {
@@ -82,7 +87,7 @@ const absolute = (u: string) => new URL(u, location.origin).href;
 
 export function initCast() {
   // Solo navegadores basados en Chrome tienen Cast; en el resto no se carga nada.
-  if (!/Chrome\//.test(navigator.userAgent) || /iPhone|iPad/.test(navigator.userAgent)) return;
+  if (!/Chrome\//.test(navigator.userAgent) || isIOS()) return;
   window.__onGCastApiAvailable = (ok) => {
     const c = ctx();
     const f = window.cast?.framework;

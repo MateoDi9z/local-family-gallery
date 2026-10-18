@@ -21,7 +21,7 @@ export function Home() {
           <h2>{t.home.yearsAgo(d.yearsAgo)}</h2>
           <div className="grid-row" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
             {d.media.slice(0, 6).map((m, i) => (
-              <Tile key={m.id} m={m} onClick={() => openViewer(d.media, i, undefined, reload)} />
+              <Tile key={m.id} m={m} onClick={() => openViewer(d.media, i, { onDeleted: reload })} />
             ))}
           </div>
         </section>
