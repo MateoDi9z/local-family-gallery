@@ -9,6 +9,31 @@ const form = async (...names: string[]) => {
   return fd;
 };
 
+test("Atajo: sin nombre o con la extensión equivocada, el formato sale del contenido", async () => {
+  const { app, db } = await makeEnv();
+  const { c, members } = await setupGallery(app);
+  const created = await c.req("/api/shortcut/tokens", { json: { memberId: members[0]?.id, label: "iPhone" } });
+  const { token } = (await created.json()) as { token: string };
+  const res = await app.request("/api/shortcut/upload", {
+    method: "POST",
+    headers: { authorization: `Bearer ${token}` },
+    body: await form("foto-gps.jpg:file", "foto-rotada.heic:", "foto-sin-gps.jpg:IMG_0003.HEIC", "video-hdr.mov:video"),
+  });
+  expect(res.status).toBe(200);
+  const rows = db
+    .query<{ original_name: string; mime: string; kind: string; original_path: string }, []>(
+      "SELECT original_name, mime, kind, original_path FROM media ORDER BY rowid",
+    )
+    .all();
+  expect(rows.map((r) => [r.original_name, r.mime, r.kind])).toEqual([
+    ["file.jpg", "image/jpeg", "photo"],
+    ["archivo.heic", "image/heic", "photo"],
+    ["IMG_0003.jpg", "image/jpeg", "photo"],
+    ["video.mov", "video/quicktime", "video"],
+  ]);
+  expect(rows.map((r) => r.original_path.split(".").at(-1))).toEqual(["jpg", "heic", "jpg", "mov"]);
+});
+
 test("Atajo: token válido sube varios archivos en un lote; revocado → 401", async () => {
   const { app, db } = await makeEnv();
   const { c, members } = await setupGallery(app);

@@ -26,6 +26,41 @@ export const mediaTypeOf = (name: string) => {
   return Object.hasOwn(MEDIA_TYPES, ext) ? MEDIA_TYPES[ext] : null;
 };
 
+const ascii = (b: Uint8Array, from: number, to: number) => String.fromCharCode(...b.subarray(from, to));
+
+/**
+ * Formato según los primeros bytes (alcanzan 16). El Atajo de iOS puede mandar el archivo sin nombre,
+ * o con la extensión de antes de convertirlo (un `.HEIC` que ya es JPEG): el contenido no miente.
+ */
+export function sniffExt(head: Uint8Array): string | null {
+  if (head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff) return "jpg";
+  if (ascii(head, 0, 8) === "\x89PNG\r\n\x1a\n") return "png";
+  if (ascii(head, 0, 4) === "RIFF" && ascii(head, 8, 12) === "WEBP") return "webp";
+  const box = ascii(head, 4, 8);
+  // QuickTime viejo, sin caja `ftyp`.
+  if (box === "moov" || box === "mdat" || box === "wide") return "mov";
+  if (box !== "ftyp") return null;
+  const brand = ascii(head, 8, 12);
+  if (/^he(ic|ix|im|is|vc|vx|vm|vs)$/.test(brand)) return "heic";
+  if (brand === "mif1" || brand === "msf1") return "heif";
+  if (brand === "qt  ") return "mov";
+  if (brand.startsWith("3g")) return "3gp";
+  if (brand.startsWith("M4V")) return "m4v";
+  if (/^(isom|iso\d|mp41|mp42|avc1|dash|MSNV)$/.test(brand)) return "mp4";
+  return null;
+}
+
+/** Extensión con la que se guarda: la del contenido y, si los bytes no alcanzan, la del nombre. */
+export const mediaExtOf = (head: Uint8Array, name: string) =>
+  sniffExt(head) ?? (mediaTypeOf(name) ? extOf(name) : null);
+
+/** Nombre para mostrar y descargar: si falta la extensión o no coincide con el contenido, se corrige. */
+export function nameWithExt(name: string, ext: string) {
+  const want = MEDIA_TYPES[ext]?.mime;
+  if (want && mediaTypeOf(name)?.mime === want) return name;
+  return `${name.replace(/\.[^.]*$/, "").trim() || "archivo"}.${ext}`;
+}
+
 export const sha256Hex = (data: string) => new Bun.CryptoHasher("sha256").update(data).digest("hex");
 
 /** SHA-256 de un archivo en streaming (no lo carga entero en memoria). */

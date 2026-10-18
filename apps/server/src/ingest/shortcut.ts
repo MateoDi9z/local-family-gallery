@@ -7,7 +7,7 @@ import { ulid } from "ulid";
 import type { AppEnv, Ctx } from "../context";
 import { pickBulkVolume, tusTmpDir } from "../storage";
 import { getMember } from "./auth";
-import { body, fail, mediaTypeOf, randomToken, sha256Hex, UNSUPPORTED_MESSAGE } from "./common";
+import { body, fail, mediaExtOf, randomToken, sha256Hex, UNSUPPORTED_MESSAGE } from "./common";
 import { finalizeUpload } from "./finalize";
 
 type TokenRow = { id: string; member_id: string; label: string; created_at: string; revoked_at: string | null };
@@ -82,8 +82,14 @@ export function shortcutRoutes(ctx: Ctx) {
 
     const form = await c.req.formData().catch(() => null);
     const all = (form?.getAll("file") ?? []).filter((f): f is File => f instanceof File);
-    // Los formatos que no entendemos se saltean: el resto se sube igual.
-    const files = all.filter((f) => mediaTypeOf(f.name));
+    // Los formatos que no entendemos se saltean: el resto se sube igual. El formato sale del contenido,
+    // porque el Atajo a veces manda el archivo sin nombre o sin extensión.
+    // Con `filename=""` en el multipart, Bun deja `name` en undefined aunque el tipo diga string.
+    const nameOf = (f: File) => f.name ?? "";
+    const known = await Promise.all(
+      all.map(async (f) => mediaExtOf(new Uint8Array(await f.slice(0, 16).arrayBuffer()), nameOf(f)) !== null),
+    );
+    const files = all.filter((_, i) => known[i]);
     if (all.length > files.length)
       log.warn("atajo: archivos salteados por formato", { count: all.length - files.length });
     if (!files.length)
@@ -103,12 +109,12 @@ export function shortcutRoutes(ctx: Ctx) {
       const tmpPath = join(tusTmpDir(await pickBulkVolume(db)), `shortcut-${ulid()}`);
       try {
         await Bun.write(tmpPath, f);
-        const res = await finalizeUpload(ctx, { tmpPath, batchId, name: f.name });
-        items.push({ name: f.name, ...res });
+        const res = await finalizeUpload(ctx, { tmpPath, batchId, name: nameOf(f) });
+        items.push({ name: nameOf(f), ...res });
       } catch (e) {
         await rm(tmpPath, { force: true });
         log.error("atajo: falló un archivo", { err: String(e) });
-        fail(500, "upload_failed", `No pudimos guardar "${f.name}". Probá mandarlo de nuevo.`);
+        fail(500, "upload_failed", `No pudimos guardar "${nameOf(f) || "un archivo"}". Probá mandarlo de nuevo.`);
       }
     }
     return c.json({ batchId, items });
