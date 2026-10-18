@@ -28,6 +28,7 @@
 - 2026-10-18 · **0.7** · Atajo de iOS: seguía fallando cuando la parte del archivo llega sin `filename` (Bun la volvía texto y rompía los bytes: «No llegó ningún archivo»). Ahora el multipart se lee a mano con los bytes intactos.
 - 2026-10-18 · **0.8** · Tele desde iPhone: AirPlay para videos y «Duplicar pantalla» con presentación para fotos; la guía cambia según el dispositivo. Pestaña Viajes con «Por fecha» (salidas: menos de 36 h entre fotos) y «Por lugar». Elegir varias: descargar y compartir además de borrar. Pantallas de lugar y viaje compactas para celular (lápiz junto al título, personas en una fila deslizable, botones chicos).
 - 2026-10-18 · **0.9** · Unir dos viajes detectados por separado (y separarlos): se guarda como un rango de fechas (`trip_joins`, migración 003) que la detección respeta en cada recálculo. Adentro de un viaje, fotos por día local y lugar («Día 1 · 14/5/26», lugar abajo); `MediaItem` suma `takenTz`.
+- 2026-10-18 · **1.0** · Adentro de un viaje, un solo encabezado por día; con varios lugares ese día, un subtítulo chico por lugar (en el orden en que se visitaron) en vez de repetir «Día N». El filtro de persona se aplica antes de agrupar: no quedan días ni lugares vacíos.
 
 ## Falta
 

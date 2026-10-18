@@ -216,6 +216,7 @@ export const es = {
     slideshow: "Pasar en la tele",
     slideshowShort: "Tele",
     day: (n: number) => `Día ${n}`,
+    dayPlaces: (count: string, places: number) => `${count} en ${places} lugares`,
     merge: "Unir",
     split: "Separar",
     mergeTitle: "Unir con otro viaje",

@@ -257,3 +257,8 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 ## 2026-10-18 — Días dentro de un viaje
 
 - **Decisión:** el viaje muestra un grupo por día y, dentro del día, uno por cada tramo seguido en el mismo lugar (`groupByDay`). El día es el **local de la toma**: `MediaItem` suma `takenTz` (de `media.taken_tz`). Las fotos sin zona usan la más común del viaje y, si ninguna tiene, la del celu. «Día N» cuenta días de calendario desde el primero (un día sin fotos se saltea).
+
+## 2026-10-18 — Un encabezado por día, lugares adentro
+
+- **Cambio:** con un encabezado por tramo de lugar, «Día 1» se repetía y quedaba raro. Ahora `groupByDay` da un grupo por día con sus lugares (cada uno una vez, en el orden en que se visitó). La grilla suma dos tipos de encabezado: chico (`small`, el lugar) y sin fotos propias (`headerOnly`, el día cuando tiene varios lugares).
+- **Versión:** de 0.9 se pasa a 1.0, no a 0.10 (parece menor que 0.9).

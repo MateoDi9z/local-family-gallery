@@ -21,19 +21,26 @@ import { useStore } from "../store";
 const tripDates = (tr: { startAt: string; endAt: string }) =>
   t.trips.dates(formatDate(tr.startAt), formatDate(tr.endAt));
 
-function DayTitle({ day, date, place, count }: { day: number; date: string; place: string | null; count: number }) {
+function DayTitle({ day, date, sub }: { day: number; date: string; sub: string }) {
   const label = date ? formatDay(date) : t.photos.noDate;
   return (
     <>
-      <h2 title={place ? `${t.trips.day(day)} · ${label} · ${place}` : label}>
+      <h2 title={day > 0 ? `${t.trips.day(day)} · ${label}` : label}>
         {day > 0 && <span className="day-badge">{t.trips.day(day)}</span>}
         {label}
       </h2>
-      <span className="muted">
-        {place ? `${place} · ` : ""}
-        {t.gallery.count(count)}
-      </span>
+      <span className="muted">{sub}</span>
     </>
+  );
+}
+
+function PlaceTitle({ name, count }: { name: string; count: number }) {
+  return (
+    <h3 title={name}>
+      <Icon name="place" size={18} />
+      <span>{name}</span>
+      <span className="muted"> · {t.gallery.count(count)}</span>
+    </h3>
   );
 }
 
@@ -106,24 +113,37 @@ export function PlaceGallery({ id }: { id: string }) {
 export function TripGallery({ id }: { id: string }) {
   const { data, error, reload } = useApi(endpoints.trip(id), TripDetail);
   const places = useApi(endpoints.places, Places);
-  // Por día y lugar, en orden: «Día 1 · 14/5/26», y abajo el lugar y cuántas fotos.
-  const groups = useMemo<Group[]>(() => {
+  // El filtro de persona va antes de agrupar: así no quedan días ni lugares vacíos.
+  const all = useMemo(() => [{ items: data?.media ?? [] }], [data]);
+  const visible = useMemberFiltered(all)[0]?.items ?? [];
+  // Un encabezado por día («Día 1 · 14/5/26»). Con un solo lugar, el lugar va en el encabezado; con varios,
+  // adentro del día va un subtítulo por lugar, en el orden en que se visitaron.
+  const filtered = useMemo<Group[]>(() => {
     const names = new Map((places.data ?? []).map((p) => [p.id, p.name]));
-    return groupByDay(data?.media ?? []).map((g) => ({
-      key: g.key,
-      title: (
-        <DayTitle
-          day={g.day}
-          date={g.date}
-          place={g.placeId ? (names.get(g.placeId) ?? null) : null}
-          count={g.items.length}
-        />
-      ),
-      items: g.items,
-    }));
-  }, [data, places.data]);
-  const filtered = useMemberFiltered(groups);
-  const visible = filtered.flatMap((g) => g.items);
+    const placeName = (id: string | null) => (id ? names.get(id) : null) ?? t.photos.noPlace;
+    return groupByDay(visible).flatMap((d): Group[] => {
+      const count = t.gallery.count(d.items.length);
+      if (d.places.length === 1) {
+        const only = d.places[0] as (typeof d.places)[number];
+        const sub = only.placeId ? `${placeName(only.placeId)} · ${count}` : count;
+        return [{ key: d.key, title: <DayTitle day={d.day} date={d.date} sub={sub} />, items: d.items }];
+      }
+      return [
+        {
+          key: d.key,
+          title: <DayTitle day={d.day} date={d.date} sub={t.trips.dayPlaces(count, d.places.length)} />,
+          items: [],
+          headerOnly: true,
+        },
+        ...d.places.map((p) => ({
+          key: `${d.key}-${p.placeId ?? "sin-lugar"}`,
+          title: <PlaceTitle name={placeName(p.placeId)} count={p.items.length} />,
+          items: p.items,
+          small: true,
+        })),
+      ];
+    });
+  }, [visible, places.data]);
   const bulk = useSelection(visible, data?.trip.count ?? 0, (allGone) => (allGone ? navigate("/viajes") : reload()));
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");

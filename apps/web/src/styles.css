@@ -852,3 +852,29 @@ ol.steps li {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* Un lugar dentro de un día: subtítulo chico, con pin */
+.group-head.small {
+  padding: 10px 0 4px;
+}
+.group-head.small h3 {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.group-head.small h3 svg {
+  flex: none;
+  color: var(--primary);
+}
+.group-head.small h3 > span:first-of-type {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.group-head.small h3 .muted {
+  flex: none;
+  font-weight: 400;
+}

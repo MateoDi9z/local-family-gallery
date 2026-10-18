@@ -56,11 +56,16 @@ export function groupByPlace(items: MediaItem[]): PhotoGroup[] {
   return [...groups.filter((g) => g.placeId), ...groups.filter((g) => !g.placeId)];
 }
 
-export type DayGroup = PhotoGroup & {
+export type DayGroup = {
+  key: string;
   /** Día del viaje: 1 el primero; cuenta días de calendario, así que un día sin fotos se saltea. */
   day: number;
-  /** Fecha local de la toma, «2026-05-14». */
+  /** Fecha local de la toma, «2026-05-14»; vacía para las que no tienen fecha. */
   date: string;
+  /** Los lugares del día en el orden en que se visitaron, cada uno una vez y con sus fotos en orden. */
+  places: { placeId: string | null; items: MediaItem[] }[];
+  /** Todas las del día, lugar por lugar. */
+  items: MediaItem[];
 };
 
 const offsetMs = (tz: string | null) => {
@@ -69,7 +74,7 @@ const offsetMs = (tz: string | null) => {
 };
 
 /**
- * Dentro de un viaje: un grupo por día y, en un mismo día, uno por cada tramo seguido en el mismo lugar.
+ * Dentro de un viaje: un grupo por día y, adentro, las fotos juntas por lugar (en el orden en que se visitó).
  * El día es el local de la toma; las fotos sin zona horaria usan la más común del viaje (o la del celu).
  * `items` en orden cronológico, como las da el viaje.
  */
@@ -78,34 +83,31 @@ export function groupByDay(items: MediaItem[]): DayGroup[] {
   for (const m of items)
     if (offsetMs(m.takenTz) !== null) tzs.set(m.takenTz as string, (tzs.get(m.takenTz as string) ?? 0) + 1);
   const common = offsetMs([...tzs].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null);
-  const localDate = (m: MediaItem & { takenAt: string }) => {
-    const t = Date.parse(m.takenAt);
-    const off = offsetMs(m.takenTz) ?? common ?? -new Date(t).getTimezoneOffset() * 60_000;
+  const localDate = (takenAt: string, tz: string | null) => {
+    const t = Date.parse(takenAt);
+    const off = offsetMs(tz) ?? common ?? -new Date(t).getTimezoneOffset() * 60_000;
     return new Date(t + off).toISOString().slice(0, 10);
   };
-  const out: DayGroup[] = [];
-  const noDate: MediaItem[] = [];
-  let first: number | null = null;
-  let cur: { date: string; placeId: string | null; items: MediaItem[] } | null = null;
-  const close = () => {
-    if (!cur || first === null) return;
-    const day = Math.round((Date.parse(cur.date) - first) / 86_400_000) + 1;
-    out.push({ ...group(`day-${cur.date}-${out.length}`, cur.items), placeId: cur.placeId, day, date: cur.date });
-  };
+  // Map conserva el orden de llegada: días en orden y, en cada día, lugares por primera visita.
+  const days = new Map<string, Map<string | null, MediaItem[]>>();
   for (const m of items) {
-    if (!m.takenAt) {
-      noDate.push(m);
-      continue;
-    }
-    const date = localDate(m as MediaItem & { takenAt: string });
-    first ??= Date.parse(date);
-    if (!cur || cur.date !== date || cur.placeId !== m.placeId) {
-      close();
-      cur = { date, placeId: m.placeId, items: [] };
-    }
-    cur.items.push(m);
+    const date = m.takenAt ? localDate(m.takenAt, m.takenTz) : "";
+    const day = days.get(date) ?? new Map<string | null, MediaItem[]>();
+    day.set(m.placeId, [...(day.get(m.placeId) ?? []), m]);
+    days.set(date, day);
   }
-  close();
-  if (noDate.length) out.push({ ...group("day-sin-fecha", noDate), day: 0, date: "" });
-  return out;
+  const dated = [...days.keys()].filter(Boolean);
+  const first = dated.length ? Date.parse(dated[0] as string) : 0;
+  const out = [...days].map(([date, byPlace]): DayGroup => {
+    const places = [...byPlace].map(([placeId, ms]) => ({ placeId, items: ms }));
+    return {
+      key: `day-${date || "sin-fecha"}`,
+      day: date ? Math.round((Date.parse(date) - first) / 86_400_000) + 1 : 0,
+      date,
+      places,
+      items: places.flatMap((p) => p.items),
+    };
+  });
+  // Las sin fecha, al final.
+  return [...out.filter((d) => d.date), ...out.filter((d) => !d.date)];
 }
