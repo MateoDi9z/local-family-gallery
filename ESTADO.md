@@ -14,11 +14,11 @@
 - 2026-10-17 · E2 mergeada a `main`: infra, ingesta (31 tests), medios (56 + 3 de `test:media`) y la PWA.
 - 2026-10-17 · E3: e2e de Android en verde contra la imagen de producción (asistente → subir `foto-gps.jpg` → globo → visor → original idéntico).
 - 2026-10-17 · E4: QA contra SPEC y CLAUDE. Guardia y gitleaks en limpio. Lighthouse 11.7.1, PWA 1 (instalable) sobre el build de producción. Se agregaron `README.md` y `GUIA-FAMILIA.md` (SPEC §14).
+- 2026-10-17 · E3 cerrada: CI en verde (checks, `test:media` y e2e) en el run 39078432935, commit `54b7e7a`. Imágenes publicadas: `ghcr.io/mateodi9z/local-family-gallery-app` y `…-caddy`, tags `latest` y `sha-54b7e7a`, `linux/amd64`. La imagen `sha-01e993e` arrancó y `/api/health` respondió `{"ok":true}`.
 
 ## Falta
 
-- Que CI quede en verde y que el workflow `images` publique en GHCR (cierra E3).
-- E5: despliegue en el servidor de la casa. Hace falta Docker en ese servidor, el token de DuckDNS, las rutas de los discos y los dispositivos reales. No están en esta máquina. Pasos en `deploy/SETUP-SERVIDOR.md`.
+- E5, en el servidor de la casa. Desde esta máquina no está ese servidor, ni el token de DuckDNS, ni las rutas de los discos, ni un Android, un iPhone o la tele. El resto del plan (E0 a E4) está cerrado. Fase 2 (SPEC §13) queda para más adelante, a propósito.
 
 ## QA (E4)
 
@@ -37,10 +37,15 @@ No se encontró nada sensible ya subido.
 
 ## Cómo retomar
 
-- `PLAN.md` marca las etapas (✅/🔄). Los worktrees de E2 siguen en `../lfg-wt/`; el código integrado está en `main`.
+- `PLAN.md` marca las etapas. E0 a E4 están cerradas. Sigue E5, en el servidor. Los worktrees de E2 siguen en `../lfg-wt/`; el código integrado está en `main`.
 
 ## Para revisar el humano
 
 - Validar con archivos reales de iPhone en `fixtures-reales/`: un `.heic` y un `.MOV` HDR con ubicación. Los spikes y el e2e se hicieron con sintéticos. SPEC §14 pide esa prueba antes de dar el producto por cerrado del todo.
 - Opcional: cargar los términos privados en `.denylist.local` (Mac) y en el secret `PRIVATE_DENYLIST` (GitHub), uno por línea: el dominio de DuckDNS, la IP pública y los nombres reales.
-- E5, en el servidor de la casa (esta máquina no lo es): seguir `deploy/SETUP-SERVIDOR.md` (Docker, discos, DuckDNS, `./deploy.sh`) y probar en un Android, un iPhone, una compu y, si hay, la tele con Chromecast.
+- E5, en el servidor de la casa (esta máquina no lo es). En orden:
+  1. Seguir `deploy/SETUP-SERVIDOR.md`: Docker, GPU NVIDIA si hay, discos montados con dueño `1000:1000`, subdominio de DuckDNS apuntando a la IP local y el token en `.env`.
+  2. Copiar `deploy/` a `/opt/galeria`, completar `.env` desde `.env.example` (`GHCR_OWNER=mateodi9z`, `TAG=latest` o `TAG=sha-54b7e7a`) y correr `./deploy.sh`.
+  3. Abrir `https://` más el dominio, desde el wifi de casa, y completar el asistente con los datos reales.
+  4. Probar en dispositivos: instalar la PWA en Android y compartir desde la galería, subir desde un iPhone (Atajo) y desde una compu, y, si hay tele, el Chromecast. Con GPU, el log del worker tiene que decir que detectó NVENC.
+  5. Dejar en `fixtures-reales/` un `.heic` y un `.MOV` HDR reales de iPhone y volver a pasar el pipeline.

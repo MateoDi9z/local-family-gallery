@@ -106,8 +106,8 @@ Cada subagente trabaja en su worktree y su rama, solo en su área (§4), y respe
 **Terminado cuando:** los flujos de Playwright en viewport de Android pasan contra el backend real después de la integración, y en el build de producción el Lighthouse de la PWA es instalable.
 > [CAMBIO E4] Lighthouse 11.7.1 (la 13 ya no trae la categoría PWA) sobre `vite build` + `vite preview`: puntaje PWA 1, manifiesto instalable y service worker.
 
-### E3 — Integración · coordinador · 🔄
-> [CAMBIO E3] Ramas mergeadas a `main` en orden. El e2e de Android (`apps/web/e2e/flujo.e2e.ts`) pasó contra `docker-compose.e2e.yml`: asistente, subida del fixture con GPS, globo, visor y original byte a byte. Falta el verde de CI y las imágenes en GHCR.
+### E3 — Integración · coordinador · ✅
+> [CAMBIO E3] Ramas mergeadas a `main` en orden. El e2e de Android pasó en local y en CI (run 39078432935, commit `54b7e7a`): asistente, subida, globo, visor y original byte a byte. Imágenes en GHCR: `ghcr.io/mateodi9z/local-family-gallery-{app,caddy}` con `latest` y `sha-54b7e7a` (`linux/amd64`). El primer e2e de CI falló porque `up --wait` exige healthcheck; quedó resuelto en ese commit.
 - Mergear las ramas a `main` en orden: infra → ingesta → medios → frontend.
 - Sacar el mock y apuntar el frontend a la API real.
 - `docker-compose.dev.yml` completo y flujo de punta a punta: asistente → subir fixtures → aparecen en el globo → abrir el visor → descargar el original.
@@ -121,6 +121,7 @@ Cada subagente trabaja en su worktree y su rama, solo en su área (§4), y respe
 - Reporte en `ESTADO.md`. Lo que encuentre se corrige y se vuelve a pasar hasta que quede limpio.
 
 ### E5 — Despliegue en el servidor · humano + coordinador · ⬜
+> [CAMBIO E5] Desde esta máquina no se puede terminar: no están el servidor, el token de DuckDNS, las rutas de los discos ni los dispositivos. Lo que sí quedó listo: `deploy/docker-compose.yml` valida con un `.env` de ejemplo, `deploy.sh` y `SETUP-SERVIDOR.md` están, y la imagen pública `sha-01e993e` respondió `/api/health` (`{"ok":true,"version":"sha-01e993e"}`). Las imágenes son públicas: en el servidor no hace falta `docker login` salvo que se pasen a privadas.
 - Seguir `deploy/SETUP-SERVIDOR.md`: Docker, driver NVIDIA + Container Toolkit, discos, DuckDNS, login en GHCR.
 - `deploy.sh`, asistente de primer uso con los datos reales.
 - Pruebas en dispositivos reales: instalar la PWA en Android y compartir desde la galería, subir desde iPhone y desde una compu, ver un video HDR y verificar que use NVENC.
