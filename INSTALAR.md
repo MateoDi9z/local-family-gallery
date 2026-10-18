@@ -175,7 +175,8 @@ La galería arranca sola cada vez que se prende la PC: no hay que volver a corre
   - La primera vez, el certificado puede tardar uno o dos minutos. Si dice "no es seguro", esperá y recargá.
   - Si dice que no encuentra la página, mirá el paso 2.3.
 - [ ] Completá el asistente: nombre de la galería, las personas de la familia (nombre y color), la casa en el mapa y el PIN familiar (4 a 8 números).
-- [ ] Revisá en **Más → Administración**:
+- [ ] Revisá en **Más → Estado del sistema**:
+  - arriba dice «Todo anda bien» y todos los puntos están en verde (si alguno no, al lado dice qué pasa);
   - **Discos** muestra el disco rápido y el grande, con el espacio libre de cada uno;
   - **Procesamiento** dice `Placa de video: sí` si hiciste el paso 3.4, o `no (usa el procesador)` si no.
 
@@ -227,6 +228,7 @@ Lo único que no se puede recuperar son **los originales** y **la base de datos*
 | La app no arranca y los logs dicen *permission denied* | `sudo chown -R 1000:1000 /srv/galeria` (o tus rutas) y `./deploy.sh`. |
 | "No es seguro" después de varios minutos | `cd /opt/galeria && docker compose logs caddy`. Suele ser el token o el dominio mal escritos en `.env`. |
 | El celular no encuentra el dominio | Paso 2.3. Que el celular esté en el wifi de casa. |
-| La galería dejó de responder | ¿La PC está prendida y sin suspender (paso 3.2)? Probá `cd /opt/galeria && docker compose ps`. |
+| La galería dejó de responder | Desde el celular se ve sola la pantalla **Estado del sistema**: dice si falla el wifi, internet o el servidor. ¿La PC está prendida y sin suspender (paso 3.2)? Probá `cd /opt/galeria && docker compose ps`. |
+| «Procesador de fotos y videos: está detenido» | `cd /opt/galeria && docker compose logs worker` y `docker compose up -d`. |
 
 Más casos en la sección 11 de `SETUP-SERVIDOR.md`.
