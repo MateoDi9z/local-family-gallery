@@ -13,6 +13,7 @@ Galería privada de fotos y videos de viajes para una familia. Corre en un servi
 | `DECISIONES.md` | Cada decisión técnica con su motivo (formato: fecha, decisión, por qué, alternativas). |
 | `ESTADO.md` | Qué está hecho, qué falta, qué tiene que revisar el humano. |
 | `GUIA-FAMILIA.md` | Guía de uso sin tecnicismos. |
+| `INSTALAR.md` | Paso a paso de la instalación fuera del repo: web, router y PC servidor. |
 | `deploy/SETUP-SERVIDOR.md` | Cómo instalar y desplegar en el servidor. |
 
 ## Reglas que no se rompen nunca

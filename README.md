@@ -2,7 +2,7 @@
 
 Galería privada de fotos y videos de viajes. Corre en un servidor dentro de la casa: cada persona sube desde el celular o la compu, y se ve en un globo desde el celular o en la tele con Chromecast.
 
-Qué hay que construir está en `SPEC.md`. Cómo se construyó, en `PLAN.md` y `DECISIONES.md`. Cómo usarla sin tecnicismos, en `GUIA-FAMILIA.md`. Cómo instalarla en el servidor, en `deploy/SETUP-SERVIDOR.md`.
+Qué hay que construir está en `SPEC.md`. Cómo se construyó, en `PLAN.md` y `DECISIONES.md`. Cómo usarla sin tecnicismos, en `GUIA-FAMILIA.md`. Cómo instalarla, paso a paso, en `INSTALAR.md`; con más detalle, en `deploy/SETUP-SERVIDOR.md`.
 
 El repo y las imágenes de GHCR son públicos. No se commitean fotos reales, tokens, PINs ni `.env`. Los ejemplos usan "Persona 1" y "Ciudad de ejemplo".
 
