@@ -548,6 +548,17 @@ on("DELETE", "/media/:id", (_c, p) => {
   db.similar = db.similar.filter((s) => s.a !== p.id && s.b !== p.id);
   return noContent();
 });
+on("POST", "/places/:id/delete-all", async (c, p) => {
+  const place = db.places.find((x) => x.id === p.id);
+  if (!place) return fail(404, "not_found", "No encontramos ese lugar.");
+  const { confirmName } = S.PlaceDeleteAll.parse(await c.body());
+  if (!S.sameName(confirmName, place.name))
+    return fail(400, "confirm_mismatch", "El nombre no coincide. Escribilo igual que el del lugar para borrar.");
+  const gone = new Set(db.media.filter((m) => m.placeId === place.id).map((m) => m.id));
+  db.media = db.media.filter((m) => !gone.has(m.id));
+  db.similar = db.similar.filter((s) => !gone.has(s.a) && !gone.has(s.b));
+  return json(S.PlaceDeleteAllResponse, { deleted: gone.size });
+});
 on("PATCH", "/media/:id/location", async (c, p) => {
   const m = mediaOr404(p.id as string);
   if (!m) return fail(404, "not_found", "No encontramos esa foto.");

@@ -22,6 +22,7 @@ export const endpoints = {
   home: "/home",
   places: "/places",
   place: (id: string) => `/places/${id}`,
+  placeDeleteAll: (id: string) => `/places/${id}/delete-all`,
   trips: "/trips",
   trip: (id: string) => `/trips/${id}`,
   media: "/media",

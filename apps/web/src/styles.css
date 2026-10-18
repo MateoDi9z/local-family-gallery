@@ -629,6 +629,13 @@ ol.steps li {
   background: var(--danger);
 }
 
+/* Borrar un lugar entero: separado del resto, al final */
+.danger-zone {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px dashed var(--border);
+}
+
 /* Estado del sistema */
 .check {
   display: grid;

@@ -233,6 +233,41 @@ test("DELETE /media/:id: el original va a la papelera (mismo disco), se borran d
   expect((await req(`/media/${m}`, { method: "DELETE" })).status).toBe(404);
 });
 
+test("borrar un lugar entero: solo con el nombre escrito; los originales van a la papelera", async () => {
+  env = await testEnv();
+  const p = addMember(env.db);
+  env.db
+    .query(
+      "INSERT INTO places (id, geoname_id, name, admin1, country_code, lat, lon) VALUES ('pl1', 1, 'Ciudad de Ejémplo', NULL, 'AA', 1, 1), ('pl2', 2, 'Otra ciudad', NULL, 'AA', 2, 2)",
+    )
+    .run();
+  const rels = ["originales/a.jpg", "originales/b.jpg", "originales/c.jpg"];
+  for (const rel of rels.slice(0, 2)) addMedia(env.db, p, { place_id: "pl1", original_path: rel });
+  const otra = addMedia(env.db, p, { place_id: "pl2", original_path: rels[2] as string });
+  for (const rel of rels) await Bun.write(join(env.bulk, rel), "bytes");
+  const req = app();
+  const borrar = (confirmName: string, id = "pl1") =>
+    req(`/places/${id}/delete-all`, { method: "POST", body: JSON.stringify({ confirmName }) });
+
+  const mal = await borrar("Ciudad");
+  expect(mal.status).toBe(400);
+  expect(((await mal.json()) as { error: string }).error).toBe("confirm_mismatch");
+  expect(env.db.query("SELECT count(*) AS n FROM media WHERE deleted_at IS NULL").get()).toEqual({ n: 3 });
+
+  expect((await borrar("x", "pl9")).status).toBe(404);
+  // Sin importar mayúsculas, tildes ni espacios de más.
+  const ok = await borrar("  ciudad de  ejemplo ");
+  expect(ok.status).toBe(200);
+  expect(await ok.json()).toEqual({ deleted: 2 });
+  const vivos = env.db.query<{ id: string }, []>("SELECT id FROM media WHERE deleted_at IS NULL").all();
+  expect(vivos.map((r) => r.id)).toEqual([otra]);
+  expect(await Bun.file(join(env.bulk, "papelera", rels[0] as string)).exists()).toBe(true);
+  expect(await Bun.file(join(env.bulk, rels[2] as string)).exists()).toBe(true);
+  // El lugar vacío ya no aparece en el globo.
+  const places = (await (await req("/places")).json()) as { id: string }[];
+  expect(places.map((x) => x.id)).toEqual(["pl2"]);
+});
+
 test("bandejas: sin ubicación (con sugerencia) y parecidos con su acción", async () => {
   env = await testEnv();
   const p = addMember(env.db);

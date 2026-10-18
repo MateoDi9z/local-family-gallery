@@ -147,6 +147,16 @@ export const es = {
     video: "Video",
   },
 
+  deletePlace: {
+    button: "Borrar todas las fotos de este lugar",
+    title: (name: string) => `¿Borrar todo lo de ${name}?`,
+    body: (n: number) =>
+      `Se van a quitar ${plural(n, "foto o video", "fotos y videos")} de la galería, para todos. Los originales quedan en la papelera del servidor.`,
+    typeLabel: "Para confirmar, escribí el nombre del lugar:",
+    confirm: (n: number) => `Borrar ${plural(n, "foto", "fotos")}`,
+    busy: "Borrando…",
+  },
+
   viewer: {
     download: "Descargar original",
     downloadShort: "Descargar",

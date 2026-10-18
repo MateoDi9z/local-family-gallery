@@ -128,6 +128,14 @@ export const TripPatch = z.object({ name: z.string().trim().min(1).max(80) });
 export const TripDetail = z.object({ trip: Trip, media: z.array(MediaItem) });
 
 /** Grupos de un lugar: un viaje, o `trip: null` para las fotos sin viaje (locales). */
+/** Borrar todas las fotos de un lugar: hay que escribir su nombre. */
+export const PlaceDeleteAll = z.object({ confirmName: z.string().max(200) });
+export const PlaceDeleteAllResponse = z.object({ deleted: z.number().int() });
+/** Misma regla en la pantalla y en el servidor: sin importar mayúsculas, tildes ni espacios de más. */
+const normName = (s: string) =>
+  s.normalize("NFD").replace(/\p{M}/gu, "").trim().replace(/\s+/g, " ").toLocaleLowerCase("es");
+export const sameName = (typed: string, name: string) => normName(typed) === normName(name);
+
 export const PlaceDetail = z.object({
   place: Place,
   groups: z.array(z.object({ trip: Trip.nullable(), media: z.array(MediaItem) })),

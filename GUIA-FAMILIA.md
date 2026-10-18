@@ -64,6 +64,10 @@ Al terminar, la galería muestra un resumen. Si alguna foto no tiene lugar, te p
 
 Abrí la foto y tocá el tachito. Pide confirmación y se quita de la galería para todos. El original no se pierde: queda en la papelera del servidor, por si fue sin querer.
 
+## Borrar todas las fotos de un lugar
+
+Entrá al lugar y, abajo de todo, tocá **«Borrar todas las fotos de este lugar»**. Para que no pase sin querer, pide escribir el nombre del lugar. Se quitan para todos; los originales quedan en la papelera del servidor.
+
 ## Verlas en la tele
 
 En **Más → Ver en la tele** está la guía completa, y un chequeo que dice si tu celular puede y si encuentra la tele.
