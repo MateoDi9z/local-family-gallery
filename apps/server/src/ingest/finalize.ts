@@ -6,7 +6,7 @@ import { ulid } from "ulid";
 import type { Ctx } from "../context";
 import { enqueue } from "../jobs/enqueue";
 import { absPath, moveAtomic, originalRelPath, pickBulkVolume } from "../storage";
-import { extOf, hashFile, mediaTypeOf, partialHashFile } from "./common";
+import { hashFile, MEDIA_TYPES, mediaExtOf, nameWithExt, partialHashFile } from "./common";
 
 export type Incoming = {
   /** Archivo completo, idealmente en `tmp/` de un disco bulk (así el paso final es un rename). */
@@ -33,8 +33,10 @@ async function withLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
 
 export async function finalizeUpload(ctx: Ctx, f: Incoming): Promise<Finalized> {
   const { db, log } = ctx;
-  const type = mediaTypeOf(f.name);
-  if (!type) throw new Error("formato no soportado");
+  const ext = mediaExtOf(new Uint8Array(await Bun.file(f.tmpPath).slice(0, 16).arrayBuffer()), f.name);
+  const type = ext ? MEDIA_TYPES[ext] : undefined;
+  if (!ext || !type) throw new Error("formato no soportado");
+  const name = nameWithExt(f.name, ext);
   const sha256 = await hashFile(f.tmpPath);
   const partial = await partialHashFile(f.tmpPath);
   const size = Bun.file(f.tmpPath).size;
@@ -80,7 +82,7 @@ export async function finalizeUpload(ctx: Ctx, f: Incoming): Promise<Finalized> 
     const hasModified = !Number.isNaN(modified.getTime());
     const vol = await pickBulkVolume(db);
     // Nombre provisorio con la fecha del cliente; el worker lo renombra con la fecha real.
-    let rel = originalRelPath(hasModified ? modified : new Date(), batch.name, sha256, extOf(f.name));
+    let rel = originalRelPath(hasModified ? modified : new Date(), batch.name, sha256, ext);
     // Nunca pisar otro original (mismo segundo, miembro y sha8: casi imposible, pero sería perder una foto).
     if (await Bun.file(join(vol.path, rel)).exists()) rel = rel.replace(/(\.[a-z0-9]+)$/, `_${ulid()}$1`);
     await moveAtomic(f.tmpPath, join(vol.path, rel));
@@ -99,7 +101,7 @@ export async function finalizeUpload(ctx: Ctx, f: Incoming): Promise<Finalized> 
           type.kind,
           type.mime,
           size,
-          f.name,
+          name,
           vol.id,
           rel,
           batch.member_id,

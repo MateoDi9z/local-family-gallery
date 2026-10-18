@@ -191,3 +191,9 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 - **Decisión:** tachito en la barra del visor, con un diálogo de confirmación. Usa `DELETE /media/:id`, que ya movía el original a `papelera/`. Puede borrar cualquier miembro: no hay permisos por persona.
 - **Después de borrar:** el visor se cierra y la pantalla recarga. Sacar la foto de PhotoSwipe sin cerrarlo es más código para casi nada.
 - **Alternativa descartada:** `window.confirm()`. Es menos código, pero no muestra la foto y queda fuera del estilo de la app.
+
+## 2026-10-18 — Formato por contenido, no por nombre
+
+- **Problema:** el Atajo de iOS puede mandar el archivo sin nombre, sin extensión o con la extensión de antes de convertirlo (un `.HEIC` que ya es JPEG). Se decidía el formato por la extensión: el archivo se salteaba (415) o se guardaba con el MIME equivocado. Con `filename=""` en el multipart, Bun deja `File.name` en `undefined` y la subida caía con un 500.
+- **Decisión:** `sniffExt` (`ingest/common.ts`) mira los primeros 16 bytes: JPEG, PNG, WebP y las marcas `ftyp` de HEIC/HEIF, MOV, MP4, M4V y 3GP. Manda el contenido y el nombre queda de respaldo. Lo usa `finalizeUpload`, así que vale para el Atajo y para tus. El nombre guardado (que es el de la descarga) se corrige con la extensión real.
+- **Alternativa descartada:** confiar en el `Content-Type` del multipart. iOS suele mandar `application/octet-stream`.
