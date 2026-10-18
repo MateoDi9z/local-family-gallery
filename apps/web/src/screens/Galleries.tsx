@@ -5,6 +5,7 @@ import { z } from "zod";
 import { api, errorText } from "../api/client";
 import { useApi } from "../api/hooks";
 import { castItems, castState } from "../cast";
+import { DeletePlace } from "../components/DeletePlace";
 import { Grid, type Group } from "../components/Grid";
 import { MemberFilter, useMemberFiltered } from "../components/MemberFilter";
 import { openViewer } from "../components/viewer";
@@ -61,6 +62,7 @@ export function PlaceGallery({ id }: { id: string }) {
       <MemberFilter />
       <CastButton items={filtered.flatMap((g) => g.items)} />
       <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i, undefined, reload)} />
+      <DeletePlace place={data.place} />
     </main>
   );
 }

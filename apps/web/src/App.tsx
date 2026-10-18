@@ -17,6 +17,7 @@ import { Share } from "./screens/Share";
 import { Shortcut } from "./screens/Shortcut";
 import { SystemStatus } from "./screens/Status";
 import { Summary } from "./screens/Summary";
+import { Tv } from "./screens/Tv";
 import { Upload, UploadPill } from "./screens/Upload";
 import { WhoAreYou } from "./screens/WhoAreYou";
 
@@ -98,6 +99,7 @@ function Routes(p: { members: Member[]; me: string | null; reloadMembers: () => 
     ["/iphone", () => <Shortcut members={p.members} me={p.me} />],
     ["/admin", () => <Admin members={p.members} onMembersChanged={p.reloadMembers} />],
     ["/estado", () => <SystemStatus />],
+    ["/tele", () => <Tv />],
   ];
   for (const [pattern, render] of routes) {
     const params = match(pattern, path);

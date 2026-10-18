@@ -197,3 +197,19 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 - **Problema:** el Atajo de iOS puede mandar el archivo sin nombre, sin extensión o con la extensión de antes de convertirlo (un `.HEIC` que ya es JPEG). Se decidía el formato por la extensión: el archivo se salteaba (415) o se guardaba con el MIME equivocado. Con `filename=""` en el multipart, Bun deja `File.name` en `undefined` y la subida caía con un 500.
 - **Decisión:** `sniffExt` (`ingest/common.ts`) mira los primeros 16 bytes: JPEG, PNG, WebP y las marcas `ftyp` de HEIC/HEIF, MOV, MP4, M4V y 3GP. Manda el contenido y el nombre queda de respaldo. Lo usa `finalizeUpload`, así que vale para el Atajo y para tus. El nombre guardado (que es el de la descarga) se corrige con la extensión real.
 - **Alternativa descartada:** confiar en el `Content-Type` del multipart. iOS suele mandar `application/octet-stream`.
+
+## 2026-10-18 — Fotos corridas en Android: el filtro de personas
+
+- **Problema:** en Android las fotos del visor se veían corridas hacia abajo y cortadas, y la barra de botones quedaba afuera. La fila de personas es un `<fieldset>`, que por defecto no se achica por debajo de su contenido (`min-inline-size: min-content`): con 3 o más personas ensanchaba toda la página. Chrome de Android agrandaba el viewport (710 × 1314 en un celu de 393 × 851) y PhotoSwipe centraba la foto en ese tamaño.
+- **Decisión:** `.chips` con `min-inline-size: 0` y `flex-wrap: wrap`: las personas pasan a otra línea, todas a la vista. La barra del visor queda en una fila (ícono y texto corto) y PhotoSwipe reserva el lugar de las dos barras (`paddingFn`), así ninguna tapa la foto.
+- **Alternativa descartada:** `overflow-x: hidden` en `body`. Tapa el síntoma, y cualquier otro desborde volvería a romper el visor sin que se note.
+
+## 2026-10-18 — Guía de la tele con chequeo en vivo
+
+- **Decisión:** pantalla `/tele` con los pasos y un chequeo: iPhone (no se puede), navegador sin Chrome, SDK de Cast cargando, sin teles en el wifi (`CAST_STATE_CHANGED` del SDK) o listo. El botón «Buscar la tele» abre la lista de Chrome sin mandar nada, para probar.
+
+## 2026-10-18 — Borrar un lugar entero
+
+- **Decisión:** `POST /places/:id/delete-all` con `{ confirmName }`. El nombre se compara en la pantalla y también en el servidor, con la misma regla (`sameName` en `packages/shared`: sin importar mayúsculas, tildes ni espacios de más). Cada foto pasa por el mismo borrado que una sola (`deleteMedia`): el original va a `papelera/`.
+- **Por qué POST y no DELETE:** lleva un body, y un DELETE con body no siempre pasa por proxies y clientes.
+- **Si falla a la mitad:** las fotos ya borradas quedan borradas (cada una es atómica) y la respuesta es un error; se puede volver a intentar.

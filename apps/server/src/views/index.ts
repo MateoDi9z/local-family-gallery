@@ -12,8 +12,10 @@ import {
   LocationBulk,
   LocationPatch,
   MediaListQuery,
+  PlaceDeleteAll,
   type ServerEvent,
   SimilarAction,
+  sameName,
   type Trip,
   TripPatch,
 } from "@lfg/shared";
@@ -331,14 +333,13 @@ export function viewRoutes(ctx: Ctx, opts: ViewOptions = {}) {
 
   // Borrado EXPLÍCITO de un usuario: el original va a `<disco>/papelera/<misma ruta>` (rename, mismo disco),
   // se borran sus derivados (se pueden regenerar) y se marca `deleted_at`. Nada se borra solo.
-  app.delete("/media/:id", async (c) => {
-    const id = Id.parse(c.req.param("id"));
+  async function deleteMedia(id: string): Promise<boolean> {
     const m = db
       .query<{ volume_id: string; original_path: string }, [string]>(
         "SELECT volume_id, original_path FROM media WHERE id = ? AND deleted_at IS NULL",
       )
       .get(id);
-    if (!m) return notFound(c);
+    if (!m) return false;
     const vol = getVolume(db, m.volume_id).path;
     let trashRel = join("papelera", m.original_path);
     if (await Bun.file(join(vol, trashRel)).exists()) trashRel = `${trashRel}.${ulid()}`;
@@ -378,7 +379,29 @@ export function viewRoutes(ctx: Ctx, opts: ViewOptions = {}) {
       throw e;
     }
     for (const d of derivs) await rm(join(getVolume(db, d.volume_id).path, d.path), { force: true });
-    return c.body(null, 204);
+    return true;
+  }
+
+  app.delete("/media/:id", async (c) =>
+    (await deleteMedia(Id.parse(c.req.param("id")))) ? c.body(null, 204) : notFound(c),
+  );
+
+  // Borrar todas las fotos de un lugar. El nombre escrito se revisa también acá, no solo en la pantalla.
+  // Cada foto se borra como una sola (atómica): si algo falla a la mitad, las ya borradas quedan borradas.
+  app.post("/places/:id/delete-all", async (c) => {
+    const id = Id.parse(c.req.param("id"));
+    const { confirmName } = PlaceDeleteAll.parse(await c.req.json().catch(() => undefined));
+    const place = db.query<{ name: string }, [string]>("SELECT name FROM places WHERE id = ?").get(id);
+    if (!place) return notFound(c, texts.http.placeNotFound);
+    if (!sameName(confirmName, place.name))
+      return c.json({ error: "confirm_mismatch", message: texts.http.confirmMismatch }, 400);
+    const ids = db
+      .query<{ id: string }, [string]>(`SELECT m.id FROM media m WHERE m.place_id = ? AND ${ALIVE}`)
+      .all(id);
+    let deleted = 0;
+    for (const m of ids) if (await deleteMedia(m.id)) deleted++;
+    ctx.log.info("lugar borrado entero", { placeId: id, deleted });
+    return c.json({ deleted });
   });
 
   // ── Bandejas ─────────────────────────────────────────────────────
