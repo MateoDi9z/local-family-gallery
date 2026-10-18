@@ -55,17 +55,17 @@ function GroupTitle({ title, sub }: { title: string; sub: string }) {
   );
 }
 
-/** Chromecast pasa todo en la tele; en iPhone se abre la presentación para verla con AirPlay. */
+/** Con un Chromecast a la vista pasa todo en la tele; si no, la presentación (AirPlay, Smart View o la tele). */
 function CastButton({ items }: { items: MediaItem[] }) {
-  const { available } = useStore(castState);
-  const ios = isIOS();
-  if ((!available && !ios) || items.length === 0) return null;
+  const { available, devices } = useStore(castState);
+  if (items.length === 0) return null;
+  const cast = available && devices && !isIOS();
   return (
     <button
       type="button"
       className="btn small"
       aria-label={t.trips.slideshow}
-      onClick={() => (ios ? openViewer(items, 0, { present: true }) : castItems(items, 0, true))}
+      onClick={() => (cast ? castItems(items, 0, true) : openViewer(items, 0, { present: true }))}
     >
       <Icon name="tv" />
       <span>{t.trips.slideshowShort}</span>

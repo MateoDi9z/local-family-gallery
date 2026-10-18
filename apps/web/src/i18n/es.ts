@@ -220,13 +220,27 @@ export const es = {
     castShort: "Tele",
     stopShow: "Parar",
     startShow: "Empezar",
-    airplayTitle: "Ver en la tele con AirPlay",
-    airplaySteps: [
-      "Abrí el Centro de control (desde la esquina de arriba a la derecha; en los iPhone con botón, desde abajo).",
-      "Tocá «Duplicar pantalla» y elegí la tele.",
-      "Volvé acá y tocá «Empezar»: las fotos pasan solas.",
-    ],
-    airplayNote: "Hace falta un Apple TV o una tele con AirPlay. Para cortar, tocá la pantalla y después «Parar».",
+    findChromecast: "Buscar un Chromecast",
+    mirror: {
+      ios: {
+        title: "Ver en la tele con AirPlay",
+        steps: [
+          "Abrí el Centro de control (desde la esquina de arriba a la derecha; en los iPhone con botón, desde abajo).",
+          "Tocá «Duplicar pantalla» y elegí la tele.",
+          "Volvé acá y tocá «Empezar»: las fotos pasan solas.",
+        ],
+        note: "Hace falta un Apple TV o una tele con AirPlay. Para cortar, tocá la pantalla y después «Parar».",
+      },
+      android: {
+        title: "Ver en la tele duplicando la pantalla",
+        steps: [
+          "Deslizá desde arriba para abrir los accesos rápidos y tocá «Smart View» (en Samsung) o «Transmitir pantalla» / «Duplicar pantalla».",
+          "Elegí la tele.",
+          "Volvé acá y tocá «Empezar»: las fotos pasan solas.",
+        ],
+        note: "Sirve para teles Samsung, LG y otras que no traen Chromecast. Para cortar, tocá la pantalla y después «Parar».",
+      },
+    },
     favorite: "Marcar como favorita",
     unfavorite: "Quitar de favoritas",
     videoPreparing: "El video se está preparando. Probá en un ratito.",
@@ -434,7 +448,8 @@ export const es = {
     checkConnected: (name: string) => `Sí. Está conectado a ${name}. Abrí una foto y tocá «Tele».`,
     checkReady: "Sí. Hay una tele en este wifi. Tocá «Buscar la tele» para probar.",
     checkNoDevices:
-      "Este dispositivo puede, pero no encuentra ninguna tele. Fijate que la tele esté prendida y en el mismo wifi.",
+      "No encuentra ningún Chromecast. Si tu tele es Samsung, LG u otra sin Chromecast, mirá «Teles sin Chromecast» más abajo: se ve duplicando la pantalla.",
+    checkOnTv: "Estás en la tele: entrá a un viaje o a un lugar y tocá «Pasar en la tele». Las fotos pasan solas.",
     checkLoading: "Revisando… Si en un rato sigue así, actualizá Chrome.",
     checkIphone:
       "Sí, con AirPlay: hace falta un Apple TV o una tele con AirPlay, en el mismo wifi. Con un Chromecast no se puede desde iPhone.",
@@ -473,9 +488,21 @@ export const es = {
           title: "Terminar",
           steps: ["En el panel de abajo, tocá «Dejar de ver en la tele»."],
         },
+        {
+          title: "Teles sin Chromecast (Samsung, LG y otras)",
+          steps: [
+            "Muchas teles Samsung y LG no traen Chromecast: por eso no aparecen en la lista. Se ven duplicando la pantalla del celu.",
+            "Deslizá desde arriba para abrir los accesos rápidos y tocá «Smart View» (en los Samsung Galaxy) o «Transmitir pantalla» / «Duplicar pantalla» en otros Android. Elegí la tele.",
+            "En la galería, abrí una foto y tocá «Tele» (o, en un viaje o un lugar, «Pasar en la tele»), y después «Empezar»: las fotos pasan solas, sin botones encima.",
+            "Otra forma, sin el celu: abrí la dirección de la galería en el navegador de la tele, entrá a un viaje y tocá «Pasar en la tele».",
+          ],
+        },
       ],
       trouble: [
-        ["No aparece el botón «Tele».", "Este dispositivo no puede o no encuentra la tele: mirá el chequeo de arriba."],
+        [
+          "Mi tele es Samsung (o LG) y no aparece en la lista.",
+          "No traen Chromecast: usá «Smart View» o «Duplicar pantalla» (en «Teles sin Chromecast»).",
+        ],
         [
           "La tele no aparece en la lista.",
           "Prendé la tele, esperá un minuto y fijate que el celular y la tele estén en el mismo wifi (no con datos).",

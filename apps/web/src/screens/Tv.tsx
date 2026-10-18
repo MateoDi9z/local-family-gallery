@@ -1,7 +1,7 @@
 // Guía de la tele: qué hace falta, cómo se usa y un chequeo en vivo de si este dispositivo puede mandar a la tele.
 // Android y compu: Chromecast. iPhone y iPad: AirPlay (Apple TV o tele compatible).
 import { useEffect, useState } from "react";
-import { castState, connectCast, isIOS } from "../cast";
+import { castState, connectCast, platform } from "../cast";
 import { t } from "../i18n";
 import { Link } from "../router";
 import { useStore } from "../store";
@@ -26,6 +26,7 @@ function useCheck(ios: boolean): [Level, string] {
   const airplay = useAirPlay();
   const ua = navigator.userAgent;
   if (ios) return airplay === true ? ["ok", t.tv.checkAirplayFound] : ["ok", t.tv.checkIphone];
+  if (platform() === "tv") return ["ok", t.tv.checkOnTv];
   if (s.connected) return ["ok", t.tv.checkConnected(s.device)];
   // Mismo criterio que initCast: sin Chrome no se carga el SDK de Cast.
   if (!/Chrome\//.test(ua)) return ["bad", t.tv.checkBrowser];
@@ -36,7 +37,7 @@ function useCheck(ios: boolean): [Level, string] {
 
 export function Tv() {
   const s = useStore(castState);
-  const ios = isIOS();
+  const ios = platform() === "ios";
   const [level, text] = useCheck(ios);
   const guide = ios ? t.tv.iphone : t.tv.chrome;
   return (

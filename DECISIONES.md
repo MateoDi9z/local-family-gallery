@@ -280,3 +280,9 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 - **Decisión:** la receta usa «Repetir con cada» y un «Obtener contenido de URL» por foto, con «Elemento de repetición» en el campo `file`. Además no arma un pedido gigante en memoria y un archivo que falla no frena al resto.
 - **Lote:** cada pedido armaba su propio lote. Ahora las fotos que llegan por el Atajo de la misma persona con menos de 30 minutos entre una y otra van al mismo lote (un video grande puede tardar varios minutos en subir).
 - **Alternativa descartada:** que el Atajo pida un lote y lo mande en cada foto. Agrega pasos a una receta que ya es larga para la familia.
+
+## 2026-10-18 — Teles sin Chromecast (Samsung, LG)
+
+- **Problema:** desde Android a una Samsung Smart no andaba. Las Samsung (Tizen) y la mayoría de las LG (webOS) no traen Chromecast: el SDK de Cast de Chrome no las ve.
+- **Decisión:** `platform()` (`cast.ts`) decide: con un Chromecast a la vista, Cast; en iPhone, AirPlay; en Android sin Chromecast, explicar Smart View / duplicar pantalla y arrancar la presentación (más «Buscar un Chromecast»); en el navegador de la tele o una compu, la presentación directa. El botón «Tele» está siempre. La presentación pide wake lock: si el celu se apaga, la tele queda en negro.
+- **Alternativa descartada:** DLNA desde el servidor (las Samsung son renderizadores DLNA). Necesita descubrir la tele por multicast en la red de casa, o sea el contenedor con `network_mode: host`, y cambiar cómo Caddy llega a la app. Mucho cambio en el deploy para algo que duplicar la pantalla ya resuelve.

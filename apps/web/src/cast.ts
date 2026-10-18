@@ -13,6 +13,18 @@ export const isIOS = () =>
   /iPhone|iPad|iPod/.test(navigator.userAgent) ||
   (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 
+/**
+ * Cómo llegar a la tele. iPhone: AirPlay. Android: Chromecast o, sin uno (Samsung, LG), duplicar la pantalla.
+ * El navegador de la propia tele: la presentación directa. Una compu: Chromecast o la presentación.
+ */
+export type Platform = "ios" | "android" | "tv" | "other";
+export const platform = (): Platform => {
+  const ua = navigator.userAgent;
+  if (isIOS()) return "ios";
+  if (/SMART-TV|SmartTV|Tizen|Web0S|webOS|NetCast|BRAVIA|HbbTV|CrKey/i.test(ua)) return "tv";
+  return /Android/.test(ua) ? "android" : "other";
+};
+
 // Tipos mínimos del SDK (no publica paquete de tipos propio para el framework).
 type CastSession = {
   loadMedia(req: unknown): Promise<unknown>;
