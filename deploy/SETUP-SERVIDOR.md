@@ -101,11 +101,10 @@ sudo chown -R 1000:1000 /srv/galeria/rapido /mnt/disco1/galeria
 
 El dominio hace falta para tener HTTPS (sin HTTPS no se puede instalar la app ni usar Compartir o Chromecast). **Apunta a la IP local** del servidor, así que desde afuera de la casa no lleva a ningún lado.
 
-1. Fijale al servidor una IP local que no cambie: reserva DHCP en el router (buscá "DHCP estático" o "reserva de IP") con la MAC del servidor. Mirá la IP actual con `ip -4 addr`.
-2. Entrá a <https://www.duckdns.org> e iniciá sesión.
-3. Creá un subdominio (p. ej. `ejemplo` → `ejemplo.duckdns.org`).
-4. En **current ip** poné la IP **local** del servidor (`192.168.0.10`) y tocá *update ip*.
-5. Copiá el **token** de arriba de la página: va en `.env` como `DUCKDNS_TOKEN`. Es secreto: no lo compartas ni lo subas a ningún lado.
+1. Entrá a <https://www.duckdns.org> e iniciá sesión.
+2. Creá un subdominio (p. ej. `ejemplo` → `ejemplo.duckdns.org`).
+3. Copiá el **token** de arriba de la página: va en `.env` como `DUCKDNS_TOKEN`. Es secreto: no lo compartas ni lo subas a ningún lado.
+4. La IP **local** del servidor no se carga a mano: `duckdns-ip.sh` se la avisa a DuckDNS y el timer `galeria-ip.timer` la repite cada 5 minutos (se instalan en el paso 6). Así no hace falta reserva DHCP en el router: si el router le cambia la IP al servidor, el dominio la sigue. Si tenés acceso al router, la reserva igual se puede hacer.
 
 Caddy saca solo el certificado de Let's Encrypt por desafío DNS-01 (escribe un registro TXT en DuckDNS con el token) y lo renueva solo.
 
@@ -118,6 +117,7 @@ Opciones, de la más fácil a la más completa:
 1. **Excepción en el router:** buscá "DNS rebind protection" / "protección DNS rebinding" y agregá `ejemplo.duckdns.org` a la lista de permitidos (en muchos routers con firmware tipo OpenWrt es *Rebind domain whitelist*; en otros se desactiva la protección).
 2. **DNS local con override:** si tenés Pi-hole, AdGuard Home o dnsmasq, agregá un registro local `ejemplo.duckdns.org → 192.168.0.10` (en Pi-hole: *Local DNS → DNS Records*; en dnsmasq: `address=/ejemplo.duckdns.org/192.168.0.10`).
 3. **Usar otro DNS en el router:** cambiar el DNS que reparte el router por uno que no filtre (p. ej. `1.1.1.1`).
+4. **Sin acceso al router: DNS en cada dispositivo.** Android: *DNS privado* → `one.one.one.one`. iPhone: *Wi-Fi → (i) → Configurar DNS → Manual* → `1.1.1.1`. Compu: en Chrome, *Usar DNS seguro* → Cloudflare. El Chromecast suele usar el DNS de Google por su cuenta.
 
 ## 5. Acceso a las imágenes (GHCR)
 
@@ -143,6 +143,15 @@ cp .env.example .env
 chmod 600 .env
 nano .env       # completá GHCR_OWNER, DOMAIN, DUCKDNS_TOKEN y las rutas HOST_..._PATH
 ./deploy.sh
+```
+
+Para que el dominio apunte al servidor y lo siga si cambia de IP (paso 4):
+
+```bash
+./duckdns-ip.sh                  # tiene que decir: DuckDNS: ejemplo.duckdns.org → 192.168.0.10
+sudo cp /opt/galeria/galeria-ip.service /opt/galeria/galeria-ip.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now galeria-ip.timer
 ```
 
 `deploy.sh` revisa `.env` y los discos, baja las imágenes, aplica las migraciones, levanta todo y espera a que la app responda. Lo podés correr las veces que quieras.
@@ -215,6 +224,7 @@ Aunque la app desaparezca, los originales quedan en carpetas por fecha con nombr
 | *denied* o *unauthorized* al bajar imágenes | `docker login ghcr.io` (paso 5). Revisá que `GHCR_OWNER` esté en minúsculas. |
 | El navegador dice que el sitio no es seguro | Mirá `docker compose logs caddy`. Si dice algo de DuckDNS, revisá `DUCKDNS_TOKEN` y `DOMAIN`. Si dice *rate limit*, esperá una hora. |
 | El celular no encuentra el dominio | DNS rebinding (paso 4). Probá `nslookup ejemplo.duckdns.org` desde la compu. |
+| Andaba y dejó de encontrar el dominio | ¿Cambió la IP del servidor? `journalctl -u galeria-ip.service` muestra la última que se avisó a DuckDNS y `systemctl list-timers galeria-ip.timer` que el timer esté activo. |
 | Los videos tardan mucho | Sin GPU es normal. Con GPU: `docker compose logs worker` tiene que decir que detectó NVENC; si no, revisá el paso 2. |
 | Ver el estado | `docker compose ps` y `docker compose logs -f --tail 100 app worker`. |
 | Reiniciar todo | `docker compose restart`. |

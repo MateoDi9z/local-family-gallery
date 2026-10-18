@@ -1,0 +1,10 @@
+# Cada 5 minutos (y al prender la PC) le avisa a DuckDNS la IP local del servidor.
+[Unit]
+Description=Galería familiar: mantener el dominio apuntando a la IP de la PC
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target
