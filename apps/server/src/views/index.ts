@@ -18,6 +18,7 @@ import {
   SimilarAction,
   sameName,
   type Trip,
+  TripMerge,
   TripPatch,
 } from "@lfg/shared";
 import { type Context, Hono } from "hono";
@@ -25,6 +26,7 @@ import { streamSSE } from "hono/streaming";
 import { ulid } from "ulid";
 import type { AppEnv, Ctx } from "../context";
 import { getSetting } from "../db";
+import { mergeTrips, splitTrip } from "../geo/trips";
 import { enqueue, enqueueDebounced } from "../jobs/enqueue";
 import { texts } from "../media/texts";
 import { MEDIA_COLUMNS, type MediaRow, toMediaItems } from "../media-item";
@@ -41,6 +43,7 @@ type TripRow = {
   end_at: string;
   count: number;
   cover_sha: string | null;
+  merged: number;
 };
 
 const TRIP_SELECT = `SELECT t.id, t.name, t.name_is_custom, t.start_at, t.end_at,
@@ -50,7 +53,8 @@ const TRIP_SELECT = `SELECT t.id, t.name, t.name_is_custom, t.start_at, t.end_at
       WHERE cm.id = t.cover_media_id AND cm.deleted_at IS NULL),
     (SELECT cm.sha256 FROM media cm JOIN derivatives d ON d.media_id = cm.id AND d.variant = 'thumb'
       WHERE cm.trip_id = t.id AND cm.deleted_at IS NULL ORDER BY cm.taken_at LIMIT 1)
-  ) AS cover_sha
+  ) AS cover_sha,
+  EXISTS (SELECT 1 FROM trip_joins j WHERE j.start_at <= t.end_at AND j.end_at >= t.start_at) AS merged
   FROM trips t`;
 
 const toTrip = (r: TripRow): Trip => ({
@@ -61,6 +65,7 @@ const toTrip = (r: TripRow): Trip => ({
   endAt: r.end_at,
   count: r.count,
   coverThumbUrl: r.cover_sha ? fileUrl(r.cover_sha, "thumb") : null,
+  merged: r.merged === 1,
 });
 
 type PlaceRow = {
@@ -253,6 +258,18 @@ export function viewRoutes(ctx: Ctx, opts: ViewOptions = {}) {
       return notFound(c, texts.http.tripNotFound);
     return c.json(toTrip(tripById(id) as TripRow));
   });
+
+  // Unir a mano dos viajes que se detectaron separados, y deshacerlo.
+  app.post("/trips/:id/merge", async (c) => {
+    const id = Id.parse(c.req.param("id"));
+    const { otherId } = TripMerge.parse(await c.req.json().catch(() => undefined));
+    const tripId = mergeTrips(db, id, otherId);
+    if (!tripId) return notFound(c, texts.http.tripNotFound);
+    return c.json({ tripId });
+  });
+  app.delete("/trips/:id/merge", (c) =>
+    splitTrip(db, Id.parse(c.req.param("id"))) ? c.body(null, 204) : notFound(c, texts.http.tripNotFound),
+  );
 
   // ── Medias ───────────────────────────────────────────────────────
   app.get(endpoints.media, (c) => {

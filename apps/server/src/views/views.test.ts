@@ -233,6 +233,31 @@ test("DELETE /media/:id: el original va a la papelera (mismo disco), se borran d
   expect((await req(`/media/${m}`, { method: "DELETE" })).status).toBe(404);
 });
 
+test("unir y separar viajes por la API: la marca merged y 404 si no existe", async () => {
+  env = await testEnv();
+  const p = addMember(env.db);
+  for (const day of ["01", "05"])
+    for (let h = 10; h < 16; h++)
+      addMedia(env.db, p, { taken_at: `2023-07-${day}T${h}:00:00.000Z`, lat: 48.8584, lon: 2.2945 });
+  assignTrips(env.db);
+  const req = app();
+  const list = async () => (await (await req("/trips")).json()) as { id: string; merged: boolean; count: number }[];
+  const [a, b] = await list();
+  expect([a?.merged, b?.merged]).toEqual([false, false]);
+  const res = await req(`/trips/${a?.id}/merge`, { method: "POST", body: JSON.stringify({ otherId: b?.id }) });
+  expect(res.status).toBe(200);
+  const { tripId } = (await res.json()) as { tripId: string };
+  expect(await list()).toMatchObject([{ id: tripId, merged: true, count: 12 }]);
+  expect((await req(`/trips/${tripId}/merge`, { method: "DELETE" })).status).toBe(204);
+  expect((await list()).map((t) => [t.merged, t.count])).toEqual([
+    [false, 6],
+    [false, 6],
+  ]);
+  expect(
+    (await req(`/trips/${tripId}/merge`, { method: "POST", body: JSON.stringify({ otherId: "nada" }) })).status,
+  ).toBe(404);
+});
+
 test("borrar varias elegidas: cada una a la papelera; repetidas o inexistentes no cuentan", async () => {
   env = await testEnv();
   const p = addMember(env.db);

@@ -25,6 +25,7 @@ export const endpoints = {
   placeDeleteAll: (id: string) => `/places/${id}/delete-all`,
   trips: "/trips",
   trip: (id: string) => `/trips/${id}`,
+  tripMerge: (id: string) => `/trips/${id}/merge`,
   media: "/media",
   mediaItem: (id: string) => `/media/${id}`,
   mediaLocation: (id: string) => `/media/${id}/location`,

@@ -10,6 +10,7 @@ import { DeletePlace } from "../components/DeletePlace";
 import { Grid, type Group } from "../components/Grid";
 import { Icon } from "../components/icons";
 import { MemberFilter, useMemberFiltered } from "../components/MemberFilter";
+import { MergeTrip } from "../components/MergeTrip";
 import { useSelection } from "../components/Selection";
 import { openViewer } from "../components/viewer";
 import { groupByDate, groupByPlace } from "../grouping";
@@ -38,10 +39,11 @@ function CastButton({ items }: { items: MediaItem[] }) {
     <button
       type="button"
       className="btn small"
+      aria-label={t.trips.slideshow}
       onClick={() => (ios ? openViewer(items, 0, { present: true }) : castItems(items, 0, true))}
     >
       <Icon name="tv" />
-      <span>{t.trips.slideshow}</span>
+      <span>{t.trips.slideshowShort}</span>
     </button>
   );
 }
@@ -150,6 +152,12 @@ export function TripGallery({ id }: { id: string }) {
       <div className="toolbar">
         <CastButton items={visible} />
         {bulk.button}
+        <MergeTrip
+          trip={data.trip}
+          onDone={(tripId) =>
+            tripId === data.trip.id ? reload() : navigate(`/viaje/${encodeURIComponent(tripId)}`, true)
+          }
+        />
       </div>
       <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i, { onDeleted: reload })} {...bulk.gridProps} />
       {bulk.bar}

@@ -214,6 +214,20 @@ export const es = {
     rename: "Cambiar el nombre",
     renameLabel: "Nombre del viaje",
     slideshow: "Pasar en la tele",
+    slideshowShort: "Tele",
+    merge: "Unir",
+    split: "Separar",
+    mergeTitle: "Unir con otro viaje",
+    mergeHelp: "Elegí el viaje que en realidad es el mismo. Los más cercanos en fecha están primero.",
+    mergeConfirm: (a: string, b: string) => `¿Unir «${a}» y «${b}»?`,
+    mergeBody:
+      "Van a quedar como un solo viaje, con las fotos de los dos. Las que se suban después de esos días también entran. Si te equivocás, se puede separar.",
+    mergeYes: "Sí, unir",
+    merging: "Un momento…",
+    noOthers: "No hay otros viajes para unir.",
+    splitTitle: "¿Separar este viaje?",
+    splitBody: "Vuelve a quedar como se detectó al principio, en los viajes de antes de unirlo.",
+    splitYes: "Sí, separar",
   },
 
   photos: {

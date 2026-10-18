@@ -713,6 +713,38 @@ ol.steps li {
   font-size: 0.95rem;
 }
 
+/* Unir viajes: la lista de candidatos, dentro del diálogo */
+.merge-list {
+  max-height: 50dvh;
+  overflow-y: auto;
+}
+.trip-pick {
+  width: 100%;
+  grid-template-columns: 64px 1fr;
+  gap: 10px;
+  padding: 8px;
+  border: 2px solid var(--border);
+  font: inherit;
+  font-size: 0.95rem;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.trip-pick img,
+.trip-pick .ph {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+}
+.trip-pick .muted {
+  font-size: 0.85rem;
+}
+.trip-pick > span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 /* Elegir varias: barra fija arriba de la navegación */
 .select-bar {
   position: fixed;

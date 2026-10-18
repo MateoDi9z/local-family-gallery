@@ -123,7 +123,12 @@ export const Trip = z.object({
   endAt: IsoDate,
   count: z.number().int(),
   coverThumbUrl: z.string().nullable(),
+  /** Unido a mano con otro (se puede separar). */
+  merged: z.boolean(),
 });
+/** Unir este viaje con otro: quedan como uno solo. */
+export const TripMerge = z.object({ otherId: Id });
+export const TripMergeResponse = z.object({ tripId: Id });
 export const TripPatch = z.object({ name: z.string().trim().min(1).max(80) });
 export const TripDetail = z.object({ trip: Trip, media: z.array(MediaItem) });
 
