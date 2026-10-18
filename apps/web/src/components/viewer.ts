@@ -19,7 +19,7 @@ export function openViewer(items: MediaItem[], index: number, onChange?: (m: Med
       alt: m.originalName,
     })),
     index,
-    bgOpacity: 0.95,
+    bgOpacity: 1,
     showHideAnimationType: "fade",
     closeTitle: t.close,
     arrowPrevTitle: t.cast.prev,

@@ -86,26 +86,32 @@ export function LocationFixer({
           {t.summary.confirmAll}
         </button>
       )}
-      <div className="stack">
-        {items.map(({ media, suggestion }) => (
-          <div key={media.id} className="row">
-            <div style={{ width: 110 }}>
-              <Tile m={media} pressed={selected.has(media.id)} onClick={() => toggle(media.id)} />
-            </div>
-            {suggestion && (
-              <div className="stack" style={{ flex: 1 }}>
-                <span>{t.summary.suggestion(suggestion.placeName)}</span>
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => run(() => assign([media.id], { lat: suggestion.lat, lon: suggestion.lon }))}
-                >
-                  {t.summary.confirm}
-                </button>
-              </div>
-            )}
+      {withSuggestion.map(({ media, suggestion }) => (
+        <div key={media.id} className="row">
+          <div style={{ width: 110 }}>
+            <Tile m={media} pressed={selected.has(media.id)} onClick={() => toggle(media.id)} />
           </div>
-        ))}
+          {suggestion && (
+            <div className="stack" style={{ flex: 1 }}>
+              <span>{t.summary.suggestion(suggestion.placeName)}</span>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => run(() => assign([media.id], { lat: suggestion.lat, lon: suggestion.lon }))}
+              >
+                {t.summary.confirm}
+              </button>
+            </div>
+          )}
+        </div>
+      ))}
+      {/* Las que no tienen sugerencia, en grilla: se tocan para elegirlas. */}
+      <div className="grid-row" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+        {items
+          .filter((i) => !i.suggestion)
+          .map(({ media }) => (
+            <Tile key={media.id} m={media} pressed={selected.has(media.id)} onClick={() => toggle(media.id)} />
+          ))}
       </div>
       {selected.size > 0 && <p>{t.summary.selected(selected.size)}</p>}
       {!picking ? (

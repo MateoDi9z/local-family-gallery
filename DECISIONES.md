@@ -163,3 +163,10 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 - **HTTPS en desarrollo:** no se usa. `localhost` ya es un contexto seguro para la PWA y el service worker.
 - **Fixtures:** `bun run fixtures` genera 7 archivos dentro de la imagen `dev` (jellyfin-ffmpeg trae zscale y libx265).
 - **`bun install` dentro del contenedor** va con `--ignore-scripts`. El `prepare` configura los hooks de git, y en un worktree `.git` apunta afuera de la carpeta montada.
+
+## 2026-10-18 — Globo en blanco: worker de MapLibre
+
+- **Problema:** el globo se veía blanco, sin países ni marcadores. MapLibre 6 arma la URL de su worker en runtime (`new URL("./maplibre-gl-worker.mjs", import.meta.url)`), Vite no la detecta y no empaqueta el archivo. El servidor devolvía el `index.html` en su lugar y el worker no arrancaba: solo se veía el fondo del mapa. El e2e pasaba igual porque entraba al lugar por la tira de abajo, no por el mapa.
+- **Decisión:** `setWorkerUrl()` con el worker importado con `?url` (`apps/web/src/components/map.ts`). El e2e ahora espera un marcador del globo, que solo aparece si el worker procesa los datos.
+- **De paso:** fondo de espacio y atmósfera alrededor del globo, nombres del mapa en español (`name:es`, si no el del estilo) y zoom inicial calculado para que entre el planeta entero (MapLibre agranda el globo por 1/cos(latitud) del centro). El mapa nace plano y con zoom bajo recorta la latitud del centro, así que se vuelve a centrar después de pasar a globo.
+- **Alternativa descartada:** copiar el worker a `public/` con un plugin. Es más código, y además hay que mantener la versión a mano.

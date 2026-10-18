@@ -121,6 +121,10 @@ Scripts de la raíz que tienen que existir y funcionar. Si cambian, se actualiza
 - **Hash del cliente:** es solo un chequeo rápido. La verdad es el SHA-256 calculado en el servidor.
 - **iOS al subir:** Safari o Atajos pueden convertir a JPEG o quitar el GPS. Cualquier cambio en la subida desde iPhone se prueba con un archivo real.
 
+## Frontend: trampas conocidas
+
+- **Worker de MapLibre:** Vite no empaqueta el worker solo. Sin el `setWorkerUrl` de `components/map.ts`, el globo queda en blanco y no salta ningún error en los tests unitarios.
+
 ## Entornos
 
 - **Desarrollo:** Mac (posiblemente Apple Silicon), sin GPU NVIDIA, HTTPS en `localhost`.

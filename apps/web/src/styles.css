@@ -157,6 +157,10 @@ a {
   background: transparent;
   padding: 8px 12px;
 }
+/* "Volver" arriba a la izquierda, no estirado al ancho de la pantalla. */
+.stack > a.btn.link {
+  align-self: flex-start;
+}
 
 /* Formularios */
 label {
@@ -217,6 +221,8 @@ input:focus {
   min-height: 280px;
   border-radius: var(--radius);
   overflow: hidden;
+  /* Lo que se ve alrededor del globo: espacio de noche, no el fondo blanco de la página. */
+  background: radial-gradient(circle at 50% 45%, #24345a, #0b1022 75%);
 }
 .globe {
   position: fixed;
@@ -225,6 +231,11 @@ input:focus {
 .globe .map {
   height: 100%;
   border-radius: 0;
+}
+/* Los créditos del mapa van arriba de la tira de lugares, no tapados por ella. */
+.globe:has(.place-strip) .maplibregl-ctrl-bottom-right,
+.globe:has(.place-strip) .maplibregl-ctrl-bottom-left {
+  bottom: 80px;
 }
 .place-marker {
   width: 64px;

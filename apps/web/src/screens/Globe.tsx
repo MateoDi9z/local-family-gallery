@@ -118,7 +118,10 @@ export function Globe() {
       places.reduce((s, p) => s + p.lon, 0) / n,
       places.reduce((s, p) => s + p.lat, 0) / n,
     ];
-    const map = createMap(el.current, center, places.length > 1 ? 1.4 : 4);
+    // Arranca con el planeta entero a la vista: el globo mide 512·2^zoom/(π·cos(lat)) px de diámetro.
+    const side = Math.min(el.current.clientWidth, el.current.clientHeight);
+    const cos = Math.cos((center[1] * Math.PI) / 180);
+    const map = createMap(el.current, center, Math.log2((side * 0.95 * Math.PI * cos) / 512));
     map.on("load", () => mountPlaces(map, places));
     return () => map.remove();
   }, [places]);

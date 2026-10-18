@@ -31,6 +31,8 @@ test("asistente, subida, globo, visor y descarga del original", async ({ page })
   await expect(page.getByRole("heading", { name: "Resumen de la subida" })).toBeVisible();
   await expect(page.getByText("Todas tienen ubicación.")).toBeVisible({ timeout: 90_000 });
   await page.getByRole("link", { name: "Ver en el mapa" }).click();
+  // El marcador sale del worker de MapLibre: si el worker no carga, el globo queda en blanco.
+  await expect(page.locator(".place-marker").first()).toBeVisible();
   await page.getByTestId("place-chip").first().click();
   await page.getByTestId("tile").first().click();
 

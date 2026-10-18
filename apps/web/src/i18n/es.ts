@@ -170,7 +170,7 @@ export const es = {
     perMember: (name: string, n: number) => `${name} subió ${plural(n, "foto", "fotos")}`,
     seeMap: "Ver el mapa",
     seeTrip: "Ver el viaje",
-    empty: "Todavía no hay fotos. ¡Empezá subiendo las del último viaje!",
+    empty: "Acá van a aparecer el último viaje y los recuerdos de otros años. ¡Subí las fotos de un viaje!",
   },
 
   more: {
