@@ -34,7 +34,10 @@ También podés abrir la galería, tocar **Subir** y **Elegir fotos y videos**.
 
 1. En la galería, andá a **Más** y después **Subir desde iPhone**.
 2. Seguí los pasos de la pantalla: se crea una clave (se muestra una sola vez) y un Atajo que se llama «Enviar a la galería».
-3. En Fotos, elegí las fotos, tocá Compartir y «Enviar a la galería».
+3. En Fotos, elegí las fotos (todas las que quieras: el Atajo las manda de a una), tocá Compartir y «Enviar a la galería».
+4. Mientras manda, la hoja de compartir queda abierta: esperá a que termine. En la galería, **Más → Subidas** muestra cómo van llegando.
+
+Si ya tenías el Atajo armado y manda una sola foto, en **Subir desde iPhone** dice qué cambiar (no hace falta rehacerlo).
 
 Para que lleguen con la ubicación y sin perder calidad:
 

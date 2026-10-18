@@ -11,6 +11,9 @@ import { body, fail, mediaExtOf, randomToken, sha256Hex, UNSUPPORTED_MESSAGE } f
 import { finalizeUpload } from "./finalize";
 import { type Part, parseMultipart } from "./multipart";
 
+/** Entre una foto y la siguiente del Atajo; más que esto, es otro lote (un video grande tarda en subir). */
+const SHORTCUT_BATCH_GAP_MS = 30 * 60_000;
+
 type TokenRow = { id: string; member_id: string; label: string; created_at: string; revoked_at: string | null };
 const toToken = (r: TokenRow) => ({
   id: r.id,
@@ -98,10 +101,19 @@ export function shortcutRoutes(ctx: Ctx) {
         all.length ? UNSUPPORTED_MESSAGE : "No llegó ningún archivo.",
       );
 
-    const batchId = ulid();
-    db.query(
-      "INSERT INTO batches (id, member_id, device_id, source, created_at) VALUES (?, ?, NULL, 'shortcut', ?)",
-    ).run(batchId, tok.member_id, new Date().toISOString());
+    // El Atajo manda las fotos de a una: las que llegan seguidas de la misma persona van al mismo lote.
+    const recent = db
+      .query<{ id: string }, [string, string]>(
+        `SELECT b.id FROM batches b WHERE b.member_id = ? AND b.source = 'shortcut'
+           AND COALESCE((SELECT max(bi.created_at) FROM batch_items bi WHERE bi.batch_id = b.id), b.created_at) >= ?
+         ORDER BY b.created_at DESC LIMIT 1`,
+      )
+      .get(tok.member_id, new Date(Date.now() - SHORTCUT_BATCH_GAP_MS).toISOString());
+    const batchId = recent?.id ?? ulid();
+    if (!recent)
+      db.query(
+        "INSERT INTO batches (id, member_id, device_id, source, created_at) VALUES (?, ?, NULL, 'shortcut', ?)",
+      ).run(batchId, tok.member_id, new Date().toISOString());
     const items = [];
     for (const f of files) {
       // Mismo camino que tus: temporal en un disco bulk y la misma finalización.
