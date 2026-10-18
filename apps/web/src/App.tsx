@@ -15,6 +15,7 @@ import { Pin } from "./screens/Pin";
 import { Setup } from "./screens/Setup";
 import { Share } from "./screens/Share";
 import { Shortcut } from "./screens/Shortcut";
+import { SystemStatus } from "./screens/Status";
 import { Summary } from "./screens/Summary";
 import { Upload, UploadPill } from "./screens/Upload";
 import { WhoAreYou } from "./screens/WhoAreYou";
@@ -61,7 +62,7 @@ export function App() {
     case "loading":
       return <Loading />;
     case "down":
-      return <Failure text={t.serverDown} onRetry={check} />;
+      return <SystemStatus down={check} />;
     case "setup":
       return <Setup onDone={check} />;
     case "pin":
@@ -96,6 +97,7 @@ function Routes(p: { members: Member[]; me: string | null; reloadMembers: () => 
     ["/parecidas", () => <Similar />],
     ["/iphone", () => <Shortcut members={p.members} me={p.me} />],
     ["/admin", () => <Admin members={p.members} onMembersChanged={p.reloadMembers} />],
+    ["/estado", () => <SystemStatus />],
   ];
   for (const [pattern, render] of routes) {
     const params = match(pattern, path);

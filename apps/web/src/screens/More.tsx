@@ -6,6 +6,7 @@ export function More({ onChangeMember }: { onChangeMember: () => void }) {
     ["/sin-ubicacion", t.more.noLocation],
     ["/parecidas", t.more.similar],
     ["/iphone", t.more.shortcut],
+    ["/estado", t.more.status],
     ["/admin", t.more.admin],
   ];
   return (

@@ -1,15 +1,15 @@
-import { AdminStatus, endpoints, type Member, Settings } from "@lfg/shared";
+import { endpoints, type Member, Settings } from "@lfg/shared";
 import { useState } from "react";
 import { api, errorText } from "../api/client";
 import { useApi } from "../api/hooks";
 import { MapPicker } from "../components/MapPicker";
-import { formatBytes, formatDate, t } from "../i18n";
+import { t } from "../i18n";
 import { Link } from "../router";
 import { Failure, Loading } from "./Galleries";
 import { MEMBER_COLORS } from "./Setup";
 
 /** Guarda con un mensaje de "Guardado" o el error, en lenguaje humano. */
-function useSaver() {
+export function useSaver() {
   const [msg, setMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const save = async (fn: () => Promise<unknown>) => {
@@ -39,7 +39,6 @@ function useSaver() {
 
 export function Admin({ members, onMembersChanged }: { members: Member[]; onMembersChanged: () => void }) {
   const settings = useApi(endpoints.settings, Settings);
-  const status = useApi(endpoints.adminStatus, AdminStatus);
   if (settings.error) return <Failure text={settings.error} />;
   if (!settings.data) return <Loading />;
   return (
@@ -52,7 +51,6 @@ export function Admin({ members, onMembersChanged }: { members: Member[]; onMemb
       <Members members={members} onChanged={onMembersChanged} />
       <HomeLocation settings={settings.data} />
       <PinChange />
-      {status.data ? <Status status={status.data} onRetry={status.reload} /> : status.error && <p>{status.error}</p>}
     </main>
   );
 }
@@ -196,67 +194,5 @@ function PinChange() {
       {err && <p className="error">{err}</p>}
       {view}
     </section>
-  );
-}
-
-function Status({ status, onRetry }: { status: AdminStatus; onRetry: () => void }) {
-  const [retried, setRetried] = useState(false);
-  const { save, view } = useSaver();
-  const q = status.queue;
-  return (
-    <>
-      <section className="card stack">
-        <h2>{t.admin.queue}</h2>
-        <p>{t.admin.queueState(q.queued, q.running, q.failed)}</p>
-        {status.gpu && <p className="muted">{t.admin.gpu(status.gpu.nvenc)}</p>}
-        {q.failed > 0 && (
-          <button
-            type="button"
-            className="btn primary"
-            onClick={async () => {
-              if (await save(() => api.post(endpoints.adminRetryFailed, {}))) {
-                setRetried(true);
-                onRetry();
-              }
-            }}
-          >
-            {t.admin.retryFailed}
-          </button>
-        )}
-        {retried && <p role="status">{t.admin.retried}</p>}
-        {view}
-        <h2>{t.admin.errors}</h2>
-        {status.errors.length === 0 ? (
-          <p className="muted">{t.admin.noErrors}</p>
-        ) : (
-          <ul>
-            {status.errors.map((e) => (
-              <li key={e.jobId}>
-                <strong>{e.type}</strong> · {formatDate(e.at)} — {e.error}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-      <section className="card stack">
-        <h2>{t.admin.disks}</h2>
-        {status.volumes.map((v) => (
-          <div key={v.id} className="stack">
-            <strong>
-              {t.admin.disk(v.tier)} <span className="muted">{v.path}</span>
-            </strong>
-            <div className={`progress${v.alert ? " bar-alert" : ""}`}>
-              <div style={{ width: `${Math.min(100, v.usedPercent)}%` }} />
-            </div>
-            <span>{t.admin.diskUse(Math.round(v.usedPercent), formatBytes(v.freeBytes))}</span>
-            {v.alert && (
-              <p className="error" role="alert">
-                {t.admin.diskAlert}
-              </p>
-            )}
-          </div>
-        ))}
-      </section>
-    </>
   );
 }
