@@ -5,6 +5,7 @@ import { fetchMembers, MembersContext } from "./api/hooks";
 import { CastPanel } from "./components/CastPanel";
 import { t } from "./i18n";
 import { Link, match, usePath } from "./router";
+import { Activity } from "./screens/Activity";
 import { Admin } from "./screens/Admin";
 import { Failure, Loading, PlaceGallery, Timeline, TripGallery } from "./screens/Galleries";
 import { Globe } from "./screens/Globe";
@@ -89,6 +90,7 @@ function Routes(p: { members: Member[]; me: string | null; reloadMembers: () => 
     ["/inicio", () => <Home />],
     ["/viajes", () => <Timeline />],
     ["/subir", () => <Upload />],
+    ["/subidas", () => <Activity />],
     ["/compartir", () => <Share />],
     ["/mas", () => <More onChangeMember={p.changeMember} />],
     ["/lugar/:id", ({ id }) => <PlaceGallery key={id} id={id as string} />],

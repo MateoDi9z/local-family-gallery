@@ -30,6 +30,9 @@ export function Upload() {
   return (
     <main className="screen stack">
       <h1>{t.upload.title}</h1>
+      <Link href="/subidas" className="btn link">
+        {t.activity.open}
+      </Link>
       {!busy && (
         <>
           <button type="button" className="btn primary big" onClick={() => input.current?.click()}>
@@ -155,7 +158,7 @@ export function UploadPill() {
   const s = useStore(upload);
   if (s.phase !== "uploading" && s.phase !== "preparing") return null;
   return (
-    <Link href="/subir" className="btn primary upload-pill">
+    <Link href="/subidas" className="btn primary upload-pill">
       {s.phase === "preparing" ? t.upload.preparing(s.prepared, s.total) : t.upload.inProgress(s.done, s.total)}
     </Link>
   );

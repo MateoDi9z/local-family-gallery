@@ -179,6 +179,9 @@ function ServerDetails({ status, onRetry }: { status: AdminStatus; onRetry: () =
       <section className="card stack">
         <h2>{t.admin.queue}</h2>
         <p>{t.admin.queueState(q.queued, q.running, q.failed)}</p>
+        <Link href="/subidas" className="btn link">
+          {t.activity.open}
+        </Link>
         {status.gpu && <p className="muted">{t.admin.gpu(status.gpu.nvenc)}</p>}
         {q.failed > 0 && (
           <button

@@ -1,5 +1,6 @@
 // Contratos de la API (/api). Se validan en el servidor (entrada) y en la web (respuestas).
 import { z } from "zod";
+import { JobType } from "./jobs";
 
 export const Id = z.string().min(1).max(64);
 export const Sha256 = z.string().regex(/^[0-9a-f]{64}$/);
@@ -209,6 +210,34 @@ export const AdminStatus = z.object({
   worker: z.object({ alive: z.boolean(), seenAt: IsoDate.nullable() }),
 });
 
+/** GET /activity: lo que todavía no está listo, lo que falló y los últimos lotes (pantalla Subidas). */
+export const ActivityResponse = z.object({
+  processing: z.array(
+    z.object({
+      media: MediaItem,
+      /** Los pasos visibles que le faltan, en orden; el primero es el que va ahora. */
+      steps: z.array(JobType),
+      running: z.boolean(),
+    }),
+  ),
+  /** Cuántas no están listas en total (`processing` trae como mucho 100). */
+  processingTotal: z.number().int(),
+  failed: z.array(MediaItem),
+  batches: z.array(
+    z.object({
+      batchId: Id,
+      memberId: Id,
+      source: BatchSource,
+      createdAt: IsoDate,
+      /** Solo las nuevas (sin las que ya estaban). */
+      total: z.number().int(),
+      processing: z.number().int(),
+      /** Las primeras, para las miniaturas. */
+      items: z.array(MediaItem),
+    }),
+  ),
+});
+
 /** Eventos SSE de GET /events (campo `data` en JSON). */
 export const ServerEvent = z.discriminatedUnion("type", [
   z.object({ type: z.literal("media"), mediaId: Id, status: MediaStatus, step: z.string() }),
@@ -246,4 +275,5 @@ export type BatchSummary = z.infer<typeof BatchSummary>;
 export type HomeResponse = z.infer<typeof HomeResponse>;
 export type AdminStatus = z.infer<typeof AdminStatus>;
 export type ServerEvent = z.infer<typeof ServerEvent>;
+export type ActivityResponse = z.infer<typeof ActivityResponse>;
 export type LocationSuggestion = z.infer<typeof LocationSuggestion>;

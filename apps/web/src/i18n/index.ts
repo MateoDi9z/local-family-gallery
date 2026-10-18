@@ -14,6 +14,18 @@ const dayFmt = new Intl.DateTimeFormat(es.dates.locale, {
   year: "2-digit",
   timeZone: "UTC",
 });
+const rtf = new Intl.RelativeTimeFormat(es.dates.locale, { numeric: "auto" });
+/** «hace 5 minutos», «ayer»; a partir de una semana, la fecha. */
+export function formatAgo(iso: string, now = Date.now()) {
+  const s = (Date.parse(iso) - now) / 1000;
+  const abs = Math.abs(s);
+  if (abs < 60) return es.activity.justNow;
+  if (abs < 3600) return rtf.format(Math.round(s / 60), "minute");
+  if (abs < 86_400) return rtf.format(Math.round(s / 3600), "hour");
+  if (abs < 7 * 86_400) return rtf.format(Math.round(s / 86_400), "day");
+  return formatDate(iso);
+}
+
 /** Una fecha local ya calculada («2026-05-14») → «14/5/26», sin correrla por la zona del celu. */
 export const formatDay = (ymd: string) => dayFmt.format(new Date(`${ymd}T00:00:00Z`));
 

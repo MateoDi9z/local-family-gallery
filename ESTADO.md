@@ -29,6 +29,7 @@
 - 2026-10-18 · **0.8** · Tele desde iPhone: AirPlay para videos y «Duplicar pantalla» con presentación para fotos; la guía cambia según el dispositivo. Pestaña Viajes con «Por fecha» (salidas: menos de 36 h entre fotos) y «Por lugar». Elegir varias: descargar y compartir además de borrar. Pantallas de lugar y viaje compactas para celular (lápiz junto al título, personas en una fila deslizable, botones chicos).
 - 2026-10-18 · **0.9** · Unir dos viajes detectados por separado (y separarlos): se guarda como un rango de fechas (`trip_joins`, migración 003) que la detección respeta en cada recálculo. Adentro de un viaje, fotos por día local y lugar («Día 1 · 14/5/26», lugar abajo); `MediaItem` suma `takenTz`.
 - 2026-10-18 · **1.0** · Adentro de un viaje, un solo encabezado por día; con varios lugares ese día, un subtítulo chico por lugar (en el orden en que se visitaron) en vez de repetir «Día N». El filtro de persona se aplica antes de agrupar: no quedan días ni lugares vacíos.
+- 2026-10-18 · **1.1** · Pantalla **Subidas** (`/subidas`, desde Subir, Más, Estado y el aviso de subida): lo que sube este dispositivo, cada foto que todavía no está lista y qué le falta, las que fallaron (con reintentar) y los últimos 10 lotes. `GET /activity`. El contador de la cola de Estado del sistema no estaba roto: una foto pasa por la cola en menos de un segundo.
 
 ## Falta
 

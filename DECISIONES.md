@@ -262,3 +262,8 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 
 - **Cambio:** con un encabezado por tramo de lugar, «Día 1» se repetía y quedaba raro. Ahora `groupByDay` da un grupo por día con sus lugares (cada uno una vez, en el orden en que se visitó). La grilla suma dos tipos de encabezado: chico (`small`, el lugar) y sin fotos propias (`headerOnly`, el día cuando tiene varios lugares).
 - **Versión:** de 0.9 se pasa a 1.0, no a 0.10 (parece menor que 0.9).
+
+## 2026-10-18 — Pantalla Subidas (`GET /activity`)
+
+- **Problema:** «Procesamiento» en Estado del sistema siempre decía 0. No era un error: cuenta trabajos de la cola, y una foto pasa por todos en menos de un segundo; la pantalla mira cada 15 s. Lo que se sube tampoco pasa por la cola.
+- **Decisión:** `GET /activity` lista cada media que todavía no está lista: `status = 'processing'` o con pasos visibles pendientes (fecha y lugar, miniatura, tapa, versión para ver, video, nombre del lugar; los de fondo como parecidas o viajes no cuentan). Con los pasos que le faltan, las que fallaron y los últimos 10 lotes (solo lo nuevo, sin repetidas). La pantalla `/subidas` suma el progreso de este dispositivo y se actualiza en vivo (SSE + cada 3 s) mientras haya algo en curso, y cada 20 s si no.

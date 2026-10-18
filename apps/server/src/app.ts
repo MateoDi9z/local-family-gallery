@@ -6,6 +6,7 @@ import { ZodError } from "zod";
 import type { AppEnv, Ctx } from "./context";
 import { authMiddleware, ingestRoutes } from "./ingest";
 import { viewRoutes } from "./views";
+import { activityRoutes } from "./views/activity";
 import { serveWeb } from "./web";
 
 export function createApp(ctx: Ctx) {
@@ -20,6 +21,7 @@ export function createApp(ctx: Ctx) {
   api.use(authMiddleware(ctx));
   api.route("/", ingestRoutes(ctx));
   api.route("/", viewRoutes(ctx));
+  api.route("/", activityRoutes(ctx));
   api.notFound((c) => c.json({ error: "not_found", message: "No encontramos eso." }, 404));
 
   const app = new Hono<AppEnv>();
