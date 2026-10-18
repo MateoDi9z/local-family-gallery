@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { z } from "zod";
 import { api, errorText } from "../api/client";
 import { useApi } from "../api/hooks";
-import { castItems, castState } from "../cast";
+import { castItems, castState, isIOS } from "../cast";
 import { useBulkDelete } from "../components/BulkDelete";
 import { DeletePlace } from "../components/DeletePlace";
 import { Grid, type Group } from "../components/Grid";
@@ -25,11 +25,17 @@ function GroupTitle({ title, sub }: { title: string; sub: string }) {
   );
 }
 
+/** Chromecast pasa todo en la tele; en iPhone se abre la presentación para verla con AirPlay. */
 function CastButton({ items }: { items: MediaItem[] }) {
   const { available } = useStore(castState);
-  if (!available || items.length === 0) return null;
+  const ios = isIOS();
+  if ((!available && !ios) || items.length === 0) return null;
   return (
-    <button type="button" className="btn" onClick={() => castItems(items, 0, true)}>
+    <button
+      type="button"
+      className="btn"
+      onClick={() => (ios ? openViewer(items, 0, { present: true }) : castItems(items, 0, true))}
+    >
       {t.trips.slideshow}
     </button>
   );
@@ -67,7 +73,7 @@ export function PlaceGallery({ id }: { id: string }) {
         <CastButton items={visible} />
         {bulk.button}
       </div>
-      <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i, undefined, reload)} {...bulk.gridProps} />
+      <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i, { onDeleted: reload })} {...bulk.gridProps} />
       {bulk.bar}
       <DeletePlace place={data.place} />
     </main>
@@ -136,7 +142,7 @@ export function TripGallery({ id }: { id: string }) {
         </>
       )}
       <MemberFilter />
-      <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i, undefined, reload)} {...bulk.gridProps} />
+      <Grid groups={filtered} onOpen={(items, i) => openViewer(items, i, { onDeleted: reload })} {...bulk.gridProps} />
       {bulk.bar}
     </main>
   );

@@ -175,6 +175,15 @@ export const es = {
     downloadShort: "Descargar",
     favoriteShort: "Favorita",
     castShort: "Tele",
+    stopShow: "Parar",
+    startShow: "Empezar",
+    airplayTitle: "Ver en la tele con AirPlay",
+    airplaySteps: [
+      "Abrí el Centro de control (desde la esquina de arriba a la derecha; en los iPhone con botón, desde abajo).",
+      "Tocá «Duplicar pantalla» y elegí la tele.",
+      "Volvé acá y tocá «Empezar»: las fotos pasan solas.",
+    ],
+    airplayNote: "Hace falta un Apple TV o una tele con AirPlay. Para cortar, tocá la pantalla y después «Parar».",
     favorite: "Marcar como favorita",
     unfavorite: "Quitar de favoritas",
     videoPreparing: "El video se está preparando. Probá en un ratito.",
@@ -337,7 +346,7 @@ export const es = {
   tv: {
     title: "Ver en la tele",
     intro:
-      "Las fotos y los videos se ven en una tele con Chromecast o Google TV. La tele solo muestra: el celular es el control remoto.",
+      "Las fotos y los videos se ven en la tele: con Chromecast desde Android o una compu, y con AirPlay desde iPhone. La tele solo muestra: el celular es el control remoto.",
     checkTitle: "¿Este dispositivo puede?",
     checkConnected: (name: string) => `Sí. Está conectado a ${name}. Abrí una foto y tocá «Tele».`,
     checkReady: "Sí. Hay una tele en este wifi. Tocá «Buscar la tele» para probar.",
@@ -345,53 +354,99 @@ export const es = {
       "Este dispositivo puede, pero no encuentra ninguna tele. Fijate que la tele esté prendida y en el mismo wifi.",
     checkLoading: "Revisando… Si en un rato sigue así, actualizá Chrome.",
     checkIphone:
-      "En iPhone y iPad no se puede: Safari no tiene Chromecast. Usá un celular Android o una compu con Chrome.",
+      "Sí, con AirPlay: hace falta un Apple TV o una tele con AirPlay, en el mismo wifi. Con un Chromecast no se puede desde iPhone.",
+    checkAirplayFound: "Sí. Hay una tele con AirPlay en este wifi.",
     checkBrowser: "Con este navegador no se puede. Abrí la galería en Chrome.",
     connect: "Buscar la tele",
-    sections: [
-      {
-        title: "Qué hace falta",
-        steps: [
-          "Un celular Android o una compu, con Chrome.",
-          "Una tele con Chromecast o Google TV, prendida.",
-          "Los dos conectados al wifi de casa.",
-        ],
-      },
-      {
-        title: "Ver una foto o un video",
-        steps: [
-          "Abrí la foto o el video.",
-          "Tocá «Tele», abajo.",
-          "Elegí la tele de la lista.",
-          "Abajo aparece un panel para pasar a la anterior o a la siguiente, y para pausar.",
-        ],
-      },
-      {
-        title: "Pasar todas las de un viaje o un lugar",
-        steps: [
-          "Entrá al viaje o al lugar.",
-          "Tocá «Pasar en la tele».",
-          "Las fotos pasan solas cada 6 segundos. Los videos se ven enteros y después sigue la próxima.",
-        ],
-      },
-      {
-        title: "Terminar",
-        steps: ["En el panel de abajo, tocá «Dejar de ver en la tele»."],
-      },
-    ],
     troubleTitle: "Si no anda",
-    trouble: [
-      ["No aparece el botón «Tele».", "Este dispositivo no puede o no encuentra la tele: mirá el chequeo de arriba."],
-      [
-        "La tele no aparece en la lista.",
-        "Prendé la tele, esperá un minuto y fijate que el celular y la tele estén en el mismo wifi (no con datos).",
+    chrome: {
+      sections: [
+        {
+          title: "Qué hace falta",
+          steps: [
+            "Un celular Android o una compu, con Chrome.",
+            "Una tele con Chromecast o Google TV, prendida.",
+            "Los dos conectados al wifi de casa.",
+          ],
+        },
+        {
+          title: "Ver una foto o un video",
+          steps: [
+            "Abrí la foto o el video.",
+            "Tocá «Tele», abajo.",
+            "Elegí la tele de la lista.",
+            "Abajo aparece un panel para pasar a la anterior o a la siguiente, y para pausar.",
+          ],
+        },
+        {
+          title: "Pasar todas las de un viaje o un lugar",
+          steps: [
+            "Entrá al viaje o al lugar.",
+            "Tocá «Pasar en la tele».",
+            "Las fotos pasan solas cada 6 segundos. Los videos se ven enteros y después sigue la próxima.",
+          ],
+        },
+        {
+          title: "Terminar",
+          steps: ["En el panel de abajo, tocá «Dejar de ver en la tele»."],
+        },
       ],
-      [
-        "La tele se queda en negro o muestra un error.",
-        "La tele no llega a la galería. Desenchufá el Chromecast un minuto y probá de nuevo. Si sigue, avisale a quien cuida el servidor.",
+      trouble: [
+        ["No aparece el botón «Tele».", "Este dispositivo no puede o no encuentra la tele: mirá el chequeo de arriba."],
+        [
+          "La tele no aparece en la lista.",
+          "Prendé la tele, esperá un minuto y fijate que el celular y la tele estén en el mismo wifi (no con datos).",
+        ],
+        [
+          "La tele se queda en negro o muestra un error.",
+          "La tele no llega a la galería. Desenchufá el Chromecast un minuto y probá de nuevo. Si sigue, avisale a quien cuida el servidor.",
+        ],
+        ["Un video no arranca.", "Puede que todavía se esté preparando. Probá en unos minutos."],
+      ] as [string, string][],
+    },
+    iphone: {
+      sections: [
+        {
+          title: "Qué hace falta",
+          steps: [
+            "Un iPhone o un iPad.",
+            "Un Apple TV, o una tele con AirPlay (muchas Samsung, LG, Sony y Philips de los últimos años lo traen).",
+            "Los dos conectados al wifi de casa.",
+          ],
+        },
+        {
+          title: "Ver un video",
+          steps: ["Abrí el video.", "Tocá «Tele», abajo.", "Elegí la tele de la lista."],
+        },
+        {
+          title: "Ver fotos y pasarlas solas",
+          steps: [
+            "Abrí una foto, o entrá a un viaje o a un lugar y tocá «Pasar en la tele».",
+            "Abrí el Centro de control (desde la esquina de arriba a la derecha; en los iPhone con botón, desde abajo) y tocá «Duplicar pantalla».",
+            "Elegí la tele.",
+            "Volvé a la galería y tocá «Empezar»: las fotos pasan solas cada 6 segundos y los videos se ven enteros.",
+          ],
+        },
+        {
+          title: "Terminar",
+          steps: [
+            "Tocá la pantalla y después «Parar».",
+            "En el Centro de control, tocá «Duplicar pantalla» y después «Dejar de duplicar».",
+          ],
+        },
       ],
-      ["Un video no arranca.", "Puede que todavía se esté preparando. Probá en unos minutos."],
-    ] as [string, string][],
+      trouble: [
+        [
+          "La tele no aparece en la lista.",
+          "Tiene que tener AirPlay (o ser un Apple TV), estar prendida y en el mismo wifi que el iPhone.",
+        ],
+        [
+          "Tengo un Chromecast.",
+          "Desde iPhone no se puede mandar a un Chromecast. Usá un celular Android o una compu con Chrome.",
+        ],
+        ["Un video no arranca.", "Puede que todavía se esté preparando. Probá en unos minutos."],
+      ] as [string, string][],
+    },
   },
 
   cast: {

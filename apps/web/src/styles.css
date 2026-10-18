@@ -584,6 +584,14 @@ input:focus {
   font-size: 0.8rem;
   white-space: nowrap;
 }
+/* Presentación: sin la barra (tocar la pantalla la vuelve a mostrar). */
+.pswp__actions {
+  transition: opacity 0.3s;
+}
+.pswp:not(.pswp--ui-visible) .pswp__actions {
+  opacity: 0;
+  pointer-events: none;
+}
 .pswp__actions .btn[aria-pressed="true"] {
   color: #b3261e;
 }
