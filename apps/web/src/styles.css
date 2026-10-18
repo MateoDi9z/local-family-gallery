@@ -542,6 +542,19 @@ input:focus {
   color: #33241a;
   border-color: transparent;
 }
+/* Con cuatro botones en un celu angosto: los de ícono van redondos, el texto no se corta y pasa a dos filas. */
+.pswp__actions {
+  flex-wrap: wrap;
+}
+.pswp__actions .btn {
+  white-space: nowrap;
+  padding: 12px 16px;
+}
+.pswp__actions .btn.icon {
+  flex: none;
+  width: var(--tap);
+  padding: 0;
+}
 .pswp__actions .btn[aria-pressed="true"] {
   color: #b3261e;
 }
@@ -585,6 +598,12 @@ dialog {
 }
 dialog::backdrop {
   background: rgb(0 0 0 / 0.5);
+}
+.dialog-thumb {
+  max-height: 200px;
+  max-width: 100%;
+  border-radius: 12px;
+  object-fit: contain;
 }
 
 .cast-panel {

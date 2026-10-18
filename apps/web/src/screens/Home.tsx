@@ -7,7 +7,7 @@ import { Link } from "../router";
 import { Failure, Loading } from "./Galleries";
 
 export function Home() {
-  const { data, error } = useApi(endpoints.home, HomeResponse);
+  const { data, error, reload } = useApi(endpoints.home, HomeResponse);
   const members = useMembers();
   if (error) return <Failure text={error} />;
   if (!data) return <Loading />;
@@ -21,7 +21,7 @@ export function Home() {
           <h2>{t.home.yearsAgo(d.yearsAgo)}</h2>
           <div className="grid-row" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
             {d.media.slice(0, 6).map((m, i) => (
-              <Tile key={m.id} m={m} onClick={() => openViewer(d.media, i)} />
+              <Tile key={m.id} m={m} onClick={() => openViewer(d.media, i, undefined, reload)} />
             ))}
           </div>
         </section>

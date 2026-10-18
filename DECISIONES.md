@@ -185,3 +185,9 @@ Los spikes de E0 se corrieron en `oven/bun:1.4.3-debian` (Debian 13 trixie), arm
 - **Servidor caído:** la pantalla de «No podemos conectar» ahora es esta misma página, sin lo que pide PIN. Reintenta sola cada 15 s y entra a la app cuando el servidor vuelve. Si no, la página de estado no se podría abrir justo cuando hace falta.
 - **Administración:** la cola y los discos se mudaron a esta página (SPEC §11 los pide en la parte de administración; siguen ahí, en otra pantalla de Más).
 - **Afuera, a propósito:** vencimiento del certificado (Caddy es otro contenedor), conexión de los eventos en vivo (SSE) e internet visto desde el servidor.
+
+## 2026-10-18 — Borrar desde el visor
+
+- **Decisión:** tachito en la barra del visor, con un diálogo de confirmación. Usa `DELETE /media/:id`, que ya movía el original a `papelera/`. Puede borrar cualquier miembro: no hay permisos por persona.
+- **Después de borrar:** el visor se cierra y la pantalla recarga. Sacar la foto de PhotoSwipe sin cerrarlo es más código para casi nada.
+- **Alternativa descartada:** `window.confirm()`. Es menos código, pero no muestra la foto y queda fuera del estilo de la app.
